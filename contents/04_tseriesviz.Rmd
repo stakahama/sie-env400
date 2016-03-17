@@ -1,0 +1,173 @@
+---
+title: "Visualizing time series"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+```{r, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.path='figures_rmd/lec04_', fig.align='center')
+```
+
+# Import libraries and define options
+
+
+```{r, message=FALSE}
+library(dplyr)
+library(reshape2)
+library(chron)
+library(ggplot2)
+```
+
+```{r}
+source("GRB001.R")
+```
+
+Define options
+
+```{r, results="hide"}
+Sys.setlocale("LC_TIME","C")
+options(stringsAsFactors=FALSE)
+options(chron.year.abb=FALSE)
+theme_set(theme_bw()) # just my preference for plots
+```
+
+# Load data
+
+
+Based on past work, we can define a function that reads in the data and additionally provides several time variables.
+
+```{r}
+ReadTSeries <- function(filename, timecolumn="datetime", timeformat="%d.%m.%Y %H:%M") {
+  ## read the table
+  data <- read.table(filename, skip=5, header=TRUE, sep=";", check.names=FALSE)
+  names(data) <- sub("[ ].*$","",names(data))
+  names(data) <- sub("Date/time", timecolumn, names(data), fixed=TRUE)
+  data[,timecolumn] <- as.chron(data[,timecolumn], timeformat)
+  ## additional variables
+  data[,"year"] <- years(data[,timecolumn])
+  data[,"month"] <- months(data[,timecolumn])
+  data[,"day"] <- days(data[,timecolumn])
+  data[,"hour"] <- hours(data[,timecolumn])
+  data[,"dayofwk"] <- weekdays(data[,timecolumn])
+  data[,"daytype"] <- ifelse(data[,"dayofwk"] %in% c("Sat","Sun"),"Weekend","Weekday")
+  ##
+  seasons <- c("DJF","MAM","JJA","SON")
+  ix.seasons <- findInterval(unclass(data[,"month"]) %% 12, seq(0,12,3))
+  data[,"season"] <- factor(seasons[ix.seasons],seasons)
+  ## avoid package conflict
+  data[,timecolumn] <- c(unclass(data[,timecolumn]))
+  ## return value
+  data
+}
+```
+
+Read and merge Lausanne (LAU) and Z??rich (ZUE) data:
+```{r}
+datapath <- "data/2013"
+
+df <- full_join(cbind(site="LAU", ReadTSeries(file.path(datapath, "LAU.csv"))),
+                cbind(site="ZUE", ReadTSeries(file.path(datapath, "ZUE.csv"))))
+```
+
+We can see that this data frame contains data from both sites.
+```{r}
+head(df)
+tail(df)
+```
+
+Let us save this data frame for later
+```{r}
+saveRDS(df, "data/2013/lau-zue.rds")
+```
+
+Elongate the data frame, as before.
+```{r}
+lf <- melt(df, id.vars=c("site", "datetime", "season", "year","month","day","hour","dayofwk","daytype"))
+```
+
+# View variability in pollutant concentrations
+
+Plotting your data is very good practice. Check for general trends and extreme values.
+
+View all the measurements:
+```{r, warning=FALSE, fig.width=8, fig.height=10}
+ggp <- ggplot(lf)+
+  facet_grid(variable~site, scale="free_y")+
+    geom_line(aes(datetime, value, color=site))+
+      scale_x_chron()
+print(ggp)
+```
+
+In the following figures, we will summarize the measurements using non-parametric (order) statistics, which we will cover in a subsequent lecture.
+
+## Seasonal variations
+
+Summary by month:
+```{r, warning=FALSE, fig.width=8, fig.height=10}
+ggp <- ggplot(lf) +
+  facet_grid(variable ~ site, scale = "free_y") +  
+    geom_boxplot(aes(month, value), outlier.size = 0.5, outlier.shape = 3)
+print(ggp)
+```
+
+By day type and season:
+```{r, warning=FALSE, fig.width=8, fig.height=8}
+ggp <- ggplot(lf %>% filter(site=="LAU" & !is.na(value))) +
+  facet_grid(variable ~ season, scale = "free_y") +  
+    geom_boxplot(aes(daytype, value), outlier.size = 0.5, outlier.shape = 3)
+print(ggp)
+```
+
+## Diurnal variations
+
+The following function returns a function to be used for calculation of error bars.
+```{r}
+Percentile <- function(perc)
+  function(x) quantile(x, perc*1e-2, na.rm=TRUE)
+```
+
+Diurnal (hourly) variations in pollutant concentrations at Lausanne site:
+```{r, warning=FALSE, fig.width=8, fig.height=10}
+ggp <- ggplot(data=lf %>% filter(site=="LAU" & !is.na(value)),
+              mapping=aes(x=hour, y=value, group=daytype, color=daytype)) +
+  facet_grid(variable ~ season, scale = "free_y", drop=TRUE) +  
+    geom_line(stat="summary", fun.y="median")+
+      geom_errorbar(stat="summary",
+                    fun.ymin=Percentile(25),
+                    fun.ymax=Percentile(75))+
+                      ggtitle("LAU")
+print(ggp)
+```
+
+Diurnal variations in O_3 concentrations:
+```{r, warning=FALSE, fig.width=8, fig.height=4}
+ggp <- ggplot(data=lf %>% filter(variable=="O3"),
+              mapping=aes(x=hour, y=value, group=daytype, color=daytype)) +
+  facet_grid(site ~ season, drop=TRUE) +  
+    geom_line(stat="summary", fun.y="median")+
+      geom_errorbar(stat="summary",
+                    fun.ymin=Percentile(25),
+                    fun.ymax=Percentile(75))+
+                      ggtitle("O3")
+print(ggp)
+```
+Note that for concentrations of the same pollutant, we fix the y-scale to be the same for both rows.
+
+Diurnal variations in NO_2 concentrations:
+```{r, warning=FALSE, fig.width=8, fig.height=5}
+ggp <- ggplot(data=lf %>% filter(variable=="NO2"),
+              mapping=aes(x=hour, y=value, group=site, color=site)) +
+  facet_grid(season ~ dayofwk, drop=TRUE) +  
+    geom_line(stat="summary", fun.y="median")+
+      geom_errorbar(stat="summary",
+                    fun.ymin=Percentile(25),
+                    fun.ymax=Percentile(75))+
+                      ggtitle("NO2")
+print(ggp)
+```
+
+Why are concentrations in Lausanne higher? (hint: check location of monitoring equipment)
+

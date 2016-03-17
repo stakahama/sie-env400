@@ -1,0 +1,270 @@
+---
+title: "Motivating example"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+```{r, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.path='figures_rmd/lec01_', fig.align='center')
+```
+
+In this lesson, we will compare procedural and declarative approaches to computing aggregate values (mean, maximum value) from time series of concentrations at a single site.
+
+In general, you will find that an R script often follows a set of common operations:
+
+1. import libraries
+2. define additional functions
+3. import data
+4. apply manipulations
+5. export figures, text files
+
+# Import libraries and define options
+
+Load libraries
+
+```{r, message=FALSE}
+library(dplyr)
+library(reshape2)
+library(chron)
+library(ggplot2)
+```
+
+```{r}
+source("GRB001.R")
+```
+
+Define options
+
+```{r, results="hide"}
+Sys.setlocale("LC_TIME","C")
+options(stringsAsFactors=FALSE)
+options(chron.year.abb=FALSE)
+theme_set(theme_bw()) # just my preference for plots
+```
+
+# Start working with data
+
+The data is available from the [National Air Pollution Monitoring Network (NABEL)](http://www.bafu.admin.ch/luft/00612/00625/index.html?lang=en) of Switzerland.
+
+<center><img src="./figures/NABEL_Network.png" alt="from _Stations de mesure NABEL_" width="50%"/></center>
+
+We have downloaded hourly time series from 2013 for Lausanne from the [NABEL data query](http://www.bafu.admin.ch/luft/luftbelastung/blick_zurueck/datenabfrage/index.html?lang=en), and placed this file in a folder called "data/2013/" located in the subdirectory of the *working directory*.
+
+First, check your working directory:
+```
+getwd()
+```
+
+Define your input file relative to this path:
+```{r}
+filename <- "data/2013/LAU.csv"
+file.exists(filename)
+```
+
+Read data table:
+```{r}
+data <- read.table(filename,sep=";",skip=6,
+  col.names=c("datetime","O3","NO2","CO","PM10","TEMP","PREC","RAD"))
+```
+
+Check a sample of your data:
+```{r}
+head(data)
+```
+
+Check the structure of your object:
+```{r}
+str(data)
+```
+
+Check column classes:
+```{r, results='asis'}
+ColClasses(data)
+```
+
+Convert date/time to useful data types:
+```{r}
+data[,"datetime"] <- as.chron(data[,"datetime"], "%d.%m.%Y %H:%M")
+data[,"month"] <- months(data[,"datetime"])
+data[,"date"] <- dates(data[,"datetime"])
+```
+
+Check data sample, structure, and column classes:
+```{r}
+head(data)
+str(data)
+```
+```{r, results='asis'}
+ColClasses(data)
+```
+
+# First plot of data
+
+View raw ozone concentrations:
+```{r, fig.width=8, fig.height=5}
+ggp <- ggplot(data)+
+  geom_line(aes(datetime, O3))+
+    scale_x_chron()
+print(ggp)
+```
+
+# Aggregation by conventional looping: ozone
+
+## Monthly mean
+
+Solve by looping. Note that we "grow" a data frame by the function `rbind`.
+```{r}
+unique.months <- levels(data[,"month"])
+
+O3.monthly <- NULL
+for(.month in unique.months) {
+  table <- data %>% filter(month == .month)
+  tmp <- data.frame(month=.month, O3=mean(table[,"O3"], na.rm=TRUE))
+  O3.monthly <- rbind(O3.monthly, tmp)
+}
+
+print(O3.monthly)
+```
+
+Convert month column from character string to "factor":
+```{r}
+class(O3.monthly[,"month"])
+O3.monthly[,"month"] <- factor(O3.monthly[,"month"], unique.months)
+class(O3.monthly[,"month"])
+```
+
+Another visual representation:
+```{r, fig.width=8, fig.height=5, message=FALSE}
+ggp <- ggplot(O3.monthly) +
+  geom_bar(aes(month, O3), stat="identity")
+print(ggp)
+```
+
+## Daily maximum
+
+Calculate:
+```{r}
+unique.dates <- unique(data[,"date"])
+O3.dailymax <- NULL
+for(.date in unique.dates) {
+  table <- data %>% filter(date == .date)
+  tmp <- data.frame(date=.date, O3=max(table[,"O3"], na.rm=TRUE))
+  O3.dailymax <- rbind(O3.dailymax, tmp)
+}
+
+head(O3.dailymax)
+```
+
+Convert date column to chron object:
+```{r}
+class(O3.dailymax[,"date"])
+O3.dailymax[,"date"] <- as.chron(O3.dailymax[,"date"])
+class(O3.dailymax[,"date"])
+```
+
+Inspect:
+```{r}
+head(O3.dailymax)
+tail(O3.dailymax)
+```
+
+Plot ECDF (empirical cumulative distribution function):
+```{r, fig.width=8, fig.height=5, message=FALSE}
+ggp <- ggplot(O3.dailymax) +
+  geom_line(aes(O3),stat="ecdf") +
+    labs(y = "ECDF")
+print(ggp)
+```
+
+# Declarative approach
+
+## Few variables
+
+With a single expression, we reproduced the loop used to create `O3.dailymax`:
+```{r}
+data %>% group_by(month) %>%
+  summarize(O3 = mean(O3, na.rm=TRUE))
+```
+
+We can easily extend to two variables:
+```{r}
+data %>% group_by(month) %>%
+  summarize(O3 = mean(O3, na.rm=TRUE),
+            NO2 = mean(NO2, na.rm=TRUE))
+```
+
+## Arbitrary number of variables
+
+We first transform the data frame:
+```{r}
+lf <- melt(data, id.vars=c("datetime", "month", "date"))
+```
+
+Let us inspect this transformation:
+```{r}
+head(lf)
+tail(lf)
+```
+```{r, results='asis'}
+ColClasses(lf)
+```
+
+This is amenable for plotting:
+```{r, fig.width=8, fig.height=12, warning=FALSE}
+ggp <- ggplot(lf) +
+  geom_line(aes(datetime, value))+
+    facet_grid(variable~., scale="free_y") +
+      scale_x_chron()
+print(ggp)
+```
+
+Using this, we can aggregate using three approaches:
+
+* `group_by`: as illustrated above
+* `dcast`: aggregate statistics through pivoting
+* `stat_summary`: called through geom operation
+
+
+### `group_by` operation
+
+```{r}
+result <- lf %>% group_by(month, variable) %>%
+  summarize(value = mean(value, na.rm=TRUE))
+```
+
+The inverse opration of melt:
+```{r}
+dcast(result, month~variable)
+```
+
+### pivoting
+
+The mean can also be calculated directly:
+```{r}
+dcast(lf, month~variable, fun.aggregate=mean, na.rm=TRUE)
+```
+
+### `stat_summary`
+
+The mean cal also be calculated in the process of plotting:
+```{r, fig.width=8, fig.height=12, warning=FALSE}
+ggp <- ggplot(lf) +
+  geom_bar(aes(month, value), stat="summary", fun.y="mean")+
+    facet_grid(variable~., scale="free_y")
+print(ggp)
+```
+
+Add errorbars to denote the full range in values:
+```{r, fig.width=8, fig.height=12, warning=FALSE}
+ggp <- ggplot(lf, aes(month, value)) +
+  geom_bar(stat="summary", fun.y="mean")+
+    geom_errorbar(stat="summary",
+                  fun.ymin=min, #function(x) quantile(x, .25),
+                  fun.ymax=max, #function(x) quantile(x, .75))+
+                  width=0.1) +
+    facet_grid(variable~., scale="free_y")
+print(ggp)
+```
