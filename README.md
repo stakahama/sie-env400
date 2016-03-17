@@ -4,11 +4,11 @@ This is an exercise for analyzing air quality monitoring network data assigned i
 
 Topics addressed are the following:
 
-1. [Motivating example](./contents/01_Rintro.html)
-2. [Assignment definition](./contents/02_projectdef.html)
-3. [R basics](./contents/03_Rbasics.html)
-4. [Visualizing time series](./contents/04_tseriesviz.html)
-5. [Correlations and cross-correlations](./contents/05_correlations.html)
+1. <a href="http://rawgit.com/stakahama/aprl-env400-assignment/master/contents/01_Rintro.html" target="_blank">Motivating Example</a>
+2. <a href="http://rawgit.com/stakahama/aprl-env400-assignment/master/contents/02_projectdef.html" target="_blank">Assignment definition</a>
+3. <a href="http://rawgit.com/stakahama/aprl-env400-assignment/master/contents/03_Rbasics.html" target="_blank">R basics</a>
+4. <a href="http://rawgit.com/stakahama/aprl-env400-assignment/master/contents/04_tseriesviz.html" target="_blank">Visualizing time series</a>
+5. <a href="http://rawgit.com/stakahama/aprl-env400-assignment/master/contents/05_correlations.html" target="_blank">Correlations and cross-correlations</a>
 6. Autocorrelation and periodicity
 7. Stochastic processes and random variables 
 8. Normal processes and the central limit theorem

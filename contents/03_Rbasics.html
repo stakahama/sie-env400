@@ -147,6 +147,7 @@ $(document).ready(function () {
 <li><a href="#shell-operations">Shell operations</a></li>
 <li><a href="#working-memory">Working memory</a></li>
 </ul></li>
+<li><a href="#namespaces">Namespaces</a></li>
 <li><a href="#graphics">Graphics</a><ul>
 <li><a href="#anatomy-of-a-graphic">Anatomy of a graphic</a></li>
 <li><a href="#grammar-of-graphics">Grammar of graphics</a></li>
@@ -1015,9 +1016,71 @@ saveRDS(); readRDS()</code></pre>
 </div>
 <div id="working-memory" class="section level2">
 <h2>Working memory</h2>
-<p>Check order of packages loaded into memory with <code>search()</code>. This list determines the order in which function definitions will be searched, much like the search path in MATLAB and your operating system.</p>
+<p>Check order of packages loaded into memory with <code>search()</code>. This list determines the order in which function definitions will be searched, much like the search path in MATLAB and your operating system. See <em>Namespaces</em> topic below.</p>
 <p>To save objects in your memory (“workspace”), use <code>save.image()</code>. This command will create a file called “.RData” on your hard drive, which you can load with <code>load(&quot;.RData&quot;)</code>. Note that you will have to reload libraries (preferably in the order in which they were loaded previously) to continue seamlessly.</p>
 </div>
+</div>
+<div id="namespaces" class="section level1">
+<h1>Namespaces</h1>
+<p>Namespaces can be thought of as containers which resolve conflicts among variables and functions with identical names. For instance, it is common to name your data tables as “data” or “df” (for data frame). These two names are actually functions predefined in R packages loaded at startup (which you can see with <code>search()</code>).</p>
+<p>First, let us look at <code>data</code>:</p>
+<pre class="r"><code>exists(&quot;data&quot;) </code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>class(data)        # this is our data set we loaded previously</code></pre>
+<pre><code>## [1] &quot;data.frame&quot;</code></pre>
+<pre class="r"><code>rm(data)           # we can delete our object
+exists(&quot;data&quot;)     # an object called 'data' still exists</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>class(data)        # function to load avaiable data sets</code></pre>
+<pre><code>## [1] &quot;function&quot;</code></pre>
+<pre class="r"><code>environment(data)  # this is loaded in the 'utils' package</code></pre>
+<pre><code>## &lt;environment: namespace:utils&gt;</code></pre>
+<p>Next, we continue our example with <code>df</code>:</p>
+<pre class="r"><code>exists(&quot;df&quot;)       # F distribution distribution</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>environment(df)</code></pre>
+<pre><code>## &lt;environment: namespace:stats&gt;</code></pre>
+<pre class="r"><code>df</code></pre>
+<pre><code>## function (x, df1, df2, ncp, log = FALSE) 
+## {
+##     if (missing(ncp)) 
+##         .Call(C_df, x, df1, df2, log)
+##     else .Call(C_dnf, x, df1, df2, ncp, log)
+## }
+## &lt;bytecode: 0x7fc3d45a49c8&gt;
+## &lt;environment: namespace:stats&gt;</code></pre>
+<p>However, you can still assign values to these symbols:</p>
+<pre class="r"><code>df &lt;- data.frame(x=1:5)</code></pre>
+<p>and these new objects will co-exist with the original objects in separate namespaces.</p>
+<p>In this case, when <code>df</code> is used in your code, it will first look in the namespace that you are working in, and then move on down the <code>search()</code> list for other definitions.</p>
+<pre class="r"><code>df</code></pre>
+<pre><code>##   x
+## 1 1
+## 2 2
+## 3 3
+## 4 4
+## 5 5</code></pre>
+<p>If you want to use the original function, you can prepend the namespace with two colons:</p>
+<pre class="r"><code>stats::df</code></pre>
+<pre><code>## function (x, df1, df2, ncp, log = FALSE) 
+## {
+##     if (missing(ncp)) 
+##         .Call(C_df, x, df1, df2, log)
+##     else .Call(C_dnf, x, df1, df2, ncp, log)
+## }
+## &lt;bytecode: 0x7fc3d45a49c8&gt;
+## &lt;environment: namespace:stats&gt;</code></pre>
+<p>Or, more generally, use <code>get</code>:</p>
+<pre class="r"><code>get(&quot;df&quot;,&quot;package:stats&quot;)</code></pre>
+<pre><code>## function (x, df1, df2, ncp, log = FALSE) 
+## {
+##     if (missing(ncp)) 
+##         .Call(C_df, x, df1, df2, log)
+##     else .Call(C_dnf, x, df1, df2, ncp, log)
+## }
+## &lt;bytecode: 0x7fc3d45a49c8&gt;
+## &lt;environment: namespace:stats&gt;</code></pre>
+<p>If you want gory details, look <a href="http://blog.obeautifulcode.com/R/How-R-Searches-And-Finds-Stuff/">here</a>.</p>
 </div>
 <div id="graphics" class="section level1">
 <h1>Graphics</h1>

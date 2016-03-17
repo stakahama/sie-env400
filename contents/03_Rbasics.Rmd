@@ -764,10 +764,51 @@ saveRDS(); readRDS()
 ```
 ## Working memory
 
-Check order of packages loaded into memory with `search()`. This list determines the order in which function definitions will be searched, much like the search path in MATLAB and your operating system.
+Check order of packages loaded into memory with `search()`. This list determines the order in which function definitions will be searched, much like the search path in MATLAB and your operating system. See *Namespaces* topic below.
 
 To save objects in your memory ("workspace"), use `save.image()`. This command will create a file called ".RData" on your hard drive, which you can load with `load(".RData")`. Note that you will have to reload libraries (preferably in the order in which they were loaded previously) to continue seamlessly.
 
+# Namespaces
+
+Namespaces can be thought of as containers which resolve conflicts among variables and functions with identical names. For instance, it is common to name your data tables as "data" or "df" (for data frame). These two names are actually functions predefined in R packages loaded at startup (which you can see with `search()`).
+
+First, let us look at `data`:
+```{r}
+exists("data") 
+class(data)        # this is our data set we loaded previously
+rm(data)           # we can delete our object
+exists("data")     # an object called 'data' still exists
+class(data)        # function to load avaiable data sets
+environment(data)  # this is loaded in the 'utils' package
+```
+
+Next, we continue our example with `df`:
+```{r}
+exists("df")       # F distribution distribution
+environment(df)
+df
+```
+
+However, you can still assign values to these symbols:
+```{r}
+df <- data.frame(x=1:5)
+```
+and these new objects will co-exist with the original objects in separate namespaces.
+
+In this case, when `df` is used in your code, it will first look in the namespace that you are working in, and then move on down the `search()` list for other definitions. 
+```{r}
+df
+```
+If you want to use the original function, you can prepend the namespace with two colons:
+```{r}
+stats::df
+```
+
+Or, more generally, use `get`:
+```{r}
+get("df","package:stats")
+```
+If you want gory details, look [here](http://blog.obeautifulcode.com/R/How-R-Searches-And-Finds-Stuff/).
 
 # Graphics
 
