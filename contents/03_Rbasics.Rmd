@@ -30,12 +30,12 @@ R is such a tool that was created for "Programming with Data", and will be cover
 We will require each student to learn a lot on his or her own as it is not possible to exhaustively cover every function or operation used in our exmaples. As you will see, the actual number of resources to learn R is endless (just type "introduction to R" in Google), which then leads to a tyranny of choice and decision fatigue. We might recommend a very few resources:
 
 * Introduction to language basics:
-  * *(very) short introduction to R*
-  * *An Introduction to R*
-  * *R Inferno*
+    * *(very) short introduction to R*
+    * *An Introduction to R*
+    * *R Inferno*
 * Working with data
-  * *Modern Applied Statistics with S*
-  * *Data Manipulation with R*
+    * *Modern Applied Statistics with S*
+    * *Data Manipulation with R*
   
 <img src="./figures/An Introduction to R.jpeg" alt="Rintro" width="10%"/>
 <img src="./figures/Data Manipulation with R.jpeg" alt="Rmanip" width="10%"/>
@@ -89,11 +89,13 @@ One of its core-strengths is the collection of user-contributed libraries. You w
 ## R for the MATLAB user
 
 Superficial differences:
+
 * Comment character is `#` rather than `%`.
 * Arrows `<-` are assignment operators. (Can also use equal sign in most places.)
 * `*`, `/`, `^` operate element-wise (like `.*`, `./`, `.^` in MATLAB).
 * Functions do not have to be defined in separate files.
 * Most operations are performed by calling a function on arguments. Functional calls are very forgiving, and arguments can be specified by 1) order provided or 2) partial matching of argument names.
+
     ```
     > divide <- function(numerator,denominator) numerator / denominator
     > divide(1,2)
@@ -106,6 +108,7 @@ Superficial differences:
 * Same control structures exist---`if`, `for`, `while`, etc.---but braces `{}` denote extent of expressions, rather than `end` statements.
 
 Check out:
+
 * [http://mathesaurus.sourceforge.net/octave-r.html](http://mathesaurus.sourceforge.net/octave-r.html)
 * [https://cran.r-project.org/doc/contrib/Hiebeler-matlabR.pdf](https://cran.r-project.org/doc/contrib/Hiebeler-matlabR.pdf)
 
@@ -165,8 +168,8 @@ Lists are like cell arrays or structures in MATLAB.
 
 As with MATLAB, R has vectorized operations. Vectorized operations are applicable for atomic data types, but not for "list". Example:
 ```{r}
-x = 1:5
-y = x+1
+x <- 1:5
+y <- x+1
 print(y)
 mode(y)
 typeof(y)
@@ -185,14 +188,14 @@ Special data types:
 
 `c` *concatenates* elements and is often used to construct a vector.
 ```{r}
-(char = c("ab","d"))      # concatenate elements (character)
-(v = c(1,3,5))           # concatenate elements (numeric)
+(char <- c("ab","d"))      # concatenate elements (character)
+(v <- c(1,3,5))           # concatenate elements (numeric)
 ```
 
 Other objects are created by functions that are named after the object.
 ```{r}
-(m = matrix(1:6,ncol=2)) # create a matrix
-(l = list(1,v,m))        # define a list
+(m <- matrix(1:6,ncol=2)) # create a matrix
+(l <- list(1,v,m))        # define a list
 ```
 
 In contrast with MATLAB, Note that a single element in a character vector in R can contain multiple letters.
@@ -221,16 +224,16 @@ Elements can have optional labels.
     
 Vectors, lists can have names.
 ```{r}
-(v = c(a=1, b=3, c=5))
+(v <- c(a=1, b=3, c=5))
 v["a"]
-names(l) = names(v)
+names(l) <- names(v)
 print(l)
 ```
 
 Matrices can have column and row names.
 ```{r}
-colnames(m) = letters[1:ncol(m)]
-rownames(m) = letters[1:nrow(m)]
+colnames(m) <- letters[1:ncol(m)]
+rownames(m) <- letters[1:nrow(m)]
 print(m)
 ```
 
@@ -379,24 +382,24 @@ floor(), ceiling(), round(), signif()
 
 For loop (note that for this example, you could also use vectorized addition):
 ```{r}
-x = 1:5
-y = numeric(length(x))
+x <- 1:5
+y <- numeric(length(x))
 for(i in 1:length(x)) {
-  y[i] = x[i] + 1
+  y[i] <- x[i] + 1
 }
 print(y)
 ```
   
 If-else:
 ```{r}
-i = 3
+i <- 3
 for(i in 1:3) {
   if(i==1) {
-    x = 1
+    x <- 1
   } else if(i==2) {
-    x = 2
+    x <- 2
   } else {
-    x = 3
+    x <- 3
   }
 }
 print(x)
@@ -504,7 +507,7 @@ sites <- factor(c("Lausanne","Zurich"),                  # values
 sites
 unclass(sites)
 sites == "Lausanne"
-sites[1] = "Fribourg" # not in defined set of possibilities
+sites[1] <- Fribourg" # not in defined set of possibilities
 methods(class="factor")
 ```
   
@@ -573,7 +576,7 @@ print(dtable)
 
   ``In place'' (modify original data frame):
 ```{r}
-dtable[,"value2"] = NA
+dtable[,"value2"] <- NA
 print(dtable)
 ```
 
@@ -583,7 +586,7 @@ print(dtable)
   
   
 ```{r}
-dtable[,"value2"] = NULL # delete column
+dtable[,"value2"] <- NULL # delete column
 
 print(dtable)
 
@@ -650,7 +653,7 @@ data <- ReadTSeries("data/2013/LAU.csv")
 Add month column:  
 
 ```{r}
-data[,"month"] = months(data[,"datetime"])
+data[,"month"] <- months(data[,"datetime"])
 head(data)
 ```
     
@@ -667,8 +670,8 @@ data %>%
 
 ```{r}
 Statsfn <- function(subtable) {
-  O3 = subtable[["O3"]] # to select a single column in this case, use [[]] rather than [,]
-  data.frame(mean=mean(O3,na.rm=TRUE),sd=sd(O3,na.rm=TRUE))
+  O3 <- subtable[["O3"]] # to select a single column in this case, use [[]] rather than [,]
+  data.frame(mean=mean(O3,na.rm=TRUE), sd=sd(O3,na.rm=TRUE))
 }
 ```
 

@@ -8,7 +8,7 @@ output:
 
 ```{r, include=FALSE}
 library(knitr)
-opts_chunk$set(fig.path='figures_rmd/lec01_', fig.align='center')
+opts_chunk$set(fig.path='figures_rmd/lec01_', fig.align='center', warning=FALSE, message=FALSE)
 ```
 
 In this lesson, we will compare procedural and declarative approaches to computing aggregate values (mean, maximum value) from time series of concentrations at a single site.
@@ -25,7 +25,7 @@ In general, you will find that an R script often follows a set of common operati
 
 Load libraries
 
-```{r, message=FALSE}
+```{r}
 library(dplyr)
 library(reshape2)
 library(chron)
@@ -38,7 +38,7 @@ source("GRB001.R")
 
 Define options
 
-```{r, results="hide"}
+```{r}
 Sys.setlocale("LC_TIME","C")
 options(stringsAsFactors=FALSE)
 options(chron.year.abb=FALSE)
@@ -137,7 +137,7 @@ class(O3.monthly[,"month"])
 ```
 
 Another visual representation:
-```{r, fig.width=8, fig.height=5, message=FALSE}
+```{r, fig.width=8, fig.height=5}
 ggp <- ggplot(O3.monthly) +
   geom_bar(aes(month, O3), stat="identity")
 print(ggp)
@@ -172,7 +172,7 @@ tail(O3.dailymax)
 ```
 
 Plot ECDF (empirical cumulative distribution function):
-```{r, fig.width=8, fig.height=5, message=FALSE}
+```{r, fig.width=8, fig.height=5}
 ggp <- ggplot(O3.dailymax) +
   geom_line(aes(O3),stat="ecdf") +
     labs(y = "ECDF")
@@ -213,7 +213,7 @@ ColClasses(lf)
 ```
 
 This is amenable for plotting:
-```{r, fig.width=8, fig.height=12, warning=FALSE}
+```{r, fig.width=8, fig.height=12}
 ggp <- ggplot(lf) +
   geom_line(aes(datetime, value))+
     facet_grid(variable~., scale="free_y") +
@@ -250,7 +250,7 @@ dcast(lf, month~variable, fun.aggregate=mean, na.rm=TRUE)
 ### `stat_summary`
 
 The mean cal also be calculated in the process of plotting:
-```{r, fig.width=8, fig.height=12, warning=FALSE}
+```{r, fig.width=8, fig.height=12}
 ggp <- ggplot(lf) +
   geom_bar(aes(month, value), stat="summary", fun.y="mean")+
     facet_grid(variable~., scale="free_y")
@@ -258,7 +258,7 @@ print(ggp)
 ```
 
 Add errorbars to denote the full range in values:
-```{r, fig.width=8, fig.height=12, warning=FALSE}
+```{r, fig.width=8, fig.height=12}
 ggp <- ggplot(lf, aes(month, value)) +
   geom_bar(stat="summary", fun.y="mean")+
     geom_errorbar(stat="summary",

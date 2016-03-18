@@ -14,6 +14,9 @@ if(!exists("chron_trans",where="package:chron"))
                       breaks = breaks., format = format.)
   }
 
+if(!exists("full_join",where="package:dplyr"))
+  full_join <- function(...) merge(..., all=TRUE)
+
 scale_dimension.custom_expand <- function(scale, expand=ggplot2:::scale_expand(scale)) {
   scales::expand_range(ggplot2:::scale_limits(scale),
                        mul=expand[[1]],add=expand[[2]])
@@ -40,5 +43,8 @@ format.times.x <- function(format="%d.%m", expand=c(0,0)) {
 }
 
 ColClasses <- function(x) {
-  kable(as.data.frame(Map(function(x) paste(class(x), collapse=","), x)))
+  classes <- as.data.frame(Map(function(x) paste(class(x), collapse=","), x))
+  proceed <- require(knitr)
+  if(proceed) table <- kable(classes)
+  classes
 }

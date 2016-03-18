@@ -113,7 +113,7 @@ kable(out)
   
 Illustration of lag for 20.07.2013 in Lausanne:
 
-<img src="./figures/lag_example.pdf" alt="lag_example" width="100%"/>
+<img src="./figures/lag_example.png" alt="lag_example" width="100%"/>
 
 * Radiation initiates the photochemistry for ozone formation and is strongly linked to the concentration of atmospheric oxidants.
 * Increase in radiation also leads to increase in temperatures, which accelerate rates of reaction.
