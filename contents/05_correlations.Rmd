@@ -8,14 +8,12 @@ output:
 
 ```{r, include=FALSE}
 library(knitr)
-opts_chunk$set(fig.path='figures_rmd/lec05_', fig.align='center')
+opts_chunk$set(fig.path='figures_rmd/lec05_', fig.align='center', warning=FALSE, message=FALSE)
 ```
 
 # Background
 
-Correlation coefficients measure the *linear* relationship between two variables.
-
-* If $y_t = f(x_t)$, correlation in x and y may be observed. This is characterized by what is known as a correlation coefficient.
+* If $y_t = f(x_t)$, a relationship between in x and y may be observed. This strength of the relationship is often characterized by what is known as a correlation coefficient.
 * However, when the dependency is time-dependent, $y_{t+k} = f(x_t)$, we may wish to examine the correlation lagged by $k$ intervals ($k$=hours in our case).
 * Note that people commonly refer to any relationship as correlation, but commonly-used correlation coefficients in statistics measure the degree of a *linear* relationship between two variables. It is important to visualize the data when possible, rather than relying solely on the correlation coefficient, so that nonlinear relationships are not also detected.
 
@@ -89,7 +87,7 @@ par(op)
 ```
 
 All have similar statistical properties.
-```{r, echo=FALSE, message=FALSE}
+```{r, echo=FALSE}
 library(plyr)
 library(reshape2)
 lf <- melt(transform(anscombe,obs=sequence(nrow(anscombe))),id.var="obs")
@@ -151,12 +149,15 @@ $$
 </tr>
 </table>
 
-This is why you may often hear the phrase, "*correlation does not imply causation*." 
+"*Correlation does not imply causation*":
+
+* The variation between two variables may depend on a third, as shown above.
+* Even if the variation in one variable is dependent on another, the correlation does not indicate the direction of causality.
 
 # R demonstration
 
 
-```{r, message=FALSE}
+```{r}
 library(dplyr)
 library(reshape2)
 library(chron)
@@ -273,7 +274,7 @@ lagged <- df %>%
              Lag(.[,c("RAD","O3")], 6)))
 ```
 
-```{r, message=FALSE, fig.width=12, fig.height=18}
+```{r, fig.width=12, fig.height=18}
 ggp <- ggplot(lagged) +
   geom_point(aes(RAD, O3, group=site, color=site), shape=4)+
     facet_grid(lag~season)
@@ -300,7 +301,7 @@ lagged.values <- df %>% group_by(season) %>%
 Note the syntax, `...` in the function definition This passes on any additional arguments (`lag.max` in this case) from the outer function (`LaggedCorrelation`) to the inner-most function (`ccf`).
 
 Plot:
-```{r, message=FALSE, fig.width=15, fig.height=5}
+```{r, fig.width=15, fig.height=5}
 ggp <- ggplot(lagged.values)+
   geom_segment(aes(x=lag,xend=lag,y=0,yend=value))+
     facet_grid(.~season)+

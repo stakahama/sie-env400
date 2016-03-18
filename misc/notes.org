@@ -1,0 +1,50 @@
+
+* Preamble
+
+This is a series of exercises developed for ENV-400 - Air Pollution and Climate Change - Environmental Engineering Masters course (17 weeks) at EPFL. This exercise was introduced in 2014 using Sweave/knitr, and is being migrated to R Markdown (in progress).
+
+* Lessons
+
+1. Motivating example
+2. Assignment definition
+3. R basics
+4. Visualizing time series
+5. Correlations and cross-correlations
+6. Autocorrelation and periodicity
+7. Stochastic processes and random variables 
+   * probability distributions
+   * descriptive statistics
+8. Normal processes and the central limit theorem
+9. Lognormal processes and environmental dispersion
+10. Extreme values: detection and accommodation
+
+* References
+
+R markdown:
+
+- http://rmarkdown.rstudio.com/authoring_rcodechunks.html
+- http://kbroman.org/knitr_knutshell/pages/Rmarkdown.html
+
+Centering a figure
+#+BEGIN_SRC html
+<div style="text-align: center"><img src="./figures/FOEN.png" alt="FOEN" width="50%"/></div>
+#+END_SRC
+Or
+
+#+BEGIN_SRC html
+<center><img src="./figures/FOEN.png" alt="FOEN" width="50%"/></center>
+#+END_SRC
+
+HTML table
+#+BEGIN_SRC html
+<table>
+<tr> <td>1,1</td> <td>1,2</td> </tr>
+<tr> <td>2,1</td> <td>2,2</td> </tr>
+</table>
+#+END_SRC
+
+TODO:
+
+- [x] references, citations
+- example object/data frame names are not consistent throught
+- reference to data frame, data table, etc. are not consistent
