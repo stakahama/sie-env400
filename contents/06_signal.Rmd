@@ -1,0 +1,220 @@
+---
+title: "Correlation and cross-correlations"
+output:
+  html_document:
+    toc: true
+    theme: united
+bibliography: refs.bib	
+---
+
+```{r, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.path='figures_rmd/lec06_', fig.align='center', warning=FALSE, message=FALSE)
+```
+
+# Background
+
+## Autocovariance
+
+Autocovariance for positive values of lag $k$ is defined as
+$$
+c_{xx}(k) = \frac{1}{N} \sum_{t=1}^{N-k} (x_t - \overline{x})(x_{t+k} - \overline{x})
+$$o
+Autocorrelation is then
+$$
+r_{xx}(k) = \frac{c_{xx}(k)}{c_{xx}(0)}
+$$
+
+Autocorrelation coefficients and the correlogram (plot of $r_{xx}(k)$ as a function of lag $k$) can provide insight into the underlying processes [@Chatfield2003].
+
+* randomness
+* short-term correlations
+* non-stationarity (time series contains a trend)
+* periodic fluctuations (for the duration corresponding to lag $k$)
+
+## Power spectrum
+
+adapted from @Marr2002.
+
+  The original time series $x_t$ can be represented by a Fourier series 
+  $$
+  x_t = \sum_{k=0}^{N-1} X(k) \exp\left(2\pi i \nu_k t\right)
+  $$
+where $N$ is the number of observations, and $\nu_k = k/N$. The new series $X(k)$ defined by the discrete Fourier transform are given by
+$$
+X(k) = \frac{1}{\sqrt{N}} \sum_{t=0}^{N-1} x_t \exp\left(-2\pi i \nu_k t\right)
+$$
+for $k=0,1,\ldots,N-1$.  The periodogram or power spectrum is defined as 
+$$
+P(\nu_k) = |X(k)|^2
+$$
+and indicates the strength of frequencies in a time series.
+
+The periodogram is a finite Fourier transform of the autocovariance $\{c_{xx}(k)\}$ [@Chatfield2003].
+
+# R demonstration
+
+
+```{r}
+library(dplyr)
+library(reshape2)
+library(chron)
+library(ggplot2)
+```
+
+```{r}
+source("GRB001.R")
+```
+
+```{r, results="hide"}
+Sys.setlocale("LC_TIME","C")
+options(stringsAsFactors=FALSE)
+options(chron.year.abb=FALSE)
+theme_set(theme_bw()) # just my preference for plots
+```
+
+```{r}
+df <- readRDS("data/2013/lau-zue.rds")
+
+id.vars <- c("site", "datetime", "year", "month", "day", "hour", "season", "dayofwk", "daytype")
+```
+
+
+```{r}
+lf <- melt(filter(df, site=="ZUE"), id.vars=id.vars)
+```
+
+<!-- ```{r} -->
+<!-- DropVariables <- function(x) { -->
+<!--   DropIfEmpty <- function(x) -->
+<!--     if(all(is.na(x[["value"]]))) { -->
+<!--       data.frame() -->
+<!--     } else { -->
+<!--       x -->
+<!--     } -->
+<!--   x %>% group_by(variable) %>% -->
+<!--     do(DropIfEmpty(.)) -->
+<!-- } -->
+
+<!-- lf <- DropVariables(lf) -->
+<!-- ``` -->
+
+## Autocorrelation
+
+
+```{r}
+SelfLag <- function(x, k) {
+  data.frame(lag=k, x0=head(x,-k), xk=tail(x,-k))
+}
+
+lagged <- lf %>% group_by(site, season, variable) %>%
+  do(rbind(SelfLag(.[["value"]], 1),
+           SelfLag(.[["value"]], 3),
+           SelfLag(.[["value"]], 5),
+           SelfLag(.[["value"]], 7)))
+```
+
+```{r, fig.width=7, fig.height=7}
+ggplot(filter(lagged, variable=="RAD"))+
+  geom_abline(intercept=0, slope=1)+  
+    geom_point(aes(x0, xk), shape=3, color="gray")+
+      facet_grid(lag~season)+
+        labs(x=expression(x(t[0])), y=expression(x(t[k])))        
+```
+
+```{r, fig.width=7, fig.height=7}
+ggplot(filter(lagged, variable=="TEMP"))+
+  geom_abline(intercept=0, slope=1)+  
+    geom_point(aes(x0, xk), shape=3, color="gray")+
+      facet_grid(lag~season)+
+        labs(x=expression(x(t[0])), y=expression(x(t[k])))
+```
+
+```{r}
+Autocorrelation <- function(x, ...) {
+  with(acf(x, ..., na.action=na.pass, plot=FALSE),
+       data.frame(lag, acf))
+}
+
+autocorr <- lf %>% group_by(site, season, variable) %>%
+  do(Autocorrelation(.[["value"]], lag.max=6))
+```
+
+```{r, fig.width=7, fig.height=9}
+ggp <- ggplot(autocorr)+
+  geom_hline(yintercept=0)+        
+    geom_point(aes(lag, acf))+
+      geom_segment(aes(lag, 0, xend=lag, yend=acf))+
+        facet_grid(variable~season)+
+          labs(x="lag", y="acf")
+print(ggp)
+```
+
+## Power spectrum
+
+Example
+
+```{r, error=TRUE}
+ix <- df[["month"]]=="Jul"
+spec <- spectrum(df[ix,"CO"])
+```
+
+```{r}
+out <- approx(df[ix,"datetime"], df[ix,"CO"], df[ix,"datetime"])
+str(out)
+```
+
+```{r, spec.plot}
+spec <- spectrum(out[["y"]])
+```
+
+```{r, echo=-1}
+<<spec.plot>>
+hrs <- c("4-hr"=4, "6-hr"=6, "8-hr"=8, "12-hr"=12, "daily"=24, "weekly"=24*7, "monthly"=24*30)
+abline(v=1/hrs, col=seq(hrs)+1, lty=2)
+legend("topright", names(hrs), col=seq(hrs)+1, lty=2, bg="white")
+```
+
+```{r}
+Spectr <- function(x, y) {
+  out <- approx(x, y, xout=x)
+  spec <- spectrum(out[["y"]], plot=FALSE)
+  data.frame(spec[c("freq", "spec")])
+}
+
+spec <- lf %>% group_by(site, season, variable) %>%
+  do(Spectr(.[["datetime"]],.[["value"]]))
+```
+
+
+```{r, fig.width=8, fig.height=8}
+period <- data.frame(label=factor(names(hrs), names(hrs)), freq=1/hrs)
+
+ggp <- ggplot(spec)+
+  geom_vline(aes(xintercept=freq, color=label), data=period, linetype=2)+  
+    geom_line(aes(freq, spec))+
+      facet_grid(variable~season, scale="free_y")+
+        scale_y_log10()
+print(ggp)
+```
+
+```{r}
+daily <- lf %>% mutate(date=dates(datetime)) %>%
+  group_by(site, variable, season, date) %>%
+    summarize(value=mean(value, na.rm=TRUE))
+
+spec.daily <- daily %>% group_by(site, season, variable) %>%
+  do(Spectr(.[["date"]],.[["value"]]))
+
+period.daily <- data.frame(label=c("weekly", "monthly"),
+                           freq =1/c(7, 30))
+```
+
+```{r, fig.width=7, fig.height=7}
+ggp <- ggplot(spec.daily)+
+  geom_vline(aes(xintercept=freq, color=label), data=period.daily, linetype=2)+  
+    geom_line(aes(freq, spec))+
+      facet_grid(variable~season, scale="free_y")
+print(ggp)
+```
+

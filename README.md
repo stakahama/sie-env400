@@ -1,6 +1,6 @@
-# EPFL ENV-400 data analysis assigment, Spring 2016
+# Analysis of Swiss National Air Pollution Monitoring Network (NABEL) Measurements
 
-This is an exercise for analyzing air quality monitoring network data assigned in Air Pollution and Climate Change. Students are assumed to have a little programming background, mostly in MATLAB/Octave. The R code is partially written with pedagogical intentions, so may not be the most efficient.
+This is an exercise for analyzing air quality monitoring network data assigned in the Air Pollution and Climate Change (ENV-400) Masters class at EPFL. Students are assumed to have a little programming background, mostly in MATLAB/Octave. The R code is partially written with pedagogical intentions, so may not be the most efficient.
 
 Topics addressed are the following:
 
