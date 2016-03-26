@@ -1,5 +1,5 @@
 ---
-title: "Correlation and cross-correlations"
+title: "Autocorrelation and periodicity"
 output:
   html_document:
     toc: true
@@ -12,45 +12,104 @@ library(knitr)
 opts_chunk$set(fig.path='figures_rmd/lec06_', fig.align='center', warning=FALSE, message=FALSE)
 ```
 
+In this lesson, we will explore how to examine relationships among observations that are made in a sequence (time series).
+
 # Background
 
-## Autocovariance
+## Autocovariance and autocorrelation
 
-Autocovariance for positive values of lag $k$ is defined as
+Autocovariance for positive values of lag $k$ is defined in a form similar to the cross-covariance:
 $$
 c_{xx}(k) = \frac{1}{N} \sum_{t=1}^{N-k} (x_t - \overline{x})(x_{t+k} - \overline{x})
-$$o
-Autocorrelation is then
+$$
+Similarly, autocorrelation is:
 $$
 r_{xx}(k) = \frac{c_{xx}(k)}{c_{xx}(0)}
 $$
 
 Autocorrelation coefficients and the correlogram (plot of $r_{xx}(k)$ as a function of lag $k$) can provide insight into the underlying processes [@Chatfield2003].
 
-* randomness
-* short-term correlations
-* non-stationarity (time series contains a trend)
-* periodic fluctuations (for the duration corresponding to lag $k$)
+* *randomness*. low $r_{xx}(k)$ for all $k > 0$.
+* *short-term correlations*. rapid drop-off following high $r_{xx}(1)$.
+* *non-stationarity* (time series contains a trend). non-zero values of $r_{xx}(k)$ until high value of $k$.
+* *periodic fluctuations* (for the duration corresponding to lag $k$). $r_{xx}(k)$ will oscillate with the frequency of the periodic fluctuation.
+
+Example correlelograms (notated as "$r_k$") are shown below. Corresponding time series signals ("$x_r$") are shown directly above for the first three figures. In the last the figure (lower right quadrant), correlelograms are shown for monthly observations in air temperature (top), and short-term correlations remaining after removal of the seasonal contribution to the signal is removed (bottom).
+
+<figure>
+<center>
+<table>
+<tr>
+<td>short-term corrlelation</td>
+<td>alternating time series</td>
+</tr>
+<tr>
+<td><img src="./figures/Chatfield2004_Fig_2-1.png" alt="Chatfield2004_Fig_2-1"/></td>
+<td><img src="./figures/Chatfield2004_Fig_2-2.png" alt="Chatfield2004_Fig_2-2"/></td>
+</tr>
+<tr>
+<td>non-stationary time series</td>
+<td>short-term correlation after removal of seasonal variation</td>
+</tr>
+<tr>
+<td><img src="./figures/Chatfield2004_Fig_2-3.png" alt="Chatfield2004_Fig_2-3"/></td>
+<td><img src="./figures/Chatfield2004_Fig_2-4.png" alt="Chatfield2004_Fig_2-4" width="80%"/></td>
+</tr>
+</table>
+<figcaption>Figures 2.1--2.4 from @Chatfield2003.</figcaption>
+</center>
+</figure>
+<br>
+
+Such analyses can be used as a basis for constructing a purely statistical models of time series (*ARIMA* models) primarily used for forecasting, but we can also isolate and describe relationships among sequential observations using autocorrelations.
+
+For instance, these representations can be included in discussions of:
+
+* locally emitted pollutants, which might exhibit short-term autocorrelations, or
+* pollutants produced by regional photochemistry and/or transported from non-local sources, which might lead to longer-term autocorrelations.
 
 ## Power spectrum
 
-adapted from @Marr2002.
+We can project a times series (or arbitrary function) onto a basis set consisting of harmonic functions of various frequencies, and determine which coefficients contribute most to the reproduction of the original signal.
 
-  The original time series $x_t$ can be represented by a Fourier series 
+<figure>
+<center>
+<img src="./figures/FourierSeriesExamples_800.gif" alt="FourierSeriesExamples_800" width="50%"/>
+<figcaption>From [Wolfram Mathworld](http://mathworld.wolfram.com).</figcaption>
+</center>
+</figure>
+<br>
+
+Next, we will describe the Fourier series transformation of a sequential series of observations (time series) using notation adapted from @Marr2002.
+
+  The original time series $x_t$ can be represented by a Fourier series:
   $$
   x_t = \sum_{k=0}^{N-1} X(k) \exp\left(2\pi i \nu_k t\right)
   $$
-where $N$ is the number of observations, and $\nu_k = k/N$. The new series $X(k)$ defined by the discrete Fourier transform are given by
+where $N$ is the number of observations, and $\nu_k = k/N$. The new series $X(k)$ defined by the discrete Fourier transform are given by:
 $$
 X(k) = \frac{1}{\sqrt{N}} \sum_{t=0}^{N-1} x_t \exp\left(-2\pi i \nu_k t\right)
 $$
-for $k=0,1,\ldots,N-1$.  The periodogram or power spectrum is defined as 
+for $k=0,1,\ldots,N-1$.  The periodogram or power spectrum is defined as:
 $$
 P(\nu_k) = |X(k)|^2
 $$
 and indicates the strength of frequencies in a time series.
 
 The periodogram is a finite Fourier transform of the autocovariance $\{c_{xx}(k)\}$ [@Chatfield2003].
+
+<figure>
+<center>
+<table>
+<tr>
+<td><img src="./figures/Marr2002_Fig_2.png" width="100%"/></td>
+<td><img src="./figures/Marr2002_Fig_3.png" width="90%"/></td>
+</tr>
+</table>
+<figcaption>From @Marr2002.</figcaption>
+</center>
+</figure>
+<br>
 
 # R demonstration
 
@@ -75,12 +134,12 @@ theme_set(theme_bw()) # just my preference for plots
 
 ```{r}
 df <- readRDS("data/2013/lau-zue.rds")
-
-id.vars <- c("site", "datetime", "year", "month", "day", "hour", "season", "dayofwk", "daytype")
 ```
 
 
 ```{r}
+id.vars <- c("site", "datetime", "year", "month", "day", "hour", "season", "dayofwk", "daytype")
+
 lf <- melt(filter(df, site=="ZUE"), id.vars=id.vars)
 ```
 
@@ -101,6 +160,7 @@ lf <- melt(filter(df, site=="ZUE"), id.vars=id.vars)
 
 ## Autocorrelation
 
+We will first visualize the effect of imposing a lag on a variable. We can apply lags to each variable (each time series is segmented by season) with the following code:
 
 ```{r}
 SelfLag <- function(x, k) {
@@ -114,21 +174,27 @@ lagged <- lf %>% group_by(site, season, variable) %>%
            SelfLag(.[["value"]], 7)))
 ```
 
-```{r, fig.width=7, fig.height=7}
-ggplot(filter(lagged, variable=="RAD"))+
-  geom_abline(intercept=0, slope=1)+  
-    geom_point(aes(x0, xk), shape=3, color="gray")+
-      facet_grid(lag~season)+
-        labs(x=expression(x(t[0])), y=expression(x(t[k])))        
-```
+We will plot the effect of the lag (shown across rows) on two meteorological variables: radiation and temperature.
 
 ```{r, fig.width=7, fig.height=7}
-ggplot(filter(lagged, variable=="TEMP"))+
+ggp <- ggplot(filter(lagged, variable=="RAD"))+
   geom_abline(intercept=0, slope=1)+  
     geom_point(aes(x0, xk), shape=3, color="gray")+
       facet_grid(lag~season)+
         labs(x=expression(x(t[0])), y=expression(x(t[k])))
+print(ggp)
 ```
+
+```{r, fig.width=7, fig.height=7}
+ggp <- ggplot(filter(lagged, variable=="TEMP"))+
+  geom_abline(intercept=0, slope=1)+  
+    geom_point(aes(x0, xk), shape=3, color="gray")+
+      facet_grid(lag~season)+
+        labs(x=expression(x(t[0])), y=expression(x(t[k])))
+print(ggp)
+```
+
+We will calculate the autocorrelation coefficient for up to a lag of 6 intervals (hours in our case).
 
 ```{r}
 Autocorrelation <- function(x, ...) {
@@ -139,6 +205,8 @@ Autocorrelation <- function(x, ...) {
 autocorr <- lf %>% group_by(site, season, variable) %>%
   do(Autocorrelation(.[["value"]], lag.max=6))
 ```
+
+We can view the correlelograms for all variables:
 
 ```{r, fig.width=7, fig.height=9}
 ggp <- ggplot(autocorr)+
@@ -152,21 +220,26 @@ print(ggp)
 
 ## Power spectrum
 
-Example
+R has a built-in function, `spectrum`, to calculate the power spectrum. For illustration, we will apply it to hourly time series from July.
 
 ```{r, error=TRUE}
 ix <- df[["month"]]=="Jul"
 spec <- spectrum(df[ix,"CO"])
 ```
 
+We see that there is an error on account of missing values. There is a class of statistical  techniques called "imputation" for replacing missing values, but in our case we will simply use linear interpolation. This is accomplished using the `approx` function built into R.
+
 ```{r}
 out <- approx(df[ix,"datetime"], df[ix,"CO"], df[ix,"datetime"])
 str(out)
 ```
+The list element `y` contains the interpolated values, and now we can calculate the spectrum, which also provides us with the plot.
 
 ```{r, spec.plot}
 spec <- spectrum(out[["y"]])
 ```
+
+We can add frequencies which correspond to periods of 4, 6, 8, ... hours. This is using the *base graphics* plotting functionality (in contrast to ggplot) in R:
 
 ```{r, echo=-1}
 <<spec.plot>>
@@ -174,6 +247,8 @@ hrs <- c("4-hr"=4, "6-hr"=6, "8-hr"=8, "12-hr"=12, "daily"=24, "weekly"=24*7, "m
 abline(v=1/hrs, col=seq(hrs)+1, lty=2)
 legend("topright", names(hrs), col=seq(hrs)+1, lty=2, bg="white")
 ```
+
+Next, we want to generalize over all seasons and variables:
 
 ```{r}
 Spectr <- function(x, y) {
@@ -186,6 +261,7 @@ spec <- lf %>% group_by(site, season, variable) %>%
   do(Spectr(.[["datetime"]],.[["value"]]))
 ```
 
+We can similarly produce a power spectrum:
 
 ```{r, fig.width=8, fig.height=8}
 period <- data.frame(label=factor(names(hrs), names(hrs)), freq=1/hrs)
@@ -198,6 +274,8 @@ ggp <- ggplot(spec)+
 print(ggp)
 ```
 
+We can also calculate daily averages and apply the spectra decomposition:
+
 ```{r}
 daily <- lf %>% mutate(date=dates(datetime)) %>%
   group_by(site, variable, season, date) %>%
@@ -209,6 +287,8 @@ spec.daily <- daily %>% group_by(site, season, variable) %>%
 period.daily <- data.frame(label=c("weekly", "monthly"),
                            freq =1/c(7, 30))
 ```
+
+Plot results for daily power spectra:
 
 ```{r, fig.width=7, fig.height=7}
 ggp <- ggplot(spec.daily)+
