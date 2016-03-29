@@ -43,6 +43,10 @@ HTML table
 </table>
 #+END_SRC
 
+Rotating a figure:
+
+- use Photoshop/Illustrator
+
 TODO:
 
 - [x] references, citations
