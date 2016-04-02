@@ -2,10 +2,12 @@
 
 ;; -----------------------------------------------------------------------------
 ;;
-;; for use with emacs
-;; simple functions for emulating basic keybindings in aucTeX for R markdown
-;; possible to set polymode weave functions (knitR and knitR-ESS)
-;;    but this uses rmarkdown::render
+;; rmd-mode for use with emacs
+;; Simple functions for emulating basic keybindings (view and compile)
+;;    in aucTeX for R markdown.
+;; Uses emacs polymode. https://github.com/vspinu/polymode
+;; It is possible to set weave functions ("knitR" and "knitR-ESS") in polymode 
+;;    but this uses rmarkdown::render().
 ;;
 ;; If pandoc is not installed separately, add through RStudio:
 ;;   Mac: export PATH=$PATH:/Applications/RStudio.app/Contents/MacOS/pandoc
@@ -21,7 +23,7 @@
 (setq rmd-render-output-buffer "*Rmd render Output*")
 
 (defun rmd-view ()
-  "view html output"
+  "View html output."
   ;; only tested on OS X  
   (interactive)
   (let ((app (cond
@@ -39,12 +41,11 @@
 	    (replace-regexp-in-string "\r?\n\\'" "" event))))
 
 (defun rmd-render-on-buffer-file ()
-  "run .Rmd file of buffer through rmarkdown::render()"
+  "Run .Rmd file of buffer through rmarkdown::render()."
   (interactive)
   (let ((process (start-process
 		  "rmd-render" rmd-render-output-buffer
-		  "R" "-e" (format "rmarkdown::render('%s')"
-				   (buffer-file-name)))))
+		  "R" "-e" (format "rmarkdown::render('%s')" (buffer-file-name)))))
     (set-process-sentinel process 'rmd-render-sentinel)))
 
 (defun rmd-render-display-output-buffer ()
@@ -67,17 +68,17 @@
 ;; personal keybindings added as minor mode
 
 (define-minor-mode rmd-minor-mode
-  "An ad-hoc mode for providing separate keymap"
+  "Provides separate keymap for rmd mode."
   nil nil rmd-minor-mode-map)
 
 (defun rmd-mode ()
-  "ESS Markdown mode for rmd files"
+  "ESS Markdown mode for rmd files."
   (interactive)
   (require 'poly-R)
   (require 'poly-markdown)
   (let (value)
     (setq value (poly-markdown+r-mode)) ; true/false
-    (rmd-minor-mode)
+    (rmd-minor-mode)                    ; comes after invoking major mode
     value))
 
 ;; --------------------------------------------------------------------------

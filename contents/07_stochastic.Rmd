@@ -71,7 +71,7 @@ $$
 
 <figure>
 <center>
-<img src="./figures/Ott_Fig_3-4.png" alt="Ott_Fig_3-4" width="50%"/>
+<img src="./figures/Ott_Fig_3-4_r.png" alt="Ott_Fig_3-4" width="50%"/>
 <figcaption>Figure 3.4 from @Ott1994</figcaption>
 </center>
 </figure>
@@ -141,9 +141,7 @@ $$
 
 ## Non-(globally)parameteric estimates of the PDF and CDF for a set of observations
 
-(Empirical distributions)
-
-For exploratory analysis, it is useful to visualize $F_X(x)$ and $f_X(x)$ that do not assume any fixed probability distributions a priori.
+For exploratory analysis, it is useful to visualize $F_X(x)$ and $f_X(x)$ that do not assume any fixed probability distributions a priori (empirical distributions).
 
 **Empiricial CDF**. We can estimate the CDF by number of elements in sample set less than or equal to a value $x$ divided by the number of elements in the sample set:
 \[
@@ -190,3 +188,4 @@ Shown below are the same Old Faithful duration histograms superimposed by densit
 
 Note that the form of $K$ is not related to the actual distribution of $X$. Alternative kernels include rectangular, triangular, cosine, etc. For instance, the cosine kernel would be $K(u) = (1+\cos \pi u)/2$ over [-1,1].
 
+# References

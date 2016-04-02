@@ -220,14 +220,16 @@ print(ggp)
 
 ## Power spectrum
 
-R has a built-in function, `spectrum`, to calculate the power spectrum. For illustration, we will apply it to hourly time series from July.
+### Example with single variable
+
+R has a built-in function, `spectrum`, to calculate the power spectrum. For illustration, we will apply it to hourly time series from July. For further details, see `?spectrum`.
 
 ```{r, error=TRUE}
 ix <- df[["month"]]=="Jul"
 spec <- spectrum(df[ix,"CO"])
 ```
 
-We see that there is an error on account of missing values. There is a class of statistical  techniques called "imputation" for replacing missing values, but in our case we will simply use linear interpolation. This is accomplished using the `approx` function built into R.
+We see that there is an error on account of missing values. There is a class of statistical  techniques called "imputation" for replacing missing values, but in our case we will simply use linear interpolation. This is accomplished using the `approx` function built into R. For further details, see `?approx`.
 
 ```{r}
 out <- approx(df[ix,"datetime"], df[ix,"CO"], df[ix,"datetime"])
@@ -239,7 +241,7 @@ The list element `y` contains the interpolated values, and now we can calculate 
 spec <- spectrum(out[["y"]])
 ```
 
-We can add frequencies which correspond to periods of 4, 6, 8, ... hours. This is using the *base graphics* plotting functionality (in contrast to ggplot) in R:
+We can add frequencies which correspond to periods of 4, 6, 8, ... hours. This is using the *base graphics* plotting functionality (in contrast to ggplot, which we have been using for most other applications) in R:
 
 ```{r, echo=-1}
 <<spec.plot>>
@@ -247,6 +249,8 @@ hrs <- c("4-hr"=4, "6-hr"=6, "8-hr"=8, "12-hr"=12, "daily"=24, "weekly"=24*7, "m
 abline(v=1/hrs, col=seq(hrs)+1, lty=2)
 legend("topright", names(hrs), col=seq(hrs)+1, lty=2, bg="white")
 ```
+
+### Application to multiple variables (hourly values)
 
 Next, we want to generalize over all seasons and variables:
 
@@ -274,6 +278,8 @@ ggp <- ggplot(spec)+
 print(ggp)
 ```
 
+### Application to multiple variables (daily values)
+
 We can also calculate daily averages and apply the spectra decomposition:
 
 ```{r}
@@ -298,3 +304,4 @@ ggp <- ggplot(spec.daily)+
 print(ggp)
 ```
 
+# References
