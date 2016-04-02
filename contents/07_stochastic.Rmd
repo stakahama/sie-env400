@@ -1,5 +1,7 @@
 ---
 title: "Stochastic processes and random variables"
+header-includes:
+   - \usepackage[version=4]{mhchem}
 output:
   html_document:
     toc: true
@@ -35,9 +37,16 @@ $$
 Any physical observation we make can be considered as "sampling" from this distribution. 
 The actual value that we observe will depend on a large number of stochastic processes, but the likelihood of drawing a particular value will follow $f_x(x)$.
 
+Appearance of randomness can arise from 
+
+* *variability*: natural variations
+* *uncertainty*: "incomplete scientific or technical knowledge" (Morgan 1990), or our lack of capability for accurate/precise observation. (our ignorance regarding functional dependences among variables may lead to the appearance of randomness)
+\end{itemize}
+
+
 ## Characterizing random variables with probability distributions, expected value, and variance
 
-In this and future modules, we will introduce nonparameteric and three parameteric distributions: uniform, normal, and lognormal distributions.
+In this lesson, we will introduce nonparameteric and three parameteric distributions: uniform, normal, and lognormal distributions. 
 
 In addition, we will discuss two main properties of random variables.
 
@@ -77,7 +86,7 @@ $$
 </figure>
 <br>
 
-## Normal distribution
+### Normal distribution
 
 
 PDF and CDF:
@@ -112,7 +121,7 @@ $$
 </figure>
 <br>
 
-## Lognormal distribution
+### Lognormal distribution
 
 PDF and CDF:
 $$
@@ -187,5 +196,199 @@ Shown below are the same Old Faithful duration histograms superimposed by densit
 <br>
 
 Note that the form of $K$ is not related to the actual distribution of $X$. Alternative kernels include rectangular, triangular, cosine, etc. For instance, the cosine kernel would be $K(u) = (1+\cos \pi u)/2$ over [-1,1].
+
+## Descriptive and inferential statistics
+
+We distinguish among three types of statistics:
+
+* *Descriptive statistics*: Provide characterization of your random variables with meaningful metrics that simplify their representation.
+* *Inferential statistics*: Determine underlying mechanisms that generated the data, or draw conclusions regarding the value of metrics or estimates observed given the variability in the data.
+* *Predictive statistics*: Descriptive statistics of current or local data are often used to make forecasts in future scenarios.
+
+Probability distributions:
+
+* Probability distribution can be used to describe natural variability of NO<sub>2</sub> concentrations (due to mechanistic reasons). We can obtain more restrictive probability distributions by identifying the underlying factors and creating a number of probability distributions, each of which applies to a set of specific conditions.
+* In many circumstances, we can describe probability distributions with a parameteric distribution (i.e., an analytical function with a fixed set of parameters). E.g., *a lognormal distribution*.
+* We can imagine that there are uncertainties regarding our knowledge of the exact probability distribution of NO<sub>2</sub>. If we describe this distribution in parameteric form, then we can understand one aspect of the uncertainties in distribution through studying the uncertainties in the parameters of this distribution.
+* Uncertainty regarding a parameter can also be characterized with a probability distribution of the estimator for that parameter.
+
+
+As described above, characteristics most commonly used statistics to describe distributions of random variable are:
+
+* expected value, written as $\E(X)$ or $\mu_X$
+* variance, written as $\Var(X)$ or $\sigma_X^2$
+
+For a normal distribution, $\mu\pm\sigma$ encompasses 68.2\%, $\mu\pm 2\sigma$ encompasses 95.5\%, $\mu\pm 2\sigma$ encompasses 99.7\%, and so on. We can also consider their geometric corollaries, which are appropriate for lognormally distributed variables: geometric mean ($\mu_{\log(X)}$) and geometric standard deviation ($\sigma_{\log(X)}$).
+
+The mean and variance are examples of the possible \emph{moments} of a distribution $f(x)$, which include skewness (3rd order), kurtosis (4th order), and so on.
+$$
+M_n(X) = \int_{-\infty}^\infty (x-c)^n f(x) dx
+$$
+Higher order moments ($n > 2$) are not commonly used in practice.
+
+We can also compute *order statistics*, which do not assume any parameteric form $f_\theta(x)$ of the underlying distribution.
+
+* median
+* quartiles and interquartile-range (IQR)
+* quantiles (e.g., 5th to 95th percentile)
+* range
+
+These metrics more generally describe the *central tendencies* and *dispersion* in the distribution. The difference between the mean and median may provide indication regarding the symmetry of the distribution.
+
+
+# R Demonstration
+
+```{r}
+library(dplyr)
+library(reshape2)
+library(chron)
+library(ggplot2)
+```
+
+```{r}
+source("GRB001.R")
+```
+
+```{r}
+Sys.setlocale("LC_TIME","C")
+options(stringsAsFactors=FALSE)
+options(chron.year.abb=FALSE)
+theme_set(theme_bw())
+```
+
+```{r}
+df <- readRDS("data/2013/lau-zue.rds")
+lau <- df %>% filter(site=="LAU")
+```
+
+## Ozone in Lausanne (probability/kernel density)
+
+The annual probability density appears to be multimodal, but we can see that this is due to the strong variation in seasonal probability distributions of ozone concentrations.
+
+```{r}
+ggp <- ggplot(lau)+
+  geom_line(aes(x=O3, ymax=..density..),
+            stat="density", position="identity")+
+              xlab(expression("O3 concentration"~(mu*g/m^3)))
+print(ggp)
+```
+
+```{r}
+ggp <- ggplot(lau)+
+  geom_line(aes(x=O3, ymax=..density.., group=month, color=month),
+            stat="density",
+            position="identity")+
+              xlab(expression("O3 concentration"~(mu*g/m^3)))
+print(ggp)
+```
+
+
+## Ozone in Lausanne (ECDF)
+  
+We can also view the empirical CDFs (ECDF) of hourly concentrations for 2013. ECDFs can be computed with R in (see `?ecdf`), but can be applied during the call to `ggplot`.
+
+```{r}
+ggp <- ggplot(lau)+
+  geom_line(aes(x=O3), stat="ecdf")+
+    xlab(expression("O3 concentration"~(mu*g/m^3)))+
+      ylab("Probability")
+print(ggp)
+```
+
+We can also segregate the ECDFs by month; for ozone there is a particularly strong variation.
+
+```{r}
+ggp <- ggplot(lau)+
+  geom_line(aes(x=O3, group=month, color=month),
+            stat="ecdf", position="identity")+
+  xlab(expression("O3 concentration"~(mu*g/m^3)))+  
+  ylab("Probability")
+```
+
+## All pollutants in Lausanne and Zurich
+
+First, we must convert our data frame to the elongated format.
+
+```{r}
+id.vars <- c("datetime", "season", "month", "site")
+pollutants <- c("O3", "NO2", "CO", "PM10", "SO2", "NMVOC", "EC")
+lf <- melt(df[, c(id.vars, pollutants)], id.vars=id.vars)
+
+```
+
+```{r, fig.width=10, fig.height=3.5}
+ggp <- ggplot(lf)+
+  geom_line(aes(x=value, group=month, color=month),
+            stat="ecdf", position="identity")+
+              facet_grid(site~variable,scale="free_x")+
+                xlab("Value")+  
+                  ylab("Probability")
+print(ggp)
+```
+
+## Descriptive statistics
+
+Define some functions: 
+```{r}
+Geomean <- function(x, na.rm = FALSE, trim = 0, ...) {
+  ## Geometric mean
+  exp(mean(log(x, ...), na.rm = na.rm, trim = trim, ...))
+}
+
+Geosd <- function(x, na.rm = FALSE, ...) {
+  ## Geometric standard deviation  
+  exp(sd(log(x, ...), na.rm = na.rm, ...))
+}
+
+ComputeCentral <- function(x) {
+  ## x is a vector of values
+  stats <- c("mean"    = mean(x,na.rm=TRUE),
+             "median"  = median(x,na.rm=TRUE),
+             "geomean" = Geomean(x,na.rm=TRUE))
+  data.frame(stat=factor(names(stats), names(stats)), value=stats)
+}
+
+ComputeDispersion <- function(x) {
+  ## x is a vector of values
+  stats <- c("sd"    = sd(x,na.rm=TRUE),
+             "IQR"   = IQR(x,na.rm=TRUE),
+             "geosd" = Geosd(x,na.rm=TRUE))
+  data.frame(stat=factor(names(stats), names(stats)), value=stats)
+}
+```
+
+Compute statistics:
+```{r}
+stats.central <- lf %>% filter(site=="LAU" & !is.na(value)) %>%
+  group_by(season, variable) %>%
+    do(ComputeCentral(.[["value"]]))
+
+stats.disp <- lf %>% filter(site=="LAU" & !is.na(value)) %>%
+  group_by(season, variable) %>%
+  do(ComputeDispersion(.[["value"]]))
+
+```
+
+Compare central values:
+```{r, fig.width=10, fig.height=5}
+ggp <- ggplot(stats.central)+
+  geom_bar(aes(stat, value),
+           stat="identity",
+           fill="gray")+
+             facet_grid(variable~season,scale="free_y")
+print(ggp)
+```
+Why are geomean values missing?
+
+Compare dispersion metrics:
+```{r, fig.width=10, fig.height=5}
+ggp <- ggplot(stats.disp)+
+  geom_bar(aes(stat, value),
+           stat="identity",
+           fill="gray")+
+             facet_grid(variable~season,scale="free_y")
+print(ggp)
+```
+Why are geosd values missing?
 
 # References
