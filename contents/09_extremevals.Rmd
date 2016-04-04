@@ -50,9 +50,9 @@ We will discuss methods for handling observations which fall outside of the gene
 
 ## Extreme values and outliers
 
-For statistical treatment of this topic, see @Barnett1994 from which much of this material has been taken.
+For a thorough treatment of this topic, see @Barnett1994 from which much of this material has been taken.
 
-In practice, univariate or multivariate observations that fall outside of the general patterns (``extreme values'') are informally separated and removed, or reserved for further analysis.
+In practice, univariate or multivariate observations that fall outside of the general patterns ("extreme values") are informally separated and removed, or reserved for further analysis.
 
 * In some cases, log books recording accounts of calibrations dates, measurement conditions, and unusal events will reveal the nature of these extreme observations (this is always the first step).
 * An outlier or extreme value is sometimes removed from a data set for lack of  representativeness, but it should always be noted that data points have been removed, and  accompanied by justification. 
@@ -87,7 +87,7 @@ Treatment of outliers
 <img src="./figures/Barnett_Fig_2-1.png"/>
 </figure>
 <figcaption>
-[@Barnett1994]
+Figure 2.1 from @Barnett1994.
 </figcaption>
 </center>
 
@@ -178,15 +178,16 @@ E.g., Dixon Q-test.
 \]
 
 
-## Accommodating outliers [@Venables2003]
+## Accommodating outliers
 
+For a thorough treatment of this topic, see @Venables2003 from which much of this material has been taken.
 
-*Why will it not suffice to screen data and remove outliers?*
+*Why will it not suffice to screen data and remove outliers?* [@Venables2003]
 
 1. Users, even expert statisticians, do not always screen the data.
 2. The sharp decision to keep or reject an observation is wasteful. We can do better by down-weighting dubious observations than by rejecting them, although we may wish to reject completely wrong observations.
 3. It can be difficult or even impossible to spot outliers in multivariate or highly structured data.
-4. Rejecting outliers affects the distribution theory, which ought to be adjusted. In particular, variances will be underestimated from the ``cleaned'' data.
+4. Rejecting outliers affects the distribution theory, which ought to be adjusted. In particular, variances will be underestimated from the "cleaned" data.
 
 
 
