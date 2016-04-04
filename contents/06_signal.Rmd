@@ -12,9 +12,9 @@ library(knitr)
 opts_chunk$set(fig.path='figures_rmd/lec06_', fig.align='center', warning=FALSE, message=FALSE)
 ```
 
-In this lesson, we will explore how to examine relationships among observations that are made in a sequence (time series).
-
 # Background
+
+In this lesson, we will explore how to examine relationships among observations that are made in a sequence (time series). We will focus on characterizing additional patterns within a single time series.
 
 ## Autocovariance and autocorrelation
 
@@ -179,18 +179,18 @@ We will plot the effect of the lag (shown across rows) on two meteorological var
 ```{r, fig.width=7, fig.height=7}
 ggp <- ggplot(filter(lagged, variable=="RAD"))+
   geom_abline(intercept=0, slope=1)+  
-    geom_point(aes(x0, xk), shape=3, color="gray")+
-      facet_grid(lag~season)+
-        labs(x=expression(x(t[0])), y=expression(x(t[k])))
+  geom_point(aes(x0, xk), shape=3, color="gray")+
+  facet_grid(lag~season)+
+  labs(x=expression(x(t[0])), y=expression(x(t[k])))
 print(ggp)
 ```
 
 ```{r, fig.width=7, fig.height=7}
 ggp <- ggplot(filter(lagged, variable=="TEMP"))+
   geom_abline(intercept=0, slope=1)+  
-    geom_point(aes(x0, xk), shape=3, color="gray")+
-      facet_grid(lag~season)+
-        labs(x=expression(x(t[0])), y=expression(x(t[k])))
+  geom_point(aes(x0, xk), shape=3, color="gray")+
+  facet_grid(lag~season)+
+  labs(x=expression(x(t[0])), y=expression(x(t[k])))
 print(ggp)
 ```
 
@@ -211,10 +211,10 @@ We can view the correlelograms for all variables:
 ```{r, fig.width=7, fig.height=9}
 ggp <- ggplot(autocorr)+
   geom_hline(yintercept=0)+        
-    geom_point(aes(lag, acf))+
-      geom_segment(aes(lag, 0, xend=lag, yend=acf))+
-        facet_grid(variable~season)+
-          labs(x="lag", y="acf")
+  geom_point(aes(lag, acf))+
+  geom_segment(aes(lag, 0, xend=lag, yend=acf))+
+  facet_grid(variable~season)+
+  labs(x="lag", y="acf")
 print(ggp)
 ```
 
@@ -229,7 +229,18 @@ ix <- df[["month"]]=="Jul"
 spec <- spectrum(df[ix,"CO"])
 ```
 
-We see that there is an error on account of missing values. There is a class of statistical  techniques called "imputation" for replacing missing values, but in our case we will simply use linear interpolation. This is accomplished using the `approx` function built into R. For further details, see `?approx`.
+We see that there is an error on account of missing values. Oftentimes it is common to assess the extent of missing values by a quantity known as "percent (or fraction) data recovery." If the recovery is less than 75% (as a rule of thumb), you may want to flag any aggregated statistic calculated over this period (averages, periodicity, etc.) as unrepresentative/unreliable.
+
+```{r}
+PercentRecovery <- function(x) {
+  length(na.omit(x))/length(x)*1e2
+}
+
+PercentRecovery(df[ix,"CO"])
+```
+In this case, our data recovery is acceptable and we assume that interpolating over a few points will not affect the analysis too much. There are additional R packages (e.g., VIM) for visualizing patterns in missing data that may affect the analysis.
+
+Furthermore, there is a class of statistical techniques called "imputation" for replacing missing values. For our lesson, we will simply use linear interpolation. This is accomplished using the `approx` function built into R. For further details, see `?approx`.
 
 ```{r}
 out <- approx(df[ix,"datetime"], df[ix,"CO"], df[ix,"datetime"])
@@ -252,7 +263,16 @@ legend("topright", names(hrs), col=seq(hrs)+1, lty=2, bg="white")
 
 ### Application to multiple variables (hourly values)
 
-Next, we want to generalize over all seasons and variables:
+Next, we want to generalize over all seasons and variables. First, let us examine our data recovery:
+
+```{r}
+data.frame(lf %>% group_by(site, season, variable) %>%
+  summarize(recovery=sprintf("%.0f%%",PercentRecovery(value))))
+```
+
+We find again that simple interpolation will likely not affect our results on account of the small number of missing values.
+
+Let us apply the `spectrum` function more generally:
 
 ```{r}
 Spectr <- function(x, y) {
@@ -272,9 +292,9 @@ period <- data.frame(label=factor(names(hrs), names(hrs)), freq=1/hrs)
 
 ggp <- ggplot(spec)+
   geom_vline(aes(xintercept=freq, color=label), data=period, linetype=2)+  
-    geom_line(aes(freq, spec))+
-      facet_grid(variable~season, scale="free_y")+
-        scale_y_log10()
+  geom_line(aes(freq, spec))+
+  facet_grid(variable~season, scale="free_y")+
+  scale_y_log10()
 print(ggp)
 ```
 
@@ -285,7 +305,7 @@ We can also calculate daily averages and apply the spectra decomposition:
 ```{r}
 daily <- lf %>% mutate(date=dates(datetime)) %>%
   group_by(site, variable, season, date) %>%
-    summarize(value=mean(value, na.rm=TRUE))
+  summarize(value=mean(value, na.rm=TRUE))
 
 spec.daily <- daily %>% group_by(site, season, variable) %>%
   do(Spectr(.[["date"]],.[["value"]]))
@@ -299,8 +319,8 @@ Plot results for daily power spectra:
 ```{r, fig.width=7, fig.height=7}
 ggp <- ggplot(spec.daily)+
   geom_vline(aes(xintercept=freq, color=label), data=period.daily, linetype=2)+  
-    geom_line(aes(freq, spec))+
-      facet_grid(variable~season, scale="free_y")
+  geom_line(aes(freq, spec))+
+  facet_grid(variable~season, scale="free_y")
 print(ggp)
 ```
 

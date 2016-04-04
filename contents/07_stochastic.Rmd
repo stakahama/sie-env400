@@ -197,7 +197,7 @@ Shown below are the same Old Faithful duration histograms superimposed by densit
 
 Note that the form of $K$ is not related to the actual distribution of $X$. Alternative kernels include rectangular, triangular, cosine, etc. For instance, the cosine kernel would be $K(u) = (1+\cos \pi u)/2$ over [-1,1].
 
-## Descriptive and inferential statistics
+## Types of statistics
 
 We distinguish among three types of statistics:
 
@@ -205,13 +205,12 @@ We distinguish among three types of statistics:
 * *Inferential statistics*: Determine underlying mechanisms that generated the data, or draw conclusions regarding the value of metrics or estimates observed given the variability in the data.
 * *Predictive statistics*: Descriptive statistics of current or local data are often used to make forecasts in future scenarios.
 
-Probability distributions:
+Probability distributions can be used to describe natural variability and uncertainties in our measurement or knowledge:
 
-* Probability distribution can be used to describe natural variability of NO<sub>2</sub> concentrations (due to mechanistic reasons). We can obtain more restrictive probability distributions by identifying the underlying factors and creating a number of probability distributions, each of which applies to a set of specific conditions.
+* Probability distribution can be used to describe *natural variability* of pollutant (e.g., NO<sub>2</sub>) concentrations (due to mechanistic reasons). We can obtain more restrictive probability distributions by identifying the underlying factors and creating a number of probability distributions, each of which applies to a set of specific conditions.
 * In many circumstances, we can describe probability distributions with a parameteric distribution (i.e., an analytical function with a fixed set of parameters). E.g., *a lognormal distribution*.
-* We can imagine that there are uncertainties regarding our knowledge of the exact probability distribution of NO<sub>2</sub>. If we describe this distribution in parameteric form, then we can understand one aspect of the uncertainties in distribution through studying the uncertainties in the parameters of this distribution.
+* We can imagine that there are *uncertainties* regarding our knowledge of the exact probability distribution of pollutant (e.g., NO<sub>2</sub>). If we describe this distribution in parameteric form, then we can understand one aspect of the uncertainties in distribution through studying the uncertainties in the parameters of this distribution.
 * Uncertainty regarding a parameter can also be characterized with a probability distribution of the estimator for that parameter.
-
 
 As described above, characteristics most commonly used statistics to describe distributions of random variable are:
 
@@ -357,19 +356,13 @@ ComputeDispersion <- function(x) {
 }
 ```
 
-Compute statistics:
+Compare central values:
 ```{r}
 stats.central <- lf %>% filter(site=="LAU" & !is.na(value)) %>%
   group_by(season, variable) %>%
-    do(ComputeCentral(.[["value"]]))
-
-stats.disp <- lf %>% filter(site=="LAU" & !is.na(value)) %>%
-  group_by(season, variable) %>%
-  do(ComputeDispersion(.[["value"]]))
+  do(ComputeCentral(.[["value"]]))
 
 ```
-
-Compare central values:
 ```{r, fig.width=10, fig.height=5}
 ggp <- ggplot(stats.central)+
   geom_bar(aes(stat, value),
@@ -381,6 +374,12 @@ print(ggp)
 Why are geomean values missing?
 
 Compare dispersion metrics:
+```{r}
+stats.disp <- lf %>% filter(site=="LAU" & !is.na(value)) %>%
+  group_by(season, variable) %>%
+  do(ComputeDispersion(.[["value"]]))
+```
+
 ```{r, fig.width=10, fig.height=5}
 ggp <- ggplot(stats.disp)+
   geom_bar(aes(stat, value),

@@ -28,6 +28,8 @@ The assignment is to analyze measurements from the Swiss Federal Office of the E
 
 Write a report on the following content. You can find many details on the [BAFU website](http://www.bafu.admin.ch/luft/index.html?lang=en), and in the lectures of the course.
 
+<hr style="height:1px;border:none;color:#333;background-color:#333;">
+
 Describe each instrument used to measure air pollutants.
 
 1. What is the physical or chemical principle behind their measurement? What are potential biases or errors in each type of measurement?
@@ -65,6 +67,8 @@ Determine if pollutant concentrations are lognormally distributed for 1) hourly-
 
 Note that the main theme is to discuss variation of pollutant concentrations in terms of emissions and atmospheric processes.
 
+<hr style="height:1px;border:none;color:#333;background-color:#333;">
+
 # Lesson outline
 
 1. Motivating example
@@ -73,10 +77,9 @@ Note that the main theme is to discuss variation of pollutant concentrations in 
 4. Visualizing time series
 5. Correlations and cross-correlations
 6. Autocorrelation and periodicity
-7. Stochastic processes and random variables 
-8. Normal processes and the central limit theorem
-9. Lognormal processes and environmental dispersion
-10. Extreme values: detection and accommodation
+7. Stochastic processes and random variables
+8. Inferential statistics and hypothesis testing
+9. Extreme values: detection and accommodation
 
 # Data analysis
 
