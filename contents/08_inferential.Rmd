@@ -18,10 +18,9 @@ opts_chunk$set(fig.path='figures_rmd/lec08_', fig.align='center', warning=FALSE,
 
 # Background
 
-
 In this lesson:
 
-* How do we compare two sets of concentrations? Are weekend concentrations higher than weekday? Are concentrations in Zurich higher than Lausanne? There are many ways to answer these questions. We will discuss how to compare average values.
+* How do we compare two sets of concentrations? Are weekend concentrations higher than weekday? Are concentrations in Zurich higher than Lausanne? There are many ways to answer these questions. We will discuss how to compare average values and declare whether they might be different, given the distribution of concentrations in the measurements.
 * Can our data tell us something about the dominant atmospheric process responsible for the observed concentrations of a pollutant? What might that say about the nature of the source of the pollutant? We will evaluate whether dispersion might be a dominant source.
 
 To answer these questions, we turn to inferential statistics. We will pose a hypothesis, and let the data tell us whether it may be true or not.
@@ -36,6 +35,7 @@ Topics:
 * Lognormal processes and environmental dispersion
 * Hypothesis testing framework
 * Sampling distribution of the mean
+* Testing differences in means
 * Fitting probability distributions
 * Considerations for extension to other tests
 
@@ -181,7 +181,7 @@ Hypothesis testing is a method of statistical inference by which we determine wh
 Let $X$ represent the concentration of an atmospheric pollutant. In the statistical view,
 
 * $X$ is a random variable and has a probability distribution. 
-* Any physical observation we make can be considered as ``sampling'' from this distribution. 
+* Any physical observation we make can be considered as "sampling" from this distribution. 
 * The actual value that we observe will depend on a large number of stochastic processes, but the likelihood of drawing a particular value will follow a probability distribution prescribed by $X$.
 
 The sample mean, $\bar{X}$, is an \emph{estimator} of the mean of $X$, $\mu_X$, and \emph{also has a probability distribution}. 
@@ -382,7 +382,7 @@ Conceived by William S. Gosset under the pseudonym, Student, while employed at b
 </center>
 <br>
 
-* Suitable for capturing the longer-tailed feature of the sampling distribution when the number of samples is small (``frequency distribution of standard deviations of samples drawn from a normal population'').
+* Suitable for capturing the longer-tailed feature of the sampling distribution when the number of samples is small ("frequency distribution of standard deviations of samples drawn from a normal population").
 * Note that as $\nu \to \sim 30$, $t$-distribution converges to the normal distribution.
 
 <center>
@@ -443,7 +443,7 @@ $$
   \end{aligned}
   $$
 
-  $\alpha$ is called the ``significance level'', and the confidence interval corresponds to $(1-\alpha)\times 100%$. E.g., defining an acceptance region for $H_0$ at the $\alpha=0.05$ significance level corresponds to a confidence interval of 95\%.
+  $\alpha$ is called the "significance level", and the confidence interval corresponds to $(1-\alpha)\times 100%$. E.g., defining an acceptance region for $H_0$ at the $\alpha=0.05$ significance level corresponds to a confidence interval of 95\%.
 \medskip
 
 To determine whether to reject $H_0$ or not, compare computed value of test statistic $t$ to fixed values $t_{\alpha,\nu}$ (one-sided) or $t_{\alpha,\nu/2}$ (two-sided) defined for $\nu$ (given by the data set) and $\alpha$ (determined by practioner). 
@@ -459,7 +459,7 @@ For the two-sided case, $t_{\alpha,\nu/2}$ (a positive value) is defined such th
 For the two-sided case, \emph{we would reject the null hypothesis at the $\alpha$ significance level if $|t| > t_{\alpha,\nu/2}$}.
 
     
-*Alternate method of presentation*. With a given set of data and test statistic, we can define the ``$p$-value'' as the smallest level of significance that would lead to rejection of the null hypothesis $H_0$. For the two-sided case, $p$-value corresponds to
+*Alternate method of presentation*. With a given set of data and test statistic, we can define the "$p$-value" as the smallest level of significance that would lead to rejection of the null hypothesis $H_0$. For the two-sided case, $p$-value corresponds to
     \[
     \text{$p$-value} = P(T > |t|) + P(T < -|t|)
     \]
@@ -536,7 +536,7 @@ It is important to note that we assume the distribution is lognormal unless we h
 <figure>
 <img src="./figures/Devore_Fig_14-1.png"/>
 <figcaption>
-Illustration of the $\chi^2$ distribution with critical region shaded in gray [@Devore2012].
+Illustration of the $\chi^2$ distribution with critical region shaded in gray [Figure 14.1 from @Devore2012].
 </figcaption>
 </figure>
 </center>
@@ -546,13 +546,16 @@ Illustration of the $\chi^2$ distribution with critical region shaded in gray [@
 
 Why concentrations may be lognormally distributed:
 
-* Pollutants may reach the instrument via emission and successive dilution (background/long-range transport). 
+* Pollutants arrive reach the stationary measurement station. This may help distinguish pollutants that arrive from long-range transport -- what we might refer to as "background".
 
-Why concentrations may depart from lognormal distribution [@Morrison2010]:
+Why concentrations may depart from lognormal distribution:
 
-* mixing of sources
-* physical upper limit on concentration (lognormal distribution assumes upper limit is infinity)
+* mixing of sources (e.g., contribution from local sources)
+* physical upper limit on concentration -- either at emission source or in the environment (lognormal distribution assumes upper limit is infinity)
+* instrument detection limits lead to skewness in concentrations near zero
+*
 
+Further discussion can be found in the academic literature [e.g., @Kao1995, @Hadley2003, @Morrison2010].
 
 ## Extension to other tests
 
@@ -581,11 +584,29 @@ As another exampe, it is often requested that tests of significance be provided 
 <figure>
 <img src="./figures/Devore_Fig_12-21.png" width="50%"/>
 <figcaption>
-A graph of a bivariate normal pdf [@Devore2012].
+A graph of a bivariate normal pdf [Figure 12.21 from @Devore2012].
 </figcaption>
 </figure>
 </center>
 <br>
+
+## Hypothesis testing in modern discourse
+
+Hypothesis testing and $p$-values are used extensively in the medical and psychological disciplines and is currently under intense scrutiny.
+
+"$P$ values are commonly used to test (and dismiss) a ‘null hypothesis’, which generally states that there is no difference between two groups, or that there is no correlation between a pair of characteristics. The smaller the $P$ value, the less likely an observed set of values would occur by chance — assuming that the null hypothesis is true.
+
+A P value of 0.05 does not mean that there is a 95% chance that a given hypothesis is correct. Instead, it signifies that if the null hypothesis is true, and all other assumptions made are valid, there is a 5% chance of obtaining a result at least as extreme as the one observed. And a P value cannot indicate the importance of a finding; for instance, a drug can have a statistically significant effect on patients’ blood glucose levels without having a therapeutic effect."
+- [*Nature* **531**, 151; 2016](http://www.nature.com/news/statisticians-issue-warning-over-misuse-of-p-values-1.19503)
+
+"$P$ values are widely used in science to test null hypotheses. For example, in a medical study looking at smoking and cancer, the null hypothesis could be that there is no link between the two. Many researchers interpret a lower $P$ value as stronger evidence that the null hypothesis is false. Many also accept findings as 'significant' if the P value comes in at less than 0.05. But $P$ values are slippery, and sometimes, significant $P$ values vanish when experiments and statistical analyses are repeated (see [*Nature* **506**, 150–152; 2014](http://www.nature.com/news/scientific-method-statistical-errors-1.14700))."
+- [*Nature* **519**, 9; 2015](http://www.nature.com/news/psychology-journal-bans-p-values-1.17001)
+
+A more general problem is that "[a]rbitrary levels of statistical significance can be achieved by changing the ways in which data are cleaned, summarized or modelled."
+- [*Nature* **520**, 612; 2015](http://www.nature.com/news/statistics-p-values-are-just-the-tip-of-the-iceberg-1.17412)
+
+Bottom line: the $P$ value is not an absolute value that stands on its own. When reporting $P$ values, it is important to thoroughly document the procedure of your analysis; including effect size and confidence intervals (which inherently includes sample size) to communicate the "magnitude and relative importance of an effect" -[*Nature* 506, 150–152; 2014](http://www.nature.com/news/scientific-method-statistical-errors-1.14700).
+
 
 # R demonstration
 
@@ -710,13 +731,13 @@ Since the $p$-value is less than $\alpha=0.05$, we can say that we would reject 
 ## Fitting probability distributions
 
  
- We can use R's fitdistrplus library:
+ We can use the fitdistrplus library available in R:
 
 ```{r}
 library(fitdistrplus)
 ```
 
-Fit a distribution (`"lnorm"`) and plot:
+The `fitdist` function fits a distribution by maximum likelihood by default (see `?fitdist` for more information). Let is fit a lognormal distribution (`"lnorm"`), which also produces a plot:
 ```{r}
 hourly <- lf %>% filter(month=="Jul" & variable=="NO2")
 concvec <- c(na.omit(hourly[["value"]]))
@@ -728,7 +749,7 @@ Print output:
 print(fit)
 ```
 
-Print:
+Print Goodness-of-Fit statistics (see `?gofstat` for more information):
 ```{r}
 print(gofstat(fit))
 ```
@@ -743,72 +764,86 @@ Plot:
 plot(fit)
 ```
 
+### The P-P plot
+
+The P-P plot compares the theoretical and empirical cumulative distribution functions (CDFs).
+
+* The theoretical CDF is given by $F_X(x)$ constructed using parameters of the distribution estimated from the data (in this case, $\mu$ and $\sigma$ of the lognormal distribution).
+* The ECDF was defined in a previous lesson:
+$$
+\hat{F}_X(x) = \frac{1}{n} \Big{|}\{x_i \leq x \, : \, i=1,2,\ldots,n\}\Big{|}
+$$
+
+If the proposed distribution is a "good fit" and the parameters have been estimated correctly, the points generally fall on the 1:1 line. See [this page](http://stats.stackexchange.com/a/101290/1021) for illustrations of various departures from this condition.
 
 ### The Q-Q plot
-  
-  The Q-Q (quantile-quantile) plot compares quantiles (values of $x$) from the empirical cumulative distribution function (CDF) for a give probability $p$:
-  \[
-  \text{empirical quantile($p$)}=\min\{x : \text{proportion of $p$ of the data $\leq x$}\}
-  \]
-  against theoretical quantiles of a CDF $F_X(x)$ built upon parameters of the distribution estimated from the data (in this case, $\mu$ and $\sigma$ of the lognormal distribution). Since $p = F_{X}(x) \Rightarrow x = F_{X}^{-1}(p)$:
-  \[
-  \text{theoretical quantile($p$)}= F_{X;\hat{\mu},\hat{\sigma}}^{-1}(p)
-  \]
-  We emphasize that $F_X$ is parameterized by $\mu$ and $\sigma$, and have added this notation in the subscript. The hat over the symbols indicate that they are values estimated from the data.
 
+The Q-Q (quantile-quantile) plot compares quantiles (values of $x$) from the theoretical and empirical CDFs.
 
-If the proposed distribution is a ``good fit'' and the parameters have been estimated correctly, the points generally fall on the 1:1 line. See [this page](http://stats.stackexchange.com/a/101290/1021) for illustrations of various departures from this condition.
+* Given theoretical CDF $F_X(x)$ constructed from a lognormal model fitted to the data, $p = F_{X}(x) \Rightarrow x = F_{X}^{-1}(p)$:
+$$
+\text{theoretical quantile($p$)}= F_{X;\hat{\mu},\hat{\sigma}}^{-1}(p)
+$$
+The hat over the symbols indicate the parameters estimated from the data.
+* Empirical cumulative distribution function (CDF) for a given probability $p$:
+$$
+\text{empirical quantile($p$)}=\min\{x : \text{proportion of $p$ of the data $\leq x$}\}
+$$
 
-Repeating analysis with daily-averaged measurements, ...
+If the proposed distribution is a "good fit" and the parameters have been estimated correctly, the points generally fall on the 1:1 line. See [this page](http://stats.stackexchange.com/a/101290/1021) for illustrations of various departures from this condition.
+
+The Q-Q plot is generally more popular than the P-P plot, though they can indicate complementary information. For instance, the Q-Q plot is more sensitive to departure from the distribution at the extremes, while the P-P plot highlights departures that occur near the center of the distribution (note that the P-P plot limits are bounded by 0 and 1, while they are not bounded for the Q-Q plot).
+
+<!-- ### Daily-averaged measurements -->
  
-Average the data and repeat syntax:
+<!-- Arithmetic averaging of measurements can potentially downplay the physical limit on concentration. ? -->
 
-```{r}
-daily <- lf %>% 
-  filter(month=="Jul" & variable=="NO2") %>%
-  group_by(year, month, day) %>%
-    summarize(value=mean(value, na.rm=TRUE))
 
-concvec <- c(na.omit(daily[["value"]]))
-fit <- fitdist(concvec, "lnorm")
-```
+<!-- ```{r} -->
+<!-- daily <- lf %>% -->
+<!--   filter(month=="Jul" & variable=="NO2") %>% -->
+<!--   group_by(year, month, day) %>% -->
+<!--     summarize(value=mean(value, na.rm=TRUE)) -->
 
-```{r}
-print(fit)
-```
+<!-- concvec <- c(na.omit(daily[["value"]])) -->
+<!-- fit <- fitdist(concvec, "lnorm") -->
+<!-- ``` -->
 
-```{r}
-print(gofstat(fit))
-```
+<!-- ```{r} -->
+<!-- print(fit) -->
+<!-- ``` -->
 
-Extract $p$-value of chi-square test:
-```{r}
-(pval.d <- gofstat(fit)[["chisqpvalue"]])
-```
+<!-- ```{r} -->
+<!-- print(gofstat(fit)) -->
+<!-- ``` -->
 
-```{r, fig.width=7, fig.height=7}
-plot(fit)
-```
+<!-- Extract $p$-value of chi-square test: -->
+<!-- ```{r} -->
+<!-- (pval.d <- gofstat(fit)[["chisqpvalue"]]) -->
+<!-- ``` -->
 
-### Summarizing $p$-values
+<!-- ```{r, fig.width=7, fig.height=7} -->
+<!-- plot(fit) -->
+<!-- ``` -->
+
+<!-- ### Summarizing $p$-values -->
   
-Horizontal line corresponds to $\alpha$=0.05 level.
+<!-- Horizontal line corresponds to $\alpha$=0.05 level. -->
 
-```{r}
-pvalues <- data.frame(resolution=c("hourly","daily"), pvalue=c(pval.h, pval.d))
+<!-- ```{r} -->
+<!-- pvalues <- data.frame(resolution=c("hourly","daily"), pvalue=c(pval.h, pval.d)) -->
 
-ggp <- ggplot(pvalues)+
-  geom_bar(aes(resolution, pvalue), stat="identity", fill="gray")+
-  geom_hline(yintercept=0.05, linetype=2)+
-  xlab("Time resolution")+
-  ylab(expression(italic(p)*"-value"))+
-  ggtitle("p-values for chi-square test, NO2 in July, Lausanne")
+<!-- ggp <- ggplot(pvalues)+ -->
+<!--   geom_bar(aes(resolution, pvalue), stat="identity", fill="gray")+ -->
+<!--   geom_hline(yintercept=0.05, linetype=2)+ -->
+<!--   xlab("Time resolution")+ -->
+<!--   ylab(expression(italic(p)*"-value"))+ -->
+<!--   ggtitle("p-values for chi-square test, NO2 in July, Lausanne") -->
 
-print(ggp)
-```
+<!-- print(ggp) -->
+<!-- ``` -->
 
-
-If you have negative concentrations...
+**If you have negative concentrations**
 
 This may prevent you from testing whether your data is lognormally distributed or not (the function call to \verb=fitdist()= fails). This function may be useful:
 ```{r}
@@ -823,6 +858,5 @@ Example usage:
 ```{r, eval=FALSE}
 fit <- fitdist(ReplaceNonpositive(concvec), "lnorm")
 ```
-
 
 # References
