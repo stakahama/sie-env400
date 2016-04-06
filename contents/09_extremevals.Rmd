@@ -297,7 +297,7 @@ id.vars <- c("site", "datetime", "year", "month", "day", "hour", "season", "dayo
 lf <- melt(df, id.vars=id.vars)
 ```
 
-## Identifying
+## Identifying extreme values
 
 ### Hourly values
 
@@ -369,12 +369,12 @@ print(ggp)
     
 We see that despite these periods of high concentration, the mean daily values are still below the limit of 50 $\mu$g/m$^3$.
 
-As a rather uninteresting example, we can use a trimmed mean as a robust estimator of the mean. Notice that the mean is less influenced by the presence of extreme values. (Note that 10\% corresponds to $\ceil{24\times{}.1}=2$ observations removed.)
-
 ```{r}
 highdays %>% group_by(date, variable) %>%
   summarize(value=mean(value))
 ```
+
+As a rather uninteresting example, we can use a trimmed mean as a robust estimator of the mean. Notice that the mean is less influenced by the presence of extreme values. (Note that 10\% corresponds to $\ceil{24\times{}.1}=2$ observations removed.)
 
 ```{r}
 highdays %>% group_by(date, variable) %>%
@@ -383,7 +383,7 @@ highdays %>% group_by(date, variable) %>%
 
 Under what conditions do PM$_{10}$ concentration exceed regulatory limits?
 
-### Daily values
+### Daily values: PM$_{10}$ example
 
 
 Calculate daily means.
@@ -409,7 +409,7 @@ print(ggp)
 ```
 
 
-View PDF/ECDF of daily means.  
+View PDF/ECDF of daily means.
     
 ```{r}
 ggp <- ggplot(daily)+
@@ -439,7 +439,6 @@ If we observe concentrations for days in which the 50 $\mu$g/m$^3$ limit is exce
 exceeded <- filter(daily, value > 50)
 ```
 
-
 ```{r, fig.width=15, fig.height=3}
 ggp <- ggplot(filter(pm10.zue, date %in% exceeded[["date"]]), aes(hour, value))+
   geom_line()+
@@ -450,6 +449,97 @@ ggp <- ggplot(filter(pm10.zue, date %in% exceeded[["date"]]), aes(hour, value))+
   scale_y_continuous(limits=c(0,100))
 print(ggp)
 ```
+
+### Daily values: Exceedances of regulatory limits
+
+We can more generally summarize extreme values that exceedance daily limit values set forth by regulation (in Switzerland).
+
+```{r}
+limits.daily <- data.frame(value=c(100,80,8,50), 
+                           variable=c("SO2","NO2","CO","PM10")) 
+```
+Let us compute the daily means, but also note the percent recovery of data.
+
+```{r}
+CalculateMeans <- function(x)
+  data.frame(percent.recovery=length(na.omit(x))/length(x),
+             value=mean(x, na.rm=TRUE))
+
+daily <- lf %>% filter(variable %in% limits.daily[["variable"]]) %>%
+  mutate(date = dates(datetime)) %>%
+  group_by(site, date, variable) %>%
+  do(CalculateMeans(.[["value"]]))
+```
+
+We select a threshold recovery of 75%:
+
+```{r}
+threshold <- 0.75
+```
+
+Let us see how many days the data recovery is at or below this threshold for each variable:
+```{r}
+dcast(filter(daily, percent.recovery <= threshold),
+      site ~ variable, length)
+```
+
+Lausanne does not have an SO<sub>2</sub> monitor, so this makes sense, and we are only missing a few days of PM$_{10}$ measurements at each site. We can see which dates:
+
+```{r}
+filter(daily, percent.recovery <= threshold & variable=="PM10")
+```
+
+Let us visualize the time series with limit values indicated for each variable:
+
+```{r, fig.width=8, fig.height=10}
+ggplot()+
+  geom_line(aes(x=date, y=value),
+             data=daily %>% filter(percent.recovery > threshold))+
+  geom_hline(aes(yintercept=value),
+             data=limits.daily,
+             linetype=2)+
+  facet_grid(variable~site, scale="free_y")+
+  scale_x_chron(format="%d.%m")+
+  theme(axis.text.x=element_text(angle=30, hjust=1))
+```
+
+We can also view in the form of its ECDF:
+
+```{r, fig.width=8, fig.height=10}
+ggplot()+
+  geom_line(aes(x=value),
+             data=daily %>% filter(percent.recovery > threshold),
+             stat="ecdf")+
+  geom_point(aes(x=value),
+             data=daily %>% filter(percent.recovery > threshold),
+             stat="ecdf")+
+  geom_vline(aes(xintercept=value),
+             data=limits.daily,
+             linetype=2)+
+  facet_grid(variable~site, scale="free_y")
+```
+
+To select which days, we will use a lookup table as previously described. The following statement creates a named vector where limit values (`value`) is labeled by the pollutant (`variable`):
+
+```{r}
+(limits.vec <- with(limits.daily, setNames(value, variable)))
+```
+
+We can then use this vector (which implements a lookup "table") to select the dates which exceed the limit values for each variable:
+
+```{r}
+exceedances <- daily %>%
+  filter(percent.recovery > threshold &
+         value > limits.vec[as.character(variable)])
+```
+
+We can export this table with the following command:
+
+```{r, eval=FALSE}
+write.csv2(exceedances, file="exceedances.csv", row.names=FALSE)
+```
+
+Note that `write.csv2` uses the European convention for comma-separated-value files, where the delimiter is actually a semicolon (`;`) rather than comma (`,`).
 
 ## Tests of discordancy
 

@@ -152,20 +152,6 @@ $$
 
 For exploratory analysis, it is useful to visualize $F_X(x)$ and $f_X(x)$ that do not assume any fixed probability distributions a priori (empirical distributions).
 
-**Empiricial CDF**. We can estimate the CDF by number of elements in sample set less than or equal to a value $x$ divided by the number of elements in the sample set:
-\[
-\hat{F}_X(x) = \frac{1}{n} \Big{|}\{x_i \leq x \, : \, i=1,2,\ldots,n\}\Big{|}
-\]
-where $|\cdot |$ is the cardinality of (number of elements in) a set.
-
-<figure>
-<center>
-<img src="./figures/Ripley_Fig_5-5.png" alt="Ripley_Fig_5-5" width="50%"/>
-<figcaption>Figure 5.5 from @Venables2003</figcaption>
-</center>
-</figure>
-<br>
-
 **PDF**. A histogram normalized to probability rather than counts is an estimator of the density function. However, the histogram depends on the starting point of the grid of bins. Shown below are five histograms (of Old Faithful geyser duration data) with grid bins shifted (fixed width of 0.5) and the frequency polygon of their average:
 
 <figure>
@@ -197,15 +183,30 @@ Shown below are the same Old Faithful duration histograms superimposed by densit
 
 Note that the form of $K$ is not related to the actual distribution of $X$. Alternative kernels include rectangular, triangular, cosine, etc. For instance, the cosine kernel would be $K(u) = (1+\cos \pi u)/2$ over [-1,1].
 
+
+**Empiricial CDF**. We can estimate the CDF by number of elements in sample set less than or equal to a value $x$ divided by the number of elements in the sample set:
+\[
+\hat{F}_X(x) = \frac{1}{n} \Big{|}\{x_i \leq x \, : \, i=1,2,\ldots,n\}\Big{|}
+\]
+where $|\cdot |$ is the cardinality of (number of elements in) a set.
+
+<figure>
+<center>
+<img src="./figures/Ripley_Fig_5-5.png" alt="Ripley_Fig_5-5" width="50%"/>
+<figcaption>Figure 5.5 from @Venables2003</figcaption>
+</center>
+</figure>
+<br>
+
 ## Types of statistics
 
 We distinguish among three types of statistics:
 
-* *Descriptive statistics*: Provide characterization of your random variables with meaningful metrics that simplify their representation.
-* *Inferential statistics*: Determine underlying mechanisms that generated the data, or draw conclusions regarding the value of metrics or estimates observed given the variability in the data.
-* *Predictive statistics*: Descriptive statistics of current or local data are often used to make forecasts in future scenarios.
+* *Descriptive statistics*: Provide characterization of your random variables with meaningful metrics that simplify their representation. [covered in this lesson]
+* *Inferential statistics*: Determine underlying mechanisms that generated the data, or draw conclusions regarding the value of metrics or estimates observed given the variability in the data. [covered in a future lesson]
+* *Predictive statistics*: Build models to make forecasts (interpolation and extrapolation). Descriptive statistics of current or local data are often used to build such models.
 
-**Descriptive statistics**
+**Descriptive statistics** 
 
 Probability distributions can be used to describe natural variability and uncertainties in our measurement or knowledge:
 
@@ -321,9 +322,9 @@ lf <- melt(df[, c(id.vars, pollutants)], id.vars=id.vars)
 ggp <- ggplot(lf)+
   geom_line(aes(x=value, group=month, color=month),
             stat="ecdf", position="identity")+
-              facet_grid(site~variable,scale="free_x")+
-                xlab("Value")+  
-                  ylab("Probability")
+  facet_grid(site~variable,scale="free_x")+
+  xlab("Value")+  
+  ylab("Probability")
 print(ggp)
 ```
 
