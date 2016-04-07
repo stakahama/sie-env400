@@ -371,7 +371,7 @@ ggp <- ggplot(stats.central)+
   geom_bar(aes(stat, value),
            stat="identity",
            fill="gray")+
-             facet_grid(variable~season,scale="free_y")
+  facet_grid(variable~season,scale="free_y")
 print(ggp)
 ```
 Why are geomean values missing?
@@ -388,7 +388,7 @@ ggp <- ggplot(stats.disp)+
   geom_bar(aes(stat, value),
            stat="identity",
            fill="gray")+
-             facet_grid(variable~season,scale="free_y")
+  facet_grid(variable~season,scale="free_y")
 print(ggp)
 ```
 Why are geosd values missing?

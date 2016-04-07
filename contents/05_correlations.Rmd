@@ -197,7 +197,7 @@ Recall the relationship between temperature and O~3~ shown in a previous lecture
 ```{r, fig.width=10, fig.height=5, warning=FALSE}
 ggp <- ggplot(daily.max)+
   facet_grid(site~season)+
-    geom_point(aes(TEMP,O3))
+  geom_point(aes(TEMP,O3))
 print(ggp)
 ```
 
@@ -206,14 +206,14 @@ We can examine the correlation of other pollutants or meterological variables wi
 lf <- melt(daily.max, measure.vars=setdiff(variables, "O3")) # everything but ozone
 ggp <- ggplot(lf)+
   facet_grid(site~variable, scale="free_x")+
-    geom_point(aes(value, O3, group=season, color=season), shape=4)
+  geom_point(aes(value, O3, group=season, color=season), shape=4)
 print(ggp)
 ```
 
 ```{r, fig.width=10, fig.height=5, warning=FALSE}
 ggp <- ggplot(df)+
   facet_grid(site~season)+
-    geom_point(aes(CO, NO2))
+  geom_point(aes(CO, NO2))
 print(ggp)
 ```
 
@@ -304,8 +304,8 @@ Plot:
 ```{r, fig.width=15, fig.height=5}
 ggp <- ggplot(lagged.values)+
   geom_segment(aes(x=lag,xend=lag,y=0,yend=value))+
-    facet_grid(.~season)+
-      xlab("lag (hours)")+
-        ylab("Cross correlation coefficient")
+  facet_grid(.~season)+
+  xlab("lag (hours)")+
+  ylab("Cross correlation coefficient")
 print(ggp)
 ```

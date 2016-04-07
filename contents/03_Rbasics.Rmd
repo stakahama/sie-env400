@@ -681,12 +681,12 @@ data %>%
     do(Statsfn(.))
 ```
 
-How to use `do()`:
+Suggestions on how to use `do()`:
 
-* Write a function that accepts a subtable (a subset of a data table split according to variables passed to `group_by()`) and returns a different table. E.g., let us call this function `Foo()`.
-* Pass the table to `do()` using this syntax: `do(Foo(.))`
+* Write a function that accepts an argument: a subtable (a subset of a data table split according to variables passed to `group_by()`) or its variables, and returns a different table. E.g., let us call this function `Foo()`.
+* Pass the table to `do()` using this syntax: `do(Foo(.))` or `do(Foo(.[["column"]]))` or `do(Foo(.[,c("column1", "column2")]))`.
     * `.` represents the table (data frame) itself
-    * `Foo(.)` returns a data frame to be merged back with the other results
+    * `Foo(.)` or its variants above should return a data frame to be merged back with the other results
 
 # Key-value pairs
 

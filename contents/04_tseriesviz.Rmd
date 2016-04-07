@@ -96,8 +96,8 @@ View all the measurements:
 ```{r, warning=FALSE, fig.width=8, fig.height=10}
 ggp <- ggplot(lf)+
   facet_grid(variable~site, scale="free_y")+
-    geom_line(aes(datetime, value, color=site))+
-      scale_x_chron()
+  geom_line(aes(datetime, value, color=site))+
+  scale_x_chron()
 print(ggp)
 ```
 
@@ -109,7 +109,7 @@ Summary by month:
 ```{r, warning=FALSE, fig.width=8, fig.height=10}
 ggp <- ggplot(lf) +
   facet_grid(variable ~ site, scale = "free_y") +  
-    geom_boxplot(aes(month, value), outlier.size = 0.5, outlier.shape = 3)
+  geom_boxplot(aes(month, value), outlier.size = 0.5, outlier.shape = 3)
 print(ggp)
 ```
 
@@ -117,7 +117,7 @@ By day type and season:
 ```{r, warning=FALSE, fig.width=8, fig.height=8}
 ggp <- ggplot(lf %>% filter(site=="LAU" & !is.na(value))) +
   facet_grid(variable ~ season, scale = "free_y") +  
-    geom_boxplot(aes(daytype, value), outlier.size = 0.5, outlier.shape = 3)
+  geom_boxplot(aes(daytype, value), outlier.size = 0.5, outlier.shape = 3)
 print(ggp)
 ```
 
@@ -134,11 +134,11 @@ Diurnal (hourly) variations in pollutant concentrations at Lausanne site:
 ggp <- ggplot(data=lf %>% filter(site=="LAU" & !is.na(value)),
               mapping=aes(x=hour, y=value, group=daytype, color=daytype)) +
   facet_grid(variable ~ season, scale = "free_y", drop=TRUE) +  
-    geom_line(stat="summary", fun.y="median")+
-      geom_errorbar(stat="summary",
-                    fun.ymin=Percentile(25),
-                    fun.ymax=Percentile(75))+
-                      ggtitle("LAU")
+  geom_line(stat="summary", fun.y="median")+
+  geom_errorbar(stat="summary",
+                fun.ymin=Percentile(25),
+                fun.ymax=Percentile(75))+
+  ggtitle("LAU")
 print(ggp)
 ```
 
@@ -147,11 +147,11 @@ Diurnal variations in O_3 concentrations:
 ggp <- ggplot(data=lf %>% filter(variable=="O3"),
               mapping=aes(x=hour, y=value, group=daytype, color=daytype)) +
   facet_grid(site ~ season, drop=TRUE) +  
-    geom_line(stat="summary", fun.y="median")+
-      geom_errorbar(stat="summary",
-                    fun.ymin=Percentile(25),
-                    fun.ymax=Percentile(75))+
-                      ggtitle("O3")
+  geom_line(stat="summary", fun.y="median")+
+  geom_errorbar(stat="summary",
+                fun.ymin=Percentile(25),
+                fun.ymax=Percentile(75))+
+  ggtitle("O3")
 print(ggp)
 ```
 Note that for concentrations of the same pollutant, we fix the y-scale to be the same for both rows.
@@ -161,11 +161,11 @@ Diurnal variations in NO_2 concentrations:
 ggp <- ggplot(data=lf %>% filter(variable=="NO2"),
               mapping=aes(x=hour, y=value, group=site, color=site)) +
   facet_grid(season ~ dayofwk, drop=TRUE) +  
-    geom_line(stat="summary", fun.y="median")+
-      geom_errorbar(stat="summary",
-                    fun.ymin=Percentile(25),
-                    fun.ymax=Percentile(75))+
-                      ggtitle("NO2")
+  geom_line(stat="summary", fun.y="median")+
+  geom_errorbar(stat="summary",
+                fun.ymin=Percentile(25),
+                fun.ymax=Percentile(75))+
+  ggtitle("NO2")
 print(ggp)
 ```
 

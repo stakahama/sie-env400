@@ -269,6 +269,7 @@ Next, we want to generalize over all seasons and variables. First, let us examin
 data.frame(lf %>% group_by(site, season, variable) %>%
   summarize(recovery=sprintf("%.0f%%",PercentRecovery(value))))
 ```
+`"%.0f"` is a formatting specification for zero decimal places (`%.0`) applicable to floating point numbers (`f`), which are of mode/class `"numeric"` in R.
 
 We find again that simple interpolation will likely not affect our results on account of the small number of missing values.
 

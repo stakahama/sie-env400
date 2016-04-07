@@ -462,7 +462,7 @@ Let us compute the daily means, but also note the percent recovery of data.
 
 ```{r}
 CalculateMeans <- function(x)
-  data.frame(percent.recovery=length(na.omit(x))/length(x),
+  data.frame(percent.recovery=length(na.omit(x))/length(x)*1e2,
              value=mean(x, na.rm=TRUE))
 
 daily <- lf %>% filter(variable %in% limits.daily[["variable"]]) %>%
@@ -474,7 +474,7 @@ daily <- lf %>% filter(variable %in% limits.daily[["variable"]]) %>%
 We select a threshold recovery of 75%:
 
 ```{r}
-threshold <- 0.75
+threshold <- 75
 ```
 
 Let us see how many days the data recovery is at or below this threshold for each variable:

@@ -532,7 +532,7 @@ print(ggp)</code></pre>
                            variable=c(&quot;SO2&quot;,&quot;NO2&quot;,&quot;CO&quot;,&quot;PM10&quot;)) </code></pre>
 <p>Let us compute the daily means, but also note the percent recovery of data.</p>
 <pre class="r"><code>CalculateMeans &lt;- function(x)
-  data.frame(percent.recovery=length(na.omit(x))/length(x),
+  data.frame(percent.recovery=length(na.omit(x))/length(x)*1e2,
              value=mean(x, na.rm=TRUE))
 
 daily &lt;- lf %&gt;% filter(variable %in% limits.daily[[&quot;variable&quot;]]) %&gt;%
@@ -540,7 +540,7 @@ daily &lt;- lf %&gt;% filter(variable %in% limits.daily[[&quot;variable&quot;]])
   group_by(site, date, variable) %&gt;%
   do(CalculateMeans(.[[&quot;value&quot;]]))</code></pre>
 <p>We select a threshold recovery of 75%:</p>
-<pre class="r"><code>threshold &lt;- 0.75</code></pre>
+<pre class="r"><code>threshold &lt;- 75</code></pre>
 <p>Let us see how many days the data recovery is at or below this threshold for each variable:</p>
 <pre class="r"><code>dcast(filter(daily, percent.recovery &lt;= threshold),
       site ~ variable, length)</code></pre>
@@ -554,20 +554,20 @@ daily &lt;- lf %&gt;% filter(variable %in% limits.daily[[&quot;variable&quot;]])
 ## 
 ##     site       date variable percent.recovery     value
 ##    (chr)     (dats)   (fctr)            (dbl)     (dbl)
-## 1    LAU 06/30/2013     PM10       0.62500000 20.513333
-## 2    LAU 07/01/2013     PM10       0.41666667 21.950000
-## 3    LAU 07/02/2013     PM10       0.25000000 17.200000
-## 4    LAU 10/24/2013     PM10       0.45833333 11.190909
-## 5    LAU 10/25/2013     PM10       0.45833333 30.081818
-## 6    LAU 11/14/2013     PM10       0.04166667 30.200000
-## 7    ZUE 05/30/2013     PM10       0.62500000  8.780000
-## 8    ZUE 05/31/2013     PM10       0.45833333  2.872727
-## 9    ZUE 06/07/2013     PM10       0.33333333 16.275000
-## 10   ZUE 06/08/2013     PM10       0.00000000       NaN
-## 11   ZUE 06/09/2013     PM10       0.00000000       NaN
-## 12   ZUE 06/10/2013     PM10       0.00000000       NaN
-## 13   ZUE 06/11/2013     PM10       0.41666667 11.900000
-## 14   ZUE 11/14/2013     PM10       0.04166667 16.400000</code></pre>
+## 1    LAU 06/30/2013     PM10        62.500000 20.513333
+## 2    LAU 07/01/2013     PM10        41.666667 21.950000
+## 3    LAU 07/02/2013     PM10        25.000000 17.200000
+## 4    LAU 10/24/2013     PM10        45.833333 11.190909
+## 5    LAU 10/25/2013     PM10        45.833333 30.081818
+## 6    LAU 11/14/2013     PM10         4.166667 30.200000
+## 7    ZUE 05/30/2013     PM10        62.500000  8.780000
+## 8    ZUE 05/31/2013     PM10        45.833333  2.872727
+## 9    ZUE 06/07/2013     PM10        33.333333 16.275000
+## 10   ZUE 06/08/2013     PM10         0.000000       NaN
+## 11   ZUE 06/09/2013     PM10         0.000000       NaN
+## 12   ZUE 06/10/2013     PM10         0.000000       NaN
+## 13   ZUE 06/11/2013     PM10        41.666667 11.900000
+## 14   ZUE 11/14/2013     PM10         4.166667 16.400000</code></pre>
 <p>Let us visualize the time series with limit values indicated for each variable:</p>
 <pre class="r"><code>ggplot()+
   geom_line(aes(x=date, y=value),
