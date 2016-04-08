@@ -97,7 +97,8 @@ View all the measurements:
 ggp <- ggplot(lf)+
   facet_grid(variable~site, scale="free_y")+
   geom_line(aes(datetime, value, color=site))+
-  scale_x_chron()
+  scale_x_chron()+
+  theme(axis.text.x=element_text(angle=30, hjust=1))
 print(ggp)
 ```
 
