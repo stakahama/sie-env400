@@ -11,7 +11,7 @@ bibliography: refs.bib
 
 ```{r, include=FALSE}
 library(knitr)
-opts_chunk$set(fig.path='figures_rmd/lec07_', fig.align='center', warning=FALSE, message=FALSE)
+opts_chunk$set(fig.path='figures_rmd/lec09_', fig.align='center', warning=FALSE, message=FALSE)
 ```
 
 \newcommand{\mean}{\operatorname{mean}}
@@ -25,10 +25,10 @@ opts_chunk$set(fig.path='figures_rmd/lec07_', fig.align='center', warning=FALSE,
 
 **Motivation**
 
-In hourly concentrations plotted below for 2013 in Junfraujoch (JUN), Lausanne (LAU), Payerne (PAY), and Zurich (ZUE), we can identify several extreme values. We will particularly focus on the PM$_{10}$ and EC concentrations in Zurich and examine them further.
+In hourly concentrations plotted below for 2013 in Lausanne (LAU) and Zurich (ZUE), we can identify several extreme values. We will particularly focus on the PM$_{10}$ and EC concentrations in Zurich and examine them further.
 <center>
 <figure>
-<img src="./figures/view_unnamed-chunk-10.png">
+<img src="./figures/lec04_unnamed-chunk-10-1.png">
 </figure>
 </center>
 
@@ -374,7 +374,7 @@ highdays %>% group_by(date, variable) %>%
   summarize(value=mean(value))
 ```
 
-As a rather uninteresting example, we can use a trimmed mean as a robust estimator of the mean. Notice that the mean is less influenced by the presence of extreme values. (Note that 10\% corresponds to $\ceil{24\times{}.1}=2$ observations removed.)
+As a rather uninteresting example, we can use a trimmed mean as a robust estimator of the mean. Notice that the mean is less influenced by the presence of extreme values. (Note that 10\% corresponds to $\lceil{24\times{}.1}\rceil=2$ observations removed.)
 
 ```{r}
 highdays %>% group_by(date, variable) %>%
