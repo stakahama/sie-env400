@@ -13,7 +13,7 @@ opts_chunk$set(fig.path='figures_rmd/lec05_', fig.align='center', warning=FALSE,
 
 # Background
 
-* If $y_t = f(x_t)$, a relationship between in x and y may be observed. This strength of the relationship is often characterized by what is known as a correlation coefficient.
+* If $y_t = f(x_t)$, a relationship between in x and y may be observed. This strength of the linear relationship is often characterized by what is known as a correlation coefficient.
 * However, when the dependency is time-dependent, $y_{t+k} = f(x_t)$, we may wish to examine the correlation lagged by $k$ intervals ($k$=hours in our case).
 * Note that people commonly refer to any relationship as correlation, but commonly-used correlation coefficients in statistics measure the degree of a *linear* relationship between two variables. It is important to visualize the data when possible, rather than relying solely on the correlation coefficient, so that nonlinear relationships are not also detected.
 
@@ -184,7 +184,9 @@ variables <- c("O3", "NO2", "CO", "PM10", "SO2", "NMVOC", "EC", "TEMP", "PREC", 
 
 ## Pairwise correlations
 
-Let us calculate the daily maximum:
+Before computing correlations, we will first visualize the relationships using *scatter plots* (or *x-y plots*).
+
+Let us calculate the daily maximum values for each variable:
 ```{r}
 lf <- melt(df, measure.vars=variables)
 dm <- lf %>% group_by(site, year, month, day, season, variable) %>%
@@ -201,6 +203,32 @@ ggp <- ggplot(daily.max)+
 print(ggp)
 ```
 
+The corresponding correlation values can be obtained with the built-in function, `cor` (see `?cor).
+
+```{r}
+(cor.values <- daily.max %>% group_by(site, season) %>%
+   summarize(correlation=cor(TEMP, O3)))
+```
+
+We can format this table and save to file:
+```{r}
+(cor.values.wf <- dcast(cor.values, season~site, value.var="correlation"))
+```
+
+```{r, eval=FALSE}
+write.csv2(cor.values.wf, "correlations.csv", row.names=FALSE)
+```
+`write.csv2` writes to a CSV (comma separated value) file using the European convention of defining delimiters as semicolons (`;`) rather than commas (`,`).
+
+Or, we can visualize the values:
+```{r, fig.width=7, fig.heigth=3.5}
+ggp <- ggplot(cor.values)+
+  geom_bar(aes(season, correlation), stat="identity")+
+  scale_y_continuous(limits=c(0,1))+
+  facet_grid(.~site)
+print(ggp)
+```
+
 We can examine the correlation of other pollutants or meterological variables with O~3~. 
 ```{r, fig.width=20, fig.height=6, warning=FALSE}
 lf <- melt(daily.max, measure.vars=setdiff(variables, "O3")) # everything but ozone
@@ -209,6 +237,8 @@ ggp <- ggplot(lf)+
   geom_point(aes(value, O3, group=season, color=season), shape=4)
 print(ggp)
 ```
+
+We will next look at a scatter plot between hourly measurements of CO and NO~2~. Why does this  relationship exist?
 
 ```{r, fig.width=10, fig.height=5, warning=FALSE}
 ggp <- ggplot(df)+
@@ -221,7 +251,7 @@ For the following *scatterplot matrix*, we will use a package called `lattice` w
 ```{r}
 library(lattice)
 
-Correlation.value <- function(x, y, ...) {
+CorrelationValue <- function(x, y, ...) {
   correlation <- cor(x, y,use="pairwise")
   if(!is.na(correlation)) {
     cpl <- current.panel.limits()
@@ -233,11 +263,11 @@ Correlation.value <- function(x, y, ...) {
 ```
 
 
-Plot daily maximum values as pairwise points (only Lausanne).
+Plot daily maximum values as pairwise points (only Lausanne) using this syntax:
 ```{r, fig.width=16, fig.height=16}
 ix <- grepl("LAU", daily.max[["site"]], fixed=TRUE)
 spp <- splom(~daily.max[ix,c("O3","NO2","CO","PM10","TEMP","PREC","RAD")] | daily.max[ix,"season"],
-             upper.panel = Correlation.value,
+             upper.panel = CorrelationValue,
              pch=4)
 print(spp)
 ```
@@ -246,7 +276,7 @@ Plot hourly data as pairwise points. Given the large number of points, we can "s
 ```{r, fig.width=16, fig.height=16, warning=FALSE}
 ix <- grepl("LAU", df[["site"]], fixed=TRUE)
 spp <- splom(~df[ix,c("O3","NO2","CO","PM10","TEMP","PREC","RAD")] | df[ix,"season"],
-             upper.panel = Correlation.value,
+             upper.panel = CorrelationValue,
              panel = panel.smoothScatter,             
              pch=4)
 print(spp)
@@ -257,10 +287,12 @@ Notice some values of correlation went up.
 
 ## Lagged correlations
 
+We can define a function to generate lagged pairs for $k$ intervals and apply it using the `do()` function. If we provide hourly measurements, $k=1$ corresponds to a lag of 1 hour, and so on.
+
 ```{r}
 Lag <- function(pair, k) {
-  out <- data.frame(k, head(pair[,1],-k), tail(pair[,2],-k))
-  names(out) <- c("lag", colnames(pair))
+  out <- data.frame(lag=k, head(pair[,1],-k), tail(pair[,2],-k))
+  names(out)[2:3] <- colnames(pair)
   out
 }
 
@@ -281,14 +313,14 @@ ggp <- ggplot(lagged) +
 print(ggp)
 ```
 
-R include a function, `ccf`, for calculating the cross correlation.
+R includes a function, `ccf`, for calculating the cross correlation. The value passed to the `na.action=na.pass` says to compute covariances from the complete cases when there are missing values. Calling this function will generate a corresponding plot by default (which can be turned off). See `?ccf` for further details.
 
 ```{r}
 ccf(df[,"RAD"], df[,"O3"], lag.max=6, na.action=na.pass)
 ```
-This tells us that the correlation is higest at a lag of -3.
+This tells us that the correlation is higest at a lag of -3 hours.
 
-We can wrap this in a function that retuns information that we want in a data frame:
+We can wrap this in a function that returns information that we want in a data frame (note `plot=FALSE` argument):
 ```{r}
 LaggedCorrelation <- function(pair, ...) {
   out <- ccf(pair[,1], pair[,2], ..., na.action=na.pass, plot=FALSE)
@@ -298,9 +330,10 @@ LaggedCorrelation <- function(pair, ...) {
 lagged.values <- df %>% group_by(season) %>%
   do(LaggedCorrelation(.[,c("RAD","O3")], lag.max=6))
 ```
-Note the syntax, `...` in the function definition This passes on any additional arguments (`lag.max` in this case) from the outer function (`LaggedCorrelation`) to the inner-most function (`ccf`).
+Note the syntax, `...` in the function definition This passes on any additional arguments (`lag.max` in this case) from the outer function (`LaggedCorrelation`) to the inner-most function (`ccf`). `?...` will refer you to the *Introduction to R* manual for further details on this syntax.
 
 Plot:
+
 ```{r, fig.width=15, fig.height=5}
 ggp <- ggplot(lagged.values)+
   geom_segment(aes(x=lag,xend=lag,y=0,yend=value))+

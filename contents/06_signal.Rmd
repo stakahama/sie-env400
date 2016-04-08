@@ -193,6 +193,8 @@ ggp <- ggplot(filter(lagged, variable=="TEMP"))+
   labs(x=expression(x(t[0])), y=expression(x(t[k])))
 print(ggp)
 ```
+We can see that the autocorrelation in temperature persists for longer period of time (the correlation between lagged values for `TEMP` deteriorates much more slowly with increasing amount of lag than for `RAD`).
+
 
 We will calculate the autocorrelation coefficient for up to a lag of 6 intervals (hours in our case).
 
