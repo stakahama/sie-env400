@@ -42,12 +42,12 @@ Describe the concentration of pollutants:
 meteorological variable between the two sites. Describe seasonal differences
 and possible reasons for the variations, referring to figures and
 relevant values that have been calculated.
-3. Contrast the weeday and weekend differences in diurnal (hourly)
+3. Contrast the weekday and weekend differences in diurnal (hourly)
 averages of each regulated pollutant and meteorological variable
 between the two sites. Describe differences and possible reasons for
 the variations, referring to figures and relevant values that have
 been calculated.
-4. Describe periods which lie out of usual patterns.
+4. Describe periods which lie out of usual patterns (describe a few).
 5. Determine whether regulatory limits are met or exceeded for each pollutant. Identify periods in which regulatory limits are exceeded and determine whether any cause can be attributed to these events to the extent that you can tell from your data set.
 
 You may wish to use:
@@ -58,7 +58,7 @@ You may wish to use:
 
 Examine correlations and lagged correlations among variables. This does not have to be exhaustive (let's agree on presenting 3 correlations), but begin with a hypothesis of what *should* be correlated according to cause and effect, and support or discredit it with your analysis.
 
-6. Which variables show mild to strong correlations with each other for a) which sites and b) which time periods?
+6. Which variables show mild to strong correlations with each other for which sites and time periods?
 7. Give (physically) plausible reasons why these correlations might exist. Do they share a causal relationship, or are they dependent on a third confounding variable (e.g., common source of emissions or photochemistry).
 
 Determine if pollutant concentrations are lognormally distributed for 1) hourly-averaged concentrations or 2) daily-averaged concentrations.

@@ -4,7 +4,7 @@ output:
   html_document:
     toc: true
     theme: united
-bibliography: refs.bib	
+bibliography: refs.bib
 ---
 
 ```{r, include=FALSE}
@@ -26,7 +26,7 @@ In this lesson:
 To answer these questions, we turn to inferential statistics. We will pose a hypothesis, and let the data tell us whether it may be true or not.
 
 ## Inferential statistics
-  
+
 The objective of inferential statistics is to determine underlying mechanisms that generated the data, or draw conclusions regarding the value of metrics or estimates observed given the variability in the data.
 
 Topics:
@@ -70,7 +70,7 @@ $$
 n(x,t) = \frac{n_0}{2\sqrt{\pi Dt}}\exp\left(\frac{-x^2}{4Dt}\right)
 $$
 
-The mean square displacement of particles of the particles from $x=0$ at time $t$ is given by 
+The mean square displacement of particles of the particles from $x=0$ at time $t$ is given by
 $$
 \langle{x^2}\rangle = \frac{1}{n_0} \int_{-\infty}^\infty x^2 n(x,t) dx = 2 Dt
 $$
@@ -120,7 +120,7 @@ $$
 C_1 &= c_0 D_1 \\
 C_2 &= C_1 D_2 = c_0 D_1 D_2 \\
 C_m &= c_0 D_1 D_2 \ldots D_m = c_0 \prod_{i=1}^m D_i \\
-\log C_m &= \log c_0 + \log D_1 + \log D_2 + \ldots + \log D_m = c_0 \sum_{i=1}^m \log D_i 
+\log C_m &= \log c_0 + \log D_1 + \log D_2 + \ldots + \log D_m = c_0 \sum_{i=1}^m \log D_i
 \end{aligned}
 $$
 If $D_i$ is a random variable (e.g., uniformly distributed), r.h.s. of last equation is sum of $m$ independent random variables $\Rightarrow$ $\log C_m$ normally distributed $\Rightarrow$ $C_m$, the concentration at point of observation, \textbf{is lognormally distributed}.
@@ -148,21 +148,21 @@ Figure 9.2 from @Ott1994.
 
 ## Hypothesis testing framework
 
-In this lesson, we will use this knowledge to 
+In this lesson, we will use this knowledge to
 
 * Derive confidence intervals for the mean value (normal distribution). \emph{Question}: is the mean different from another value (e.g., another computed mean)?
 * Test whether dilution is a dominant mechanism leading to concentrations of each pollutant in the atmosphere. \emph{Question}: is the distribution lognormally distributed?
 
 To answer these questions, we turn to a hypothesis testing framework.
-    
+
 Hypothesis testing is a method of statistical inference by which we determine whether a proposed statement is favored over another. We designate these statements as either the null hypothesis $H_0$ or the alternative hypothesis $H_a$. The selection and application of statistical tests can lead to several types of errors.
 
 <center>
 <table>
-<tr style="border-bottom: 1px solid #000;"> 
+<tr style="border-bottom: 1px solid #000;">
 <th> Decision </th><th> $H_0$ True </th><th> $H_a$ </th>
 </tr>
-<tr style="border-bottom: 1px solid #000;"> 
+<tr style="border-bottom: 1px solid #000;">
 <td> reject $H_0$ </td><td> \emph{Type I error} ($\alpha$) </td><td> Correct decision  </td>
 <tr style="border-bottom: 1px solid #000;">
 <td> do not reject $H_0$ </td><td> Correct decision </td><td> \emph{Type II error}  ($\beta$) </td>
@@ -180,11 +180,11 @@ Hypothesis testing is a method of statistical inference by which we determine wh
 
 Let $X$ represent the concentration of an atmospheric pollutant. In the statistical view,
 
-* $X$ is a random variable and has a probability distribution. 
-* Any physical observation we make can be considered as "sampling" from this distribution. 
+* $X$ is a random variable and has a probability distribution.
+* Any physical observation we make can be considered as "sampling" from this distribution.
 * The actual value that we observe will depend on a large number of stochastic processes, but the likelihood of drawing a particular value will follow a probability distribution prescribed by $X$.
 
-The sample mean, $\bar{X}$, is an \emph{estimator} of the mean of $X$, $\mu_X$, and \emph{also has a probability distribution}. 
+The sample mean, $\bar{X}$, is an \emph{estimator} of the mean of $X$, $\mu_X$, and \emph{also has a probability distribution}.
 
 * The sample mean is calculated from a limited number ($n$) of samples/values (randomly) drawn from the population of $X$.
 * Estimates of the mean will exhibit variation, depending on which $n$ values are selected. Environmental sampling or measurement can be thought of as a single realization of sample selection (in most applications) $\to$ we do not have many estimates of the mean, but one value calculated from a single set of $n$ samples.
@@ -215,7 +215,7 @@ $$
 </center>
 
 * Based on our *point estimate* of the mean, $\bar{x}$, we wish to make a statement regarding what $\mu_X$ might be. ($\bar{x}$ is a single value calculated from $n$ sampled points.)
-* We formulate a proposed statement as an alternative hypothesis to be compared against a null hypothesis. 
+* We formulate a proposed statement as an alternative hypothesis to be compared against a null hypothesis.
 * The null hypothesis may be selected to be the complement of the alternative hypothesis, or may be selected based on convention.
 
 Hypothesis:
@@ -234,7 +234,7 @@ $$
 
 ### Example distribution
 
-Example: let $X$ be uniformly distributed between $[a,b]$ where $a=0$ and $b=1$. 
+Example: let $X$ be uniformly distributed between $[a,b]$ where $a=0$ and $b=1$.
 
 <center>
 <figure>
@@ -355,7 +355,7 @@ Confidence intervals on the mean can be constructed using the standard error. Le
 \[
 P\left( \mu_X - z \frac{\sigma_X}{\sqrt{n}} \leq \bar{X} \leq \mu_X +  z\frac{\sigma_X}{\sqrt{n}}\right) = p
 \]
-$z$ is the value of the $z$-score and $p$ is the associated confidence level (usually expressed as a percentage, $100p$, or $p$-value, which is actually $1-p$). However, we seldom know $\mu_X$ and $\sigma_X$ but instead have set of $n$ observations from which we calculate the sample mean $\bar{x}$. Algebraic manipulation yields 
+$z$ is the value of the $z$-score and $p$ is the associated confidence level (usually expressed as a percentage, $100p$, or $p$-value, which is actually $1-p$). However, we seldom know $\mu_X$ and $\sigma_X$ but instead have set of $n$ observations from which we calculate the sample mean $\bar{x}$. Algebraic manipulation yields
 \[
 P\left( \bar{X} - z \frac{\sigma_X}{\sqrt{n}} \leq \mu_X \leq \bar{X} +  z\frac{\sigma_X}{\sqrt{n}}\right) = p
 \]
@@ -434,7 +434,7 @@ $$
 $\nu$ is rounded to the nearest integer
 
 **Formalizing comparisons within the hypothesis testing framework**
-    
+
 Let
 $$
 \begin{aligned}
@@ -446,10 +446,10 @@ $$
   $\alpha$ is called the "significance level", and the confidence interval corresponds to $(1-\alpha)\times 100%$. E.g., defining an acceptance region for $H_0$ at the $\alpha=0.05$ significance level corresponds to a confidence interval of 95\%.
 \medskip
 
-To determine whether to reject $H_0$ or not, compare computed value of test statistic $t$ to fixed values $t_{\alpha,\nu}$ (one-sided) or $t_{\alpha,\nu/2}$ (two-sided) defined for $\nu$ (given by the data set) and $\alpha$ (determined by practioner). 
+To determine whether to reject $H_0$ or not, compare computed value of test statistic $t$ to fixed values $t_{\alpha,\nu}$ (one-sided) or $t_{\alpha,\nu/2}$ (two-sided) defined for $\nu$ (given by the data set) and $\alpha$ (determined by practioner).
 \medskip
 
-Let $T$ be a random variable representing the possible values of the $t$-statistic. 
+Let $T$ be a random variable representing the possible values of the $t$-statistic.
 
 For the two-sided case, $t_{\alpha,\nu/2}$ (a positive value) is defined such that
 \[
@@ -458,14 +458,14 @@ For the two-sided case, $t_{\alpha,\nu/2}$ (a positive value) is defined such th
 
 For the two-sided case, \emph{we would reject the null hypothesis at the $\alpha$ significance level if $|t| > t_{\alpha,\nu/2}$}.
 
-    
+
 *Alternate method of presentation*. With a given set of data and test statistic, we can define the "$p$-value" as the smallest level of significance that would lead to rejection of the null hypothesis $H_0$. For the two-sided case, $p$-value corresponds to
     \[
     \text{$p$-value} = P(T > |t|) + P(T < -|t|)
     \]
-    
+
 We can make the statement that *we would reject the null hypothesis at the $\alpha=\{\text{$p$-value}\}$ according to our observations*. If the $p$-value is less than our specified value of $\alpha$, we can also state that we reject the null hypothesis at the $\alpha$ significance level.
-    
+
 <center>
 <figure>
 <img src="./figures/Devore2012_Fig_8-10.png" width="50%"/>
@@ -477,9 +477,9 @@ Figure 8.10 from @Devore2012.
 <br>
 
 **Statistical vs. practical significance**
-  
+
 Note that even while there may be a statistical significance between two mean values, engineers must consider where the difference is of practical significance that would influence decision making or interperetation.
-  
+
 
 **The i.i.d. assumption**
 
@@ -502,8 +502,8 @@ Figure 7.5 from @Ott1994.
 ## Testing how well distribution fits
 
 **Testing for goodness of fit**
-    
-Note there are many other (possibly better) goodness-of-fit tests, but the $\chi^2$ statistic is commonly used for this purpose and draws directly upon our previous discussion of hypothesis testing and $p$-values. 
+
+Note there are many other (possibly better) goodness-of-fit tests, but the $\chi^2$ statistic is commonly used for this purpose and draws directly upon our previous discussion of hypothesis testing and $p$-values.
 
 Essentially, the $\chi^2$ test compares sets of observed and expected frequencies: number of observations measured ($O_j$) and predicted ($E_j$) relative to the number predicted over $j=1,2,\ldots,m$ intervals.
 \[
@@ -530,7 +530,7 @@ We will use this statistic to test our hypotheses that the distribution is logno
 * $H_0$: our observations are lognormally distributed
 * $H_a$: our observations are not lognormally distributed
 
-It is important to note that we assume the distribution is lognormal unless we have enough power to reject it. $p$-value $>$ 0.05 means the observations do not deviate enough from lognormally-distributed values to suggest that the true distribution is otherwise. 
+It is important to note that we assume the distribution is lognormal unless we have enough power to reject it. $p$-value $>$ 0.05 means the observations do not deviate enough from lognormally-distributed values to suggest that the true distribution is otherwise.
 
 <center>
 <figure>
@@ -563,7 +563,7 @@ Further discussion can be found in the academic literature [e.g., @Kao1995, @Had
 
 In this exercise, we examined an example of hypothesis testing of mean values and appropriateness for a particular distribution to describe a random variable.
 
-Such tests can be performed on other parameters: standard deviations, regression coefficients (slope, intercept, etc.), correlation coefficients, and others. Examples: 
+Such tests can be performed on other parameters: standard deviations, regression coefficients (slope, intercept, etc.), correlation coefficients, and others. Examples:
 
 * Test whether the intercept is different from zero
 * Test whether the slope is different from zero
@@ -573,10 +573,10 @@ Such tests can be performed on other parameters: standard deviations, regression
 However, **always note the required assumptions** before performing tests for statistical inference.
 
 <!-- Assumptions about the underlying distributions -->
-  
-As another exampe, it is often requested that tests of significance be provided for **the correlation coefficient between two analyte concentrations** (whether it is different from zero). 
 
-* The standard method for estimating confidence intervals requires that the joint probability distribution to be \textbf{bivariate normal} (i.e., the two variables correlated are both normally distributed); environmental pollutant concentrations are closer to being lognormally distributed. 
+As another exampe, it is often requested that tests of significance be provided for **the correlation coefficient between two analyte concentrations** (whether it is different from zero).
+
+* The standard method for estimating confidence intervals requires that the joint probability distribution to be \textbf{bivariate normal} (i.e., the two variables correlated are both normally distributed); environmental pollutant concentrations are closer to being lognormally distributed.
 * Additionally, all the observations are not independent, which may or may not affect the results of the test unless properly accounted for.
 * *Therefore*, in these cases you will have to implement more sophisticated methods for estimating these confidence intervals, or refrain from making strong conclusions (i.e., remarks regarding  statistical significance) about the correlations.
 
@@ -641,8 +641,8 @@ lf <- melt(df %>% filter(site=="LAU"), id.vars=id.vars)
 ```
 
 ## Calculate metrics
-  
-    
+
+
 Create a function to view some metrics:
 
 ```{r}
@@ -663,7 +663,7 @@ ComputeStats <- function(x) {
 Apply to ozone concentrations in January and July:
 
 ```{r}
-table <- lf %>% filter(variable=="O3" & 
+table <- lf %>% filter(variable=="O3" &
                        month %in% c("Jan","Jul"))
 
 mystats <- table %>%
@@ -695,7 +695,7 @@ print(ggp)
 ```
 
 Uncertainty in calculated means:
-    
+
 ```{r}
 ggp <- ggplot(mystats)+
   geom_bar(aes(x=daytype, y=mean),
@@ -707,8 +707,8 @@ ggp <- ggplot(mystats)+
   facet_wrap(~month)
 print(ggp)
 ```
-    
-We can also compute the corresponding $t$-statistic. 
+
+We can also compute the corresponding $t$-statistic.
 
 Just taking the month of July for example,
 
@@ -725,12 +725,12 @@ its $p$-value can be retrieved with this syntax:
 out[["p.value"]]
 ```
 
-Since the $p$-value is less than $\alpha=0.05$, we can say that we would reject the null hypothesis (that on average, the weekend concentrations are the same as weekday concentrations) at the $\alpha=0.05$ significance level. 
+Since the $p$-value is less than $\alpha=0.05$, we can say that we would reject the null hypothesis (that on average, the weekend concentrations are the same as weekday concentrations) at the $\alpha=0.05$ significance level.
 
 
 ## Fitting probability distributions
 
- 
+
  We can use the fitdistrplus library available in R:
 
 ```{r}
@@ -795,7 +795,7 @@ If the proposed distribution is a "good fit" and the parameters have been estima
 The Q-Q plot is generally more popular than the P-P plot, though they can indicate complementary information. For instance, the Q-Q plot is more sensitive to departure from the distribution at the extremes, while the P-P plot highlights departures that occur near the center of the distribution (note that the P-P plot limits are bounded by 0 and 1, while they are not bounded for the Q-Q plot).
 
 <!-- ### Daily-averaged measurements -->
- 
+
 <!-- Arithmetic averaging of measurements can potentially downplay the physical limit on concentration. ? -->
 
 
@@ -827,7 +827,7 @@ The Q-Q plot is generally more popular than the P-P plot, though they can indica
 <!-- ``` -->
 
 <!-- ### Summarizing $p$-values -->
-  
+
 <!-- Horizontal line corresponds to $\alpha$=0.05 level. -->
 
 <!-- ```{r} -->
@@ -845,7 +845,10 @@ The Q-Q plot is generally more popular than the P-P plot, though they can indica
 
 **If you have negative concentrations**
 
-This may prevent you from testing whether your data is lognormally distributed or not (the function call to \verb=fitdist()= fails). This function may be useful:
+This may prevent you from testing whether your data is lognormally
+distributed or not (i.e., the function call to `fitdist()` fails). The
+following function will replace values less than or equal to zero with the minimum positive
+value otherwise observed for each data set:
 ```{r}
 ReplaceNonpositive <- function(x) {
   x <- na.omit(x)
@@ -858,5 +861,6 @@ Example usage:
 ```{r, eval=FALSE}
 fit <- fitdist(ReplaceNonpositive(concvec), "lnorm")
 ```
+Here we have introduced an approximation to the observed measurements. Alternatively, you may consider replacing values $< 0$ with 1/2 the minimum detection limit if this information is available. While there exist some studies on the effect of such choices on a variety of estimates or statistical tests, for this specific instance the effect is not known as the sensitivity to various approximatoins are not explicitly explored.  In any case, you should adopt the practice of reporting such "pretreatment" of the data in your analysis.
 
 # References
