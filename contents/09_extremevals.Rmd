@@ -6,7 +6,7 @@ output:
   html_document:
     toc: true
     theme: united
-bibliography: refs.bib	
+bibliography: refs.bib
 ---
 
 ```{r, include=FALSE}
@@ -55,10 +55,10 @@ For a thorough treatment of this topic, see @Barnett1994 from which much of this
 In practice, univariate or multivariate observations that fall outside of the general patterns ("extreme values") are informally separated and removed, or reserved for further analysis.
 
 * In some cases, log books recording accounts of calibrations dates, measurement conditions, and unusal events will reveal the nature of these extreme observations (this is always the first step).
-* An outlier or extreme value is sometimes removed from a data set for lack of  representativeness, but it should always be noted that data points have been removed, and  accompanied by justification. 
+* An outlier or extreme value is sometimes removed from a data set for lack of  representativeness, but it should always be noted that data points have been removed, and  accompanied by justification.
 
-  
-We will discuss statistical justifications for classifying extreme values as "outliers" in the univariate case, which will provide an appropriate perspective for thinking about extreme observations in the general case. 
+
+We will discuss statistical justifications for classifying extreme values as "outliers" in the univariate case, which will provide an appropriate perspective for thinking about extreme observations in the general case.
 
 <center>
 <figure>
@@ -84,7 +84,7 @@ Treatment of outliers
 
 <center>
 <figure>
-<img src="./figures/Barnett_Fig_2-1.png"/>
+<img src="./figures/Barnett_Fig_2-1_r.png"/>
 </figure>
 <figcaption>
 Figure 2.1 from @Barnett1994.
@@ -95,19 +95,24 @@ Figure 2.1 from @Barnett1994.
 
 **Hypothesis testing framework**
 
-We will discuss some conceptual ways to think about extreme values and outliers. 
+We will discuss some conceptual ways to think about extreme values and outliers.
 
 The statistical basis is classifying an extreme value as an outlier originates from a hypothesis testing framework.
 
+
 <center>
-<table>
-<tr style="border-bottom: 1px solid #000;"> 
+<table cellpadding="10">
+<tr style="padding-left:5px;padding-right:5px;border-bottom: 1px solid #000;">
 <th> Decision </th><th> $H_0$ True </th><th> $H_a$ </th>
 </tr>
-<tr style="border-bottom: 1px solid #000;"> 
-<td> reject $H_0$ </td><td> \emph{Type I error} ($\alpha$) </td><td> Correct decision  </td>
 <tr style="border-bottom: 1px solid #000;">
-<td> do not reject $H_0$ </td><td> Correct decision </td><td> \emph{Type II error}  ($\beta$) </td>
+<td align="center" style="padding-left:5px;padding-right:5px;"> reject $H_0$ </td>
+<td align="center" style="padding-left:5px;padding-right:5px;"> *Type I error* ($\alpha$) </td>
+<td align="center" style="padding-left:5px;padding-right:5px;"> Correct decision  </td>
+<tr style="border-bottom: 1px solid #000;">
+<td align="center" style="padding-left:5px;padding-right:5px;"> do not reject $H_0$ </td>
+<td align="center" style="padding-left:5px;padding-right:5px;"> Correct decision </td>
+<td align="center" style="padding-left:5px;padding-right:5px;"> *Type II error*  ($\beta$) </td>
 </tr>
 </table>
 </center>
@@ -120,8 +125,8 @@ The statistical basis is classifying an extreme value as an outlier originates f
 A discordant observation is one that is statistically unreasonable with respect to prescribed probability model.
 
 **Conceptual framework**
-  
-Statistical tests require a comparison of a working (null) hypothesis and an opposing alternative hypothesis. 
+
+Statistical tests require a comparison of a working (null) hypothesis and an opposing alternative hypothesis.
 
 *Working hypothesis*:
 
@@ -142,7 +147,7 @@ H_a: \{x_i \sim F : i \neq j\}; \ \text{$x_j$ does not belong to $F$}
 \[
 H_a: G
 \]
-* *Mixture alternative*. The population does not all belong to the population characterized by $F$, but a mixture of two populations characterized by $F$ and $G$, and the degree of mixing (fraction) $\lambda$. Samples from population $G$ appears as extreme values in the set of data which are mostly comprised of samples from $F$. 
+* *Mixture alternative*. The population does not all belong to the population characterized by $F$, but a mixture of two populations characterized by $F$ and $G$, and the degree of mixing (fraction) $\lambda$. Samples from population $G$ appears as extreme values in the set of data which are mostly comprised of samples from $F$.
 \[
 H_a: (1-\lambda) F + \lambda G
 \]
@@ -154,7 +159,7 @@ $\lambda$ would necessarily be small; therefore, estimating $\lambda$ and $G$ wo
 
 * Many tests of discordancy assume underlying distributions that are parametric: e.g., uniform, normal, lognormal, etc. (and many others). Written as $F\sim f(X,\theta_f)$ and $G\sim g(X,\theta_g)$, we can see that estimation of distribution parameters $\theta_f$, $\theta_g$ may pose challenges when they must be estimated from (statistically) contaminated data [i.e., $x_j$ or $\lambda$ must be estimated simultaneously].
 * *Robust statistics* provides a set of tools by which estimates of distribution parameters can be obtained with minimized influence from (statistical) contaminants.
-* Alternative and simpler test metrics for identifying outliers exist, and are frequently used (because they are simpler). 
+* Alternative and simpler test metrics for identifying outliers exist, and are frequently used (because they are simpler).
 * In real applications, each extreme value or set of extreme values should be evaluated (and removed/accommodated) according to best judgement. These observations should be recorded and reported.
 
 
@@ -163,7 +168,7 @@ $\lambda$ would necessarily be small; therefore, estimating $\lambda$ and $G$ wo
 There are several *types* of metrics, three of which are shown here with example implementations.
 
 * *Excess/spread statistics*. Ordering our set of observations $\{x_1, x_2, \ldots, x_n\}$ by magnitude such that we have $\{x_{(1)}, x_{(2)}, \ldots, x_{(n)}\}$
-If we hypothesize that $x_{(n)}$ is an upper outlier (Dixon, 1951; omitting $x_{(1)}$), 
+If we hypothesize that $x_{(n)}$ is an upper outlier (Dixon, 1951; omitting $x_{(1)}$),
 \[
 \frac{x_{(n)} - x_{(n-1)}}{x_{(n)}-x_{(2)}}
 \]
@@ -222,7 +227,7 @@ There are many other types of robust estimators for these parameters; also for r
 (Note that an *estimator* is not the same as an *estimate*, which is only a single  realization of an estimator.
 
 
-Generally, estimators which are *unbiased* with *low variance* are desired. 
+Generally, estimators which are *unbiased* with *low variance* are desired.
 
 * Bias: $B(\hat{\theta}) = \E(\hat{\theta}) - \theta$
 * Variance: $\Var(\hat{\theta}) = \E\left(\left[\hat{\theta}-\E(\hat{\theta})\right]^2\right)$
@@ -230,14 +235,14 @@ Generally, estimators which are *unbiased* with *low variance* are desired.
 These properties have consequences for conclusions we draw from hypothesis testing (and problems in statistical inference in general). For descriptive statistics, high variance of an estimator may be less of an issue (though the bias of any single estimate may be greater).
 
 
-  
+
 <!-- % Consistency. As the sample size increases, the sampling distribution of the estimator becomes concentrationed around the true value of the parameter being  estimated -->
 
 Unbiased estimators have the property that the difference in expected value of the estimator and the true parameter is zero, on average:
 \[
 B(\hat{\theta}) = 0
 \]
-We can describe the variance of an estimator $\tilde{\theta}$ against another (benchmark) estimator $\hat{\theta}$, by its asymptotic relative efficiency. 
+We can describe the variance of an estimator $\tilde{\theta}$ against another (benchmark) estimator $\hat{\theta}$, by its asymptotic relative efficiency.
 \[
 \textit{ARE}(\tilde{\theta};\hat{\theta}) = \lim_{n\to\infty} \frac{\Var(\hat{\theta})}{\Var(\tilde{\theta})}
 \]
@@ -247,7 +252,7 @@ For example, some *ARE*s for random variables with specific distributions are sh
 <center>
 <table>
 <tr style="border-bottom: 1px solid #000;">
-<th> Distribution </th><th> *ARE* </th> 
+<th> Distribution </th><th> *ARE* </th>
 </tr>
 <tr>
 <td> normal </td><td> $\textit{ARE}(\median; \mean) \approx 64\%$ </td>
@@ -333,7 +338,7 @@ print(ggp)
 
 ```{r}
 ggp <- ggplot(pm10.zue, aes(value))+
-  geom_line(stat="ecdf")+  
+  geom_line(stat="ecdf")+
   geom_point(stat="ecdf")+
   xlab(expression("Hourly PM"[10]~"concentration"~(mu*g/m^3)))+
   ylab("Probability")
@@ -350,7 +355,7 @@ Notable dates:
 * 01.01.2013 is New Years Day
 * 01.08.2013 is Swiss National Day
 
-  
+
 View the diurnal variations for these days.
 
 ```{r}
@@ -360,13 +365,13 @@ highdays <- filter(pm10.zue, date %in% highvals[["date"]])
 ```{r, fig.width=15, fig.height=3}
 ggp <- ggplot(highdays, aes(hour, value))+
   geom_line()+
-  geom_point()+    
+  geom_point()+
   facet_grid(.~date)+
   xlab("Hour of day")+
   ylab(expression("PM"[10]~"concentration"~(mu*g/m^3)))
 print(ggp)
 ```
-    
+
 We see that despite these periods of high concentration, the mean daily values are still below the limit of 50 $\mu$g/m$^3$.
 
 ```{r}
@@ -387,9 +392,9 @@ Under what conditions do PM$_{10}$ concentration exceed regulatory limits?
 
 
 Calculate daily means.
-    
+
 ```{r}
-daily <- pm10.zue %>% 
+daily <- pm10.zue %>%
   group_by(date, variable) %>%
   summarize(month=month[1],
             day=day[1],
@@ -410,21 +415,21 @@ print(ggp)
 
 
 View PDF/ECDF of daily means.
-    
+
 ```{r}
 ggp <- ggplot(daily)+
   geom_line(aes(x=value), stat="density", position="identity")+
-  geom_point(aes(x=value), y=0, shape=4)+    
+  geom_point(aes(x=value), y=0, shape=4)+
   geom_vline(xintercept=50, linetype=2)+
   xlab(expression("Daily Mean PM"[10]~"concentration"~(mu*g/m^3)))+
   ylab("Probability density")
 print(ggp)
 ```
 
-   
+
 ```{r}
 ggp <- ggplot(daily, aes(value))+
-  geom_line(stat="ecdf")+  
+  geom_line(stat="ecdf")+
   geom_point(stat="ecdf")+
   geom_vline(xintercept=50, linetype=2)+
   xlab(expression("Daily Mean PM"[10]~"concentration"~(mu*g/m^3)))+
@@ -455,8 +460,8 @@ print(ggp)
 We can more generally summarize extreme values that exceedance daily limit values set forth by regulation (in Switzerland).
 
 ```{r}
-limits.daily <- data.frame(value=c(100,80,8,50), 
-                           variable=c("SO2","NO2","CO","PM10")) 
+limits.daily <- data.frame(value=c(100,80,8,50),
+                           variable=c("SO2","NO2","CO","PM10"))
 ```
 Let us compute the daily means, but also note the percent recovery of data.
 
@@ -580,7 +585,7 @@ print(ggp)
 *Clearly*, this point is an outlier? It is often convenient to state a criterion by which a measurement is labeled as an outlier (rather than simply an extreme value). This may not mean it is a bad measurement, but that it falls out of expected trends - may be used to motivate periods for further study.
 
 R includes a Dixon test where the test statistic is compared against a distribution tabulated by Dixon. A $p$-value is provided with respect to this distribution, but  only for small sample sets (<30)---presumably a limitation of the available tabulated values.
-  
+
 ```{r}
 require(outliers)
 
@@ -596,7 +601,7 @@ As we observed, structured observations like measurements of time series will ha
 
 We will compute several metrics for characterizing the central tendancy and dispersion in a univariate sample. For this we define several functions.
 
-Note that for a normal distribution, $\textit{IQR} \approx 1.35\sigma$ and $MAD \approx 0.6745\sigma$ [@Venables2003]. The `mad` function returns *MAD*/0.6745 rather than *MAD* itself. 
+Note that for a normal distribution, $\textit{IQR} \approx 1.35\sigma$ and $MAD \approx 0.6745\sigma$ [@Venables2003]. The `mad` function returns *MAD*/0.6745 rather than *MAD* itself.
 
 Again for a normal distribution, the integrated area between $\pm 1\sigma$ is 66\%, whereas for *IQR* it is necessarily 50\% by definition (regardless of distribution).
 
@@ -639,7 +644,7 @@ metric.central <- lf %>% group_by(site, variable) %>%
 ```{r, fig.width=5, fig.height=10}
 ggp <- ggplot(metric.central)+
   geom_bar(aes(metric, value), stat="identity", fill="gray")+
-  facet_grid(variable~site, scale="free_y")+  
+  facet_grid(variable~site, scale="free_y")+
   xlab("")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 print(ggp)

@@ -65,7 +65,7 @@ The spread of particles with time can be determined by solving the one-dimension
 $$
 \frac{\partial n}{\partial t} = D \frac{\partial^2n}{\partial x^2}
 $$
-The solution for the concentration distribution is given by the Guassian form,
+The solution for the concentration distribution is given by the Gaussian form,
 $$
 n(x,t) = \frac{n_0}{2\sqrt{\pi Dt}}\exp\left(\frac{-x^2}{4Dt}\right)
 $$
@@ -150,22 +150,26 @@ Figure 9.2 from @Ott1994.
 
 In this lesson, we will use this knowledge to
 
-* Derive confidence intervals for the mean value (normal distribution). \emph{Question}: is the mean different from another value (e.g., another computed mean)?
-* Test whether dilution is a dominant mechanism leading to concentrations of each pollutant in the atmosphere. \emph{Question}: is the distribution lognormally distributed?
+* Derive confidence intervals for the mean value (normal distribution). *Question*: is the mean different from another value (e.g., another computed mean)?
+* Test whether dilution is a dominant mechanism leading to concentrations of each pollutant in the atmosphere. *Question*: is the distribution lognormally distributed?
 
 To answer these questions, we turn to a hypothesis testing framework.
 
 Hypothesis testing is a method of statistical inference by which we determine whether a proposed statement is favored over another. We designate these statements as either the null hypothesis $H_0$ or the alternative hypothesis $H_a$. The selection and application of statistical tests can lead to several types of errors.
 
 <center>
-<table>
-<tr style="border-bottom: 1px solid #000;">
+<table cellpadding="10">
+<tr style="padding-left:5px;padding-right:5px;border-bottom: 1px solid #000;">
 <th> Decision </th><th> $H_0$ True </th><th> $H_a$ </th>
 </tr>
 <tr style="border-bottom: 1px solid #000;">
-<td> reject $H_0$ </td><td> \emph{Type I error} ($\alpha$) </td><td> Correct decision  </td>
+<td align="center" style="padding-left:5px;padding-right:5px;"> reject $H_0$ </td>
+<td align="center" style="padding-left:5px;padding-right:5px;"> *Type I error* ($\alpha$) </td>
+<td align="center" style="padding-left:5px;padding-right:5px;"> Correct decision  </td>
 <tr style="border-bottom: 1px solid #000;">
-<td> do not reject $H_0$ </td><td> Correct decision </td><td> \emph{Type II error}  ($\beta$) </td>
+<td align="center" style="padding-left:5px;padding-right:5px;"> do not reject $H_0$ </td>
+<td align="center" style="padding-left:5px;padding-right:5px;"> Correct decision </td>
+<td align="center" style="padding-left:5px;padding-right:5px;"> *Type II error*  ($\beta$) </td>
 </tr>
 </table>
 </center>
@@ -184,7 +188,7 @@ Let $X$ represent the concentration of an atmospheric pollutant. In the statisti
 * Any physical observation we make can be considered as "sampling" from this distribution.
 * The actual value that we observe will depend on a large number of stochastic processes, but the likelihood of drawing a particular value will follow a probability distribution prescribed by $X$.
 
-The sample mean, $\bar{X}$, is an \emph{estimator} of the mean of $X$, $\mu_X$, and \emph{also has a probability distribution}.
+The sample mean, $\bar{X}$, is an *estimator* of the mean of $X$, $\mu_X$, and *also has a probability distribution*.
 
 * The sample mean is calculated from a limited number ($n$) of samples/values (randomly) drawn from the population of $X$.
 * Estimates of the mean will exhibit variation, depending on which $n$ values are selected. Environmental sampling or measurement can be thought of as a single realization of sample selection (in most applications) $\to$ we do not have many estimates of the mean, but one value calculated from a single set of $n$ samples.
@@ -316,15 +320,17 @@ $$
 The standard deviation of the sampling distribution, also called the *standard error*,  is $\sigma_{\bar{X}} = \sigma_X/\sqrt{n}$.
 
 
-In reality, we do not have the ability to calculate $n$ means from $N\to\infty$ trials (10$^6$ for what is shown here). BUT, if we know $\mu_X$ and $\sigma_X$, then we know $\mu_{\bar{X}}$ and $\sigma_{\bar{X}}$ of the sampling distribution for $\bar{X}$ as shown in the previous slide. Note that the scale on $x$-axis has been expanded for better visibility.
+In reality, we do not have the ability to calculate $n$ means from $N\to\infty$ trials (10$^6$ for what is shown here). BUT, if we know $\mu_X$ and $\sigma_X$, then we know $\mu_{\bar{X}}$ and $\sigma_{\bar{X}}$ of the sampling distribution for $\bar{X}$ as shown above.
 
-If we calculate a mean value after sampling $n$ values one time from this distribution (what usually happens in environmental sampling), we get a point estimate of $\bar{X}$, shown by a red vertical line ($\bar{x}=0.53$).
+We expand the scale along the $x$-axis for better visibility in the figure below.
 
 <center>
 <figure>
 <img src="./figures/uniform_norm.svg"/>
 </figure>
 </center>
+
+If we calculate a mean value after sampling $n$ values only once from this distribution (what usually happens in environmental sampling), we get a point estimate of $\bar{X}$, shown by a red vertical line ($\bar{x}=0.53$).
 
 <center>
 <figure>
@@ -336,7 +342,7 @@ If we calculate a mean value after sampling $n$ values one time from this distri
 
 **Example: sampling means from a lognormal distribution**
 
-Below, example lognormal distribution [Lausanne 2013 carbon monoxide, E(X) = 0.40] is shown at top. The three plot below show the distribution of mean values (\emph{sampling distribution}) when the mean is calculated from $n$=10, 30, and 100 samples randomly selected from this distribution (process of random selection repeated 10,000 times for each scenario).
+Below, example lognormal distribution [Lausanne 2013 carbon monoxide, E(X) = 0.40] is shown at top. The three plot below show the distribution of mean values (*sampling distribution*) when the mean is calculated from $n$=10, 30, and 100 samples randomly selected from this distribution (process of random selection repeated 10,000 times for each scenario).
 
 <center>
 <figure>
@@ -355,11 +361,11 @@ Confidence intervals on the mean can be constructed using the standard error. Le
 \[
 P\left( \mu_X - z \frac{\sigma_X}{\sqrt{n}} \leq \bar{X} \leq \mu_X +  z\frac{\sigma_X}{\sqrt{n}}\right) = p
 \]
-$z$ is the value of the $z$-score and $p$ is the associated confidence level (usually expressed as a percentage, $100p$, or $p$-value, which is actually $1-p$). However, we seldom know $\mu_X$ and $\sigma_X$ but instead have set of $n$ observations from which we calculate the sample mean $\bar{x}$. Algebraic manipulation yields
+$z$ is the value of the $z$-score and $p$ is the confidence level (usually expressed as a percentage, $100p$, or $p$-value, which is actually $1-p$) associated with $z$. However, we seldom know $\mu_X$ and $\sigma_X$ but instead have set of $n$ observations from which we calculate the sample mean $\bar{x}$. With a given probability $p$, the sample mean is bounded by the true mean $\pm$ $z=z(p)$ times the standard deviation of the sampling distribution, which can be rewritten to state that the true mean is bounded by the sample mean and an interval derived from the estimated standard error. First statement:
 \[
 P\left( \bar{X} - z \frac{\sigma_X}{\sqrt{n}} \leq \mu_X \leq \bar{X} +  z\frac{\sigma_X}{\sqrt{n}}\right) = p
 \]
-Additionally, we also often do not know $\sigma_X$ but estimate $s$ from the same set of observations, so
+Additionally, we also often do not know $\sigma_X$ but estimate $s$ from the same set of observations, so we use a different expression for the bounds (explained in the next section):
 \[
 P\left( \bar{X} - t \frac{s}{\sqrt{n}} \leq \mu_X \leq \bar{X} +  t\frac{s}{\sqrt{n}}\right) = p
 \]
@@ -407,23 +413,23 @@ Figure 7.2 from @Ott1994.
 
 ### Comparison of a mean against a fixed value
 
-$H_0$: sample belongs to population with known mean ($\mu = \mu_0$)\\
-$H_a$: sample belongs to another population with different means:  ($\mu > \mu_0$, $\mu < \mu_0$, or $\mu\neq \mu_0$)
+* $H_0$: sample belongs to population with known mean ($\mu = \mu_0$)
+* $H_a$: sample belongs to another population with different means:  ($\mu > \mu_0$, $\mu < \mu_0$, or more generally $\mu\neq \mu_0$)
 
 Test statistic:
-\[
+$$
 t = \frac{\bar{x} - \mu_0}{s/\sqrt{n-1}}
-\]
+$$
 
 Difference of two means:
 
-$H_0$: two populations characterized by random variables $X$ and $Y$ have the same means ($\mu_X = \mu_Y$).\\
-$H_a$: the two populations have different means ($\mu_X > \mu_Y$, $\mu_X < \mu_Y$, or $\mu_X\neq \mu_Y$).
+* $H_0$: two populations characterized by random variables $X$ and $Y$ have the same means ($\mu_X = \mu_Y$).
+* $H_a$: the two populations have different means ($\mu_X > \mu_Y$, $\mu_X < \mu_Y$, or more generally $\mu_X\neq \mu_Y$).
 
 Test statistic:
-\[
+$$
 t = \frac{(\bar{x}-\bar{y}) - (\mu_X-\mu_Y)}{s_{\bar{X}-\bar{Y}}}
-\]
+$$
 where
 $$
 \begin{aligned}
@@ -456,7 +462,7 @@ For the two-sided case, $t_{\alpha,\nu/2}$ (a positive value) is defined such th
 \alpha = P(T > t_{\alpha,\nu/2}) + P(T < -t_{\alpha,\nu/2})
 \]
 
-For the two-sided case, \emph{we would reject the null hypothesis at the $\alpha$ significance level if $|t| > t_{\alpha,\nu/2}$}.
+For the two-sided case, *we would reject the null hypothesis at the $\alpha$ significance level if $|t| > t_{\alpha,\nu/2}$*.
 
 
 *Alternate method of presentation*. With a given set of data and test statistic, we can define the "$p$-value" as the smallest level of significance that would lead to rejection of the null hypothesis $H_0$. For the two-sided case, $p$-value corresponds to
@@ -509,7 +515,8 @@ Essentially, the $\chi^2$ test compares sets of observed and expected frequencie
 \[
 \chi^2 = \sum_{j=1}^m \frac{(O_j-E_j)^2}{E_j}
 \]
-*fitting probability distributions*: For comparing against continuous distributions, we bin the observations as for a histogram. However, we target the creation of bin boundaries to contain equal counts of observations, rather than by criteria of even spacing.
+
+*Fitting probability distributions*. For comparing against continuous distributions, we bin the observations as for a histogram. However, we target the creation of bin boundaries to contain equal counts of observations, rather than by criteria of even spacing.
 
 
 This test statistic will have a probability distribution that is approximately $\chi^2$ (regardless of the underlying distribution of the observations) and the associated $p$-value can be estimated for $m-r-1$ degrees of freedom ($r$ is the number of parameters of the distribution).
@@ -555,7 +562,7 @@ Why concentrations may depart from lognormal distribution:
 * instrument detection limits lead to skewness in concentrations near zero
 *
 
-Further discussion can be found in the academic literature [e.g., @Kao1995, @Hadley2003, @Morrison2010].
+Further discussion can be found in the academic literature -- e.g., @Kao1995, @Hadley2003, @Morrison2010.
 
 ## Extension to other tests
 
@@ -594,19 +601,23 @@ A graph of a bivariate normal pdf [Figure 12.21 from @Devore2012].
 
 Hypothesis testing and $p$-values are used extensively in the medical and psychological disciplines and is currently under intense scrutiny.
 
-"$P$ values are commonly used to test (and dismiss) a ‘null hypothesis’, which generally states that there is no difference between two groups, or that there is no correlation between a pair of characteristics. The smaller the $P$ value, the less likely an observed set of values would occur by chance — assuming that the null hypothesis is true.
+* [*Nature* **531**, 151; 2016](http://www.nature.com/news/statisticians-issue-warning-over-misuse-of-p-values-1.19503)
 
-A P value of 0.05 does not mean that there is a 95% chance that a given hypothesis is correct. Instead, it signifies that if the null hypothesis is true, and all other assumptions made are valid, there is a 5% chance of obtaining a result at least as extreme as the one observed. And a P value cannot indicate the importance of a finding; for instance, a drug can have a statistically significant effect on patients’ blood glucose levels without having a therapeutic effect."
-- [*Nature* **531**, 151; 2016](http://www.nature.com/news/statisticians-issue-warning-over-misuse-of-p-values-1.19503)
+	> *P* values are commonly used to test (and dismiss) a 'null hypothesis' generally states that there is no difference between two groups, or that there is no correlation between a pair of characteristics. The smaller the $P$ value, the less likely an observed set of values would occur by chance - assuming that the null hypothesis is true.
+	>
+	> A *P* value of 0.05 does not mean that there is a 95% chance that a given hypothesis is correct. Instead, it signifies that if the null hypothesis is true, and all other assumptions made are valid, there is a 5% chance of obtaining a result at least as extreme as the one observed. And a P value cannot indicate the importance of a finding; for instance, a drug can have a statistically significant effect on patients' blood glucose levels without having a therapeutic effect.
 
-"$P$ values are widely used in science to test null hypotheses. For example, in a medical study looking at smoking and cancer, the null hypothesis could be that there is no link between the two. Many researchers interpret a lower $P$ value as stronger evidence that the null hypothesis is false. Many also accept findings as 'significant' if the P value comes in at less than 0.05. But $P$ values are slippery, and sometimes, significant $P$ values vanish when experiments and statistical analyses are repeated (see [*Nature* **506**, 150–152; 2014](http://www.nature.com/news/scientific-method-statistical-errors-1.14700))."
-- [*Nature* **519**, 9; 2015](http://www.nature.com/news/psychology-journal-bans-p-values-1.17001)
+* [*Nature* **519**, 9; 2015](http://www.nature.com/news/psychology-journal-bans-p-values-1.17001)
 
-A more general problem is that "[a]rbitrary levels of statistical significance can be achieved by changing the ways in which data are cleaned, summarized or modelled."
-- [*Nature* **520**, 612; 2015](http://www.nature.com/news/statistics-p-values-are-just-the-tip-of-the-iceberg-1.17412)
+    > *P* values are widely used in science to test null hypotheses. For example, in a medical study looking at smoking and cancer, the null hypothesis could be that there is no link between the two. Many researchers interpret a lower *P* value as stronger evidence that the null hypothesis is false. Many also accept findings as 'significant' if the *P* value comes in at less than 0.05. But *P* values are slippery, and sometimes, significant *P* values vanish when experiments and statistical analyses are repeated (see [*Nature* **506**, 150-152; 2014](http://www.nature.com/news/scientific-method-statistical-errors-1.14700)).
 
-Bottom line: the $P$ value is not an absolute value that stands on its own. When reporting $P$ values, it is important to thoroughly document the procedure of your analysis; including effect size and confidence intervals (which inherently includes sample size) to communicate the "magnitude and relative importance of an effect" -[*Nature* 506, 150–152; 2014](http://www.nature.com/news/scientific-method-statistical-errors-1.14700).
+* [*Nature* **520**, 612; 2015](http://www.nature.com/news/statistics-p-values-are-just-the-tip-of-the-iceberg-1.17412)
 
+    > A more general problem is that "[a]rbitrary levels of statistical significance can be achieved by changing the ways in which data are cleaned, summarized or modelled."
+
+* [*Nature* **506**, 150-152; 2014](http://www.nature.com/news/scientific-method-statistical-errors-1.14700)
+
+    > Bottom line: the *P* value is not an absolute value that stands on its own. When reporting *P* values, it is important to thoroughly document the procedure of your analysis; including effect size and confidence intervals (which inherently includes sample size) to communicate the "magnitude and relative importance of an effect."
 
 # R demonstration
 
