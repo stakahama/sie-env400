@@ -459,10 +459,10 @@ Let $T$ be a random variable representing the possible values of the $t$-statist
 
 For the two-sided case, $t_{\alpha,\nu/2}$ (a positive value) is defined such that
 \[
-\alpha = P(T > t_{\alpha,\nu/2}) + P(T < -t_{\alpha,\nu/2})
+\alpha = P(T > t_{\alpha/2,\nu}) + P(T < -t_{\alpha/2,\nu})
 \]
 
-For the two-sided case, *we would reject the null hypothesis at the $\alpha$ significance level if $|t| > t_{\alpha,\nu/2}$*.
+For the two-sided case, *we would reject the null hypothesis at the $\alpha$ significance level if $|t| > t_{\alpha/2,\nu}$*.
 
 
 *Alternate method of presentation*. With a given set of data and test statistic, we can define the "$p$-value" as the smallest level of significance that would lead to rejection of the null hypothesis $H_0$. For the two-sided case, $p$-value corresponds to
