@@ -219,7 +219,7 @@ As described above, characteristics most commonly used statistics to describe di
 * expected value, written as $\E(X)$ or $\mu_X$
 * variance, written as $\Var(X)$ or $\sigma_X^2$
 
-For a normal distribution, $\mu\pm\sigma$ encompasses 68.2\%, $\mu\pm 2\sigma$ encompasses 95.5\%, $\mu\pm 2\sigma$ encompasses 99.7\%, and so on. We can also consider their geometric corollaries, which are appropriate for lognormally distributed variables: geometric mean ($\mu_{\log(X)}$) and geometric standard deviation ($\sigma_{\log(X)}$).
+For a normal distribution, $\mu\pm\sigma$ encompasses 68.2\%, $\mu\pm 2\sigma$ encompasses 95.5\%, $\mu\pm 3\sigma$ encompasses 99.7\%, and so on. We can also consider their geometric corollaries, which are appropriate for lognormally distributed variables: geometric mean ($\mu_{\log(X)}$) and geometric standard deviation ($\sigma_{\log(X)}$).
 
 The mean and variance are examples of the possible *moments* of a distribution $f(x)$, which include skewness (3rd order), kurtosis (4th order), and so on.
 $$
