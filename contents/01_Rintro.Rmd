@@ -49,7 +49,15 @@ theme_set(theme_bw()) # just my preference for plots
 
 The data is available from the [National Air Pollution Monitoring Network (NABEL)](http://www.bafu.admin.ch/luft/00612/00625/index.html?lang=en) of Switzerland.
 
-<center><img src="./figures/NABEL_Network.png" alt="from _Stations de mesure NABEL_" width="50%"/></center>
+<center>
+<figure>
+<img src="./figures/NABEL_Network.png" alt="from _Stations de mesure NABEL_" width="50%"/>
+</figure>
+<figcaption>
+Image source: *Stations de mesure NABEL* report
+</figcaption>
+</center>
+<br>
 
 We have downloaded hourly time series from 2013 for Lausanne from the [NABEL data query](http://www.bafu.admin.ch/luft/luftbelastung/blick_zurueck/datenabfrage/index.html?lang=en), and placed this file in a folder called "data/2013/" located in the subdirectory of the *working directory*.
 

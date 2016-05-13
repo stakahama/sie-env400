@@ -32,7 +32,7 @@ c_{xy}(k) = \frac{1}{N} \sum_{t=1}^{N-k} (x_t-\overline{x})(y_{t+k}-\overline{y}
 $$
 
 ## Sample correlation
-  
+
 Pearson's correlation coefficient (sample correlation) is defined as the covariance of two variables divided by the product of their standard deviations (which are the square roots of their respective variances):
 
 $$
@@ -45,7 +45,7 @@ $$
 r_{xy}(k) = \frac{c_{xy}(k)}{\sqrt{c_{xx}(0)c_{yy}(0)}}
 $$
 
-  
+
 $c_{xx}$ and $c_{yy}$ are the sample variances of $x$ and $y$, respectively.
 \column{.5\textwidth}
 
@@ -56,11 +56,11 @@ $c_{xx}(0)$ and $c_{yy}(0)$ that are the sample variances of $x_t$ and $y_t$ res
 "For descriptive purposes, the relationship will be described as strong if $|r| \geq .8$, moderate if $.5 < |r| <.8$, and weak if $|r| \leq .5$." -- Devore and Berk, *Modern Mathematical Statistics with Applications*, 2012
 
 <center><img src="./figures/Devore2012_Fig_12-24.png" alt="Devore and Berk, _Modern Mathematical Statistics with Applications_, 2012, Figure 12.24" width="30%"></center>
-  
+
 Anscombe's quartet classically illustrates the pitfalls on relying on a single coefficient --
 always visualize your data. Consider the following four datasets:
 
-```{r, echo=FALSE, fig.width=8, fig.height=8}  
+```{r, echo=FALSE, fig.width=8, fig.height=8}
   ## from R help ?anscombe
 require(datasets); require(stats); require(graphics)
 
@@ -110,7 +110,7 @@ kable(out)
 ```
 
 ## Cross (lagged) correlations illustrated
-  
+
 Illustration of lag for 20.07.2013 in Lausanne:
 
 <img src="./figures/lag_example.png" alt="lag_example" width="100%"/>
@@ -122,7 +122,7 @@ Illustration of lag for 20.07.2013 in Lausanne:
 Could a similar relationship be confirmed by examining correlations between the daily maximum values of radiation and ozone?
 
 ## Confounding interpretations
-  
+
   A correlation or lagged correlation in x and y may also be observed. For examples, a correlation between $x$ and $y$ may not be due to the causal relationship between $x$ and $y$, but dependent on a third variable, $z$. This is written:
 
 <table>
@@ -229,7 +229,7 @@ ggp <- ggplot(cor.values)+
 print(ggp)
 ```
 
-We can examine the correlation of other pollutants or meterological variables with O~3~. 
+We can examine the correlation of other pollutants or meterological variables with O~3~.
 ```{r, fig.width=20, fig.height=6, warning=FALSE}
 lf <- melt(daily.max, measure.vars=setdiff(variables, "O3")) # everything but ozone
 ggp <- ggplot(lf)+
@@ -277,7 +277,7 @@ Plot hourly data as pairwise points. Given the large number of points, we can "s
 ix <- grepl("LAU", df[["site"]], fixed=TRUE)
 spp <- splom(~df[ix,c("O3","NO2","CO","PM10","TEMP","PREC","RAD")] | df[ix,"season"],
              upper.panel = CorrelationValue,
-             panel = panel.smoothScatter,             
+             panel = panel.smoothScatter,
              pch=4)
 print(spp)
 ```
@@ -316,7 +316,8 @@ print(ggp)
 R includes a function, `ccf`, for calculating the cross correlation. The value passed to the `na.action=na.pass` says to compute covariances from the complete cases when there are missing values. Calling this function will generate a corresponding plot by default (which can be turned off). See `?ccf` for further details.
 
 ```{r}
-ccf(df[,"RAD"], df[,"O3"], lag.max=6, na.action=na.pass)
+ix <- df[["site"]]=="LAU"
+ccf(df[ix,"RAD"], df[ix,"O3"], lag.max=6, na.action=na.pass)
 ```
 This tells us that the correlation is higest at a lag of -3 hours.
 
@@ -327,7 +328,7 @@ LaggedCorrelation <- function(pair, ...) {
   data.frame(lag=out[["lag"]], value=out[["acf"]])
 }
 
-lagged.values <- df %>% group_by(season) %>%
+lagged.values <- df %>% group_by(site, season) %>%
   do(LaggedCorrelation(.[,c("RAD","O3")], lag.max=6))
 ```
 Note the syntax, `...` in the function definition This passes on any additional arguments (`lag.max` in this case) from the outer function (`LaggedCorrelation`) to the inner-most function (`ccf`). `?...` will refer you to the *Introduction to R* manual for further details on this syntax.
@@ -337,7 +338,7 @@ Plot:
 ```{r, fig.width=15, fig.height=5}
 ggp <- ggplot(lagged.values)+
   geom_segment(aes(x=lag,xend=lag,y=0,yend=value))+
-  facet_grid(.~season)+
+  facet_grid(site~season)+
   xlab("lag (hours)")+
   ylab("Cross correlation coefficient")
 print(ggp)
