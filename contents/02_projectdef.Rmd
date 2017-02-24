@@ -20,52 +20,15 @@ Air pollution data (observations or model predictions) consist of realizations o
 
 In this project, we will learn methods of exploratory data analysis using relational models of data. We will cover the software package R.
 
-# Assignment definition
+# Assignment description
 
 <img src="./figures/FOEN.png" alt="FOEN" width="50%"/>
 
-The assignment is to analyze measurements from the Swiss Federal Office of the Environment (BAFU/OFFEV/FOEN) network. The objective is to observe seasonal and diurnal patterns in concentrations of each pollutant, and understand the interplay of emissions, photochemistry, and meteorology that gives rise to these patterns to the extent that they can be inferred.
-
-Write a report on the following content. You can find many details on the [BAFU website](http://www.bafu.admin.ch/luft/index.html?lang=en), and in the lectures of the course.
+The assignment is to analyze measurements from the Swiss Federal Office of the Environment (BAFU/OFFEV/FOEN) network. The objective is to observe seasonal and diurnal patterns in concentrations of each pollutant, and understand the interplay of emissions, photochemistry, and meteorology that gives rise to these patterns to the extent that they can be inferred. You can find many details on the [BAFU website](http://www.bafu.admin.ch/luft/index.html?lang=en), and in the lectures of the course.
 
 <hr style="height:1px;border:none;color:#333;background-color:#333;">
 
-Describe each instrument used to measure air pollutants.
-
-1. What is the physical or chemical principle behind their measurement? What are potential biases or errors in each type of measurement?
-
-Select two monitoring stations located in contrasting locations (urban vs. rural), and download their hourly concentrations for 2015. 
-
-Describe the concentration of pollutants:
-
-2. Contrast the monthly averages of each regulated pollutant and
-meteorological variable between the two sites. Describe seasonal differences
-and possible reasons for the variations, referring to figures and
-relevant values that have been calculated.
-3. Contrast the weekday and weekend differences in diurnal (hourly)
-averages of each regulated pollutant and meteorological variable
-between the two sites. Describe differences and possible reasons for
-the variations, referring to figures and relevant values that have
-been calculated.
-4. Describe periods which lie out of usual patterns (describe a few).
-5. Determine whether regulatory limits are met or exceeded for each pollutant. Identify periods in which regulatory limits are exceeded and determine whether any cause can be attributed to these events to the extent that you can tell from your data set.
-
-You may wish to use:
-
-* estimation of central values (mean or median), metrics of dispersion (summary statistics)
-* histograms, kernel density estimates, empirical cumulative distribution function
-* statistical significance of differences in average values (means)
-
-Examine correlations and lagged correlations among variables. This does not have to be exhaustive (let's agree on presenting 3 correlations), but begin with a hypothesis of what *should* be correlated according to cause and effect, and support or discredit it with your analysis.
-
-6. Which variables show mild to strong correlations with each other for which sites and time periods?
-7. Give (physically) plausible reasons why these correlations might exist. Do they share a causal relationship, or are they dependent on a third confounding variable (e.g., common source of emissions or photochemistry).
-
-Determine if pollutant concentrations are lognormally distributed for 1) hourly-averaged concentrations or 2) daily-averaged concentrations.
-
-8. Explain if these distributions are reasonable to expect for each species and for each site. You may select one month out of the year for inspection.
-
-Note that the main theme is to discuss variation of pollutant concentrations in terms of emissions and atmospheric processes.
+See course handout for exact assignment instructions.
 
 <hr style="height:1px;border:none;color:#333;background-color:#333;">
 
@@ -83,15 +46,15 @@ Note that the main theme is to discuss variation of pollutant concentrations in 
 
 # Data analysis
 
-*Data analysis* describes the process of reducing a set of data to a few relevant conclusions.  
-  
+*Data analysis* describes the process of reducing a set of data to a few relevant conclusions.
+
 *Code* describes data (e.g., measurements) and its transformations (e.g., averaging).
 
 * Data are stored as variables (nouns)
 * Transformations are described through functions (verbs)
 
 Structuring your data appropriately can significantly reduce the number of steps required for many types of transformations.
-  
+
 ## Examples of data models
 
 Data models describe entities and their relationships to other entities.
@@ -156,7 +119,7 @@ apply(arr["2013",,,,],MARGIN=c("month","variable"), FUN=mean, na.rm=TRUE)
 
 Hierarchical representation:
 ```{r, echo=FALSE}
-Recursetree <- function(x) 
+Recursetree <- function(x)
   lapply(split(x[,-1],x[,1]), Recursenode)
 
 Recursenode <- function(x) {
@@ -224,9 +187,9 @@ General strategy:
 1. *split* table row-wise by a categorical variable (X)
 2. *apply* function (Y) on selected variable
 3. *combine* results into another table
-  
+
 Example (as shown in Lesson 1):
-  
+
 1. *split* table row-wise by month
 2. *apply* mean on selected variable
 3. *combine* summary statistics (i.e., mean) into a table
