@@ -39,11 +39,27 @@ theme_set(theme_bw()) # just my preference for plots
 
 Based on past work, we can define a function that reads in the data and additionally provides several time variables.
 
+R provides many functions for extraction of time information, but for atmospheric applications we often classify time periods according to season (which is not provided). We will define our own function to convert month to season:
+
+```{r}
+Month2Season <- function(month) {
+  seasons <- c("DJF", "MAM", "JJA", "SON")
+  index <- findInterval(month %% 12, seq(0, 12, 3))
+  factor(seasons[index], seasons)
+}
+```
+
+Test this new function:
+```{r}
+Month2Season(c(1, 3, 12))
+```
+
+Next, we define the function for importing the time series:
 ```{r}
 ReadTSeries <- function(filename, timecolumn="datetime", timeformat="%d.%m.%Y %H:%M") {
   ## read the table
   data <- read.table(filename, skip=5, header=TRUE, sep=";", check.names=FALSE)
-  names(data) <- sub("[ ].*$","",names(data))
+  names(data) <- sub("[ ].*$","",names(data)) # strip units for simplification
   names(data) <- sub("Date/time", timecolumn, names(data), fixed=TRUE)
   data[,timecolumn] <- as.chron(data[,timecolumn], timeformat)
   ## additional variables
@@ -52,19 +68,16 @@ ReadTSeries <- function(filename, timecolumn="datetime", timeformat="%d.%m.%Y %H
   data[,"day"] <- days(data[,timecolumn])
   data[,"hour"] <- hours(data[,timecolumn])
   data[,"dayofwk"] <- weekdays(data[,timecolumn])
-  data[,"daytype"] <- ifelse(data[,"dayofwk"] %in% c("Sat","Sun"),"Weekend","Weekday")
-  ##
-  seasons <- c("DJF","MAM","JJA","SON")
-  ix.seasons <- findInterval(unclass(data[,"month"]) %% 12, seq(0,12,3))
-  data[,"season"] <- factor(seasons[ix.seasons],seasons)
-  ## avoid package conflict
+  data[,"daytype"] <- ifelse(data[,"dayofwk"] %in% c("Sat","Sun"), "Weekend", "Weekday")
+  data[,"season"] <- Month2Season(unclass(data[,"month"]))
+  ## avoid package conflict (for version installed in GRB001)
   data[,timecolumn] <- c(unclass(data[,timecolumn]))
   ## return value
   data
 }
 ```
 
-Read and merge Lausanne (LAU) and Z??rich (ZUE) data:
+Read and merge Lausanne (LAU) and Z&uuml;rich (ZUE) data:
 ```{r}
 datapath <- "data/2013"
 
@@ -78,14 +91,14 @@ head(df)
 tail(df)
 ```
 
-Let us save this data frame for later
+Let us save this data frame for later.
 ```{r}
 saveRDS(df, "data/2013/lau-zue.rds")
 ```
 
 Elongate the data frame, as before.
 ```{r}
-lf <- melt(df, id.vars=c("site", "datetime", "season", "year","month","day","hour","dayofwk","daytype"))
+lf <- melt(df, id.vars=c("site", "datetime", "season", "year", "month", "day", "hour", "dayofwk", "daytype"))
 ```
 
 # View variability in pollutant concentrations
@@ -109,7 +122,7 @@ In the following figures, we will summarize the measurements using non-parametri
 Summary by month:
 ```{r, warning=FALSE, fig.width=8, fig.height=10}
 ggp <- ggplot(lf) +
-  facet_grid(variable ~ site, scale = "free_y") +  
+  facet_grid(variable ~ site, scale = "free_y") +
   geom_boxplot(aes(month, value), outlier.size = 0.5, outlier.shape = 3)
 print(ggp)
 ```
@@ -117,7 +130,7 @@ print(ggp)
 By day type and season:
 ```{r, warning=FALSE, fig.width=8, fig.height=8}
 ggp <- ggplot(lf %>% filter(site=="LAU" & !is.na(value))) +
-  facet_grid(variable ~ season, scale = "free_y") +  
+  facet_grid(variable ~ season, scale = "free_y") +
   geom_boxplot(aes(daytype, value), outlier.size = 0.5, outlier.shape = 3)
 print(ggp)
 ```
@@ -134,7 +147,7 @@ Diurnal (hourly) variations in pollutant concentrations at Lausanne site:
 ```{r, warning=FALSE, fig.width=8, fig.height=10}
 ggp <- ggplot(data=lf %>% filter(site=="LAU" & !is.na(value)),
               mapping=aes(x=hour, y=value, group=daytype, color=daytype)) +
-  facet_grid(variable ~ season, scale = "free_y", drop=TRUE) +  
+  facet_grid(variable ~ season, scale = "free_y", drop=TRUE) +
   geom_line(stat="summary", fun.y="median")+
   geom_errorbar(stat="summary",
                 fun.ymin=Percentile(25),
@@ -147,7 +160,7 @@ Diurnal variations in O_3 concentrations:
 ```{r, warning=FALSE, fig.width=8, fig.height=4}
 ggp <- ggplot(data=lf %>% filter(variable=="O3"),
               mapping=aes(x=hour, y=value, group=daytype, color=daytype)) +
-  facet_grid(site ~ season, drop=TRUE) +  
+  facet_grid(site ~ season, drop=TRUE) +
   geom_line(stat="summary", fun.y="median")+
   geom_errorbar(stat="summary",
                 fun.ymin=Percentile(25),
@@ -161,7 +174,7 @@ Diurnal variations in NO_2 concentrations:
 ```{r, warning=FALSE, fig.width=8, fig.height=5}
 ggp <- ggplot(data=lf %>% filter(variable=="NO2"),
               mapping=aes(x=hour, y=value, group=site, color=site)) +
-  facet_grid(season ~ dayofwk, drop=TRUE) +  
+  facet_grid(season ~ dayofwk, drop=TRUE) +
   geom_line(stat="summary", fun.y="median")+
   geom_errorbar(stat="summary",
                 fun.ymin=Percentile(25),
