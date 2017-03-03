@@ -154,6 +154,8 @@ $$
 * The variation between two variables may depend on a third, as shown above.
 * Even if the variation in one variable is dependent on another, the correlation does not indicate the direction of causality.
 
+For entertainment purposes, you may wish to visit the website of [*Spurious correlations*](http://www.tylervigen.com/spurious-correlations).
+
 # R demonstration
 
 
