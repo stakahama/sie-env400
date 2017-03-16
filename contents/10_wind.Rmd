@@ -1,0 +1,300 @@
+---
+title: "Considering meteorology"
+output:
+  html_document:
+    toc: true
+    theme: united
+bibliography: refs.bib
+---
+
+```{r, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.path='figures_rmd/lec10_', fig.align='center', warning=FALSE, message=FALSE)
+```
+
+# R example
+
+```{r, include=FALSE}
+Month2Season <- function(month) {
+  seasons <- c("DJF", "MAM", "JJA", "SON")
+  index <- findInterval(month %% 12, seq(0, 12, 3))
+  factor(seasons[index], seasons)
+}
+```
+
+```{r}
+library(chron)
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+```
+
+```{r, results="hide"}
+Sys.setlocale("LC_TIME","C")
+options(stringsAsFactors=FALSE)
+options(chron.year.abb=FALSE)
+theme_set(theme_bw()) # just my preference for plots
+```
+
+## Read in wind data
+
+In previous modules, we covered temperature, precipitation, and radiation intensity. Here we will use wind speed and direction.
+
+An example met file provided by NABEL looks like the following:
+
+```{r}
+cat(encodeString(readLines("data/2013/LAU_Wind_MW1_13.txt", n=20)), sep="\n")
+```
+Columns 6 and 7 are wind direction and wind speed, respectively.
+
+We will define a function for reading in meteorological files.
+```{r}
+ReadMet <- function(filename) {
+  data <- read.table(filename, skip=15, col.names=c("year", "month", "day", "hour", "minute", "WIRI", "WIGE"))
+  data %>%
+    mutate(datetime = as.chron(paste(year, month, day, hour, minute), "%Y %m %d %H %M"),
+           year     = years(datetime),
+           month    = months(datetime),
+           day      = days(datetime),
+           hour     = hours(datetime),
+           minute   = minutes(datetime),
+           WIRI     = ifelse(WIRI <= -9999, NA, WIRI),
+           WIGE     = ifelse(WIGE <= -9999, NA, WIGE))
+}
+```
+
+Read in met data:
+```{r}
+datapath <- "data/2013"
+met <- full_join(cbind(site="LAU", ReadMet(file.path(datapath, "LAU_Wind_MW1_13.txt"))),
+                 cbind(site="ZUE", ReadMet(file.path(datapath, "ZUE_Wind_MW1_13.txt"))))
+```
+
+## Merge
+Read in concentration data using functions defined in Lesson 4:
+
+```{r}
+conc <- readRDS("data/2013/lau-zue.rds")
+```
+
+We will merge the data frames.
+```{r}
+df <- full_join(conc, met)
+tail(df)
+```
+
+
+## Visualizing wind roses (histograms)
+
+We will use a function modified from [Andy Clifton](https://github.com/AndyClifton/SurfaceStationSummary/blob/master/functions/WindRose.R) for plotting wind roses.
+
+```{r}
+source("WindRose.R")
+```
+
+Wind roses are effectively histograms in polar coordinates. There are different conventions for ordering frequency by wind speed. Two are shown below. First, low wind speeds in the interior:
+```{r}
+ggp1 <- plotWindrose(df, spd = "WIGE", dir = "WIRI", decreasing=FALSE) # default in our code.
+print(ggp1)
+```
+
+High wind speeds in the interior:
+```{r}
+ggp2 <- plotWindrose(df, spd = "WIGE", dir = "WIRI", decreasing=TRUE)
+print(ggp2)
+```
+These can give different visual impressions. We will adopt the first convention for the remaining examples.
+
+Using syntax shown previously, we can group summaries by site and season:
+```{r, fig.width=7, fig.height=11}
+ggp1 + facet_grid(season~site)
+```
+
+
+## Visualizing wind direction in time
+
+Let us select the last week in July.
+```{r}
+example.dates <- dates("08/01/2013") + seq(-6, 0)
+example.df <- df %>% filter(dates(datetime) %in% example.dates)
+str(example.df)
+```
+
+If we plot time series:
+```{r}
+ggp <- ggplot(example.df %>% melt(measure.vars=c("WIRI", "WIGE")))+
+  facet_grid(variable~site, scale="free_y")+
+  geom_line(aes(datetime, value))+
+  scale_x_chron(name="date")+
+  theme(axis.text.x = element_text(angle = 45, hjust=1))
+print(ggp)
+```
+We find that the wind speed makes sense but wind directions are erratic.
+
+Let us consider how to represent ... Color models...
+
+<figure>
+<center>
+<table>
+<tr>
+<td><img src="figures/RGB_Cube_Show_lowgamma_cutout_b.png" alt="https://upload.wikimedia.org/wikipedia/commons/8/83/RGB_Cube_Show_lowgamma_cutout_b.png" style="width: 70%" align="right"/></td>
+<td><img src="figures/HSV_color_solid_cylinder_alpha_lowgamma.png" alt="https://upload.wikimedia.org/wikipedia/commons/0/0d/HSV_color_solid_cylinder_alpha_lowgamma.png" style="width: 70%" align="left"/></td>
+</tr>
+</table>
+<figcaption>RGB (left) and HSV (right) color coordinates (images from Wikipedia).</figcaption>
+</center>
+</figure>
+<br>
+
+Examining the HSV color wheel, we can see that it may be appropriate to describe the wind direction, which is periodic, using the hue (H), and allowing the saturation (S) or value (V) to represent wind speed. However, as these subtle color differences may be challenging to differentiate, we will only map H to the wind direction; setting S=1 and V=1.
+
+```{r, echo=FALSE, fig.height=3, fig.width=3}
+## code adapted from
+## http://sape.inf.usi.ch/quick-reference/ggplot2/colour
+hsv.df <- data.frame(h=seq(0, 0.99, 0.01), s=1, v=1)
+##
+lab.df <- data.frame(direction = seq(0, 360*max(hsv.df$h), 30))
+lab.df$lab <- sprintf("%.f*degree", lab.df$direction)
+lab.df$h <- lab.df$direction / 360
+##
+ggplot(hsv.df) +
+  coord_polar(theta="x") +
+  scale_fill_identity() +
+  geom_rect(data=hsv.df,
+            mapping=aes(xmin=h, xmax=h+resolution(h), fill=hsv(h,s,v)),
+            ymin=0, ymax=1, size=0.1)+
+  geom_rect(data=hsv.df, mapping=aes(xmin=h, xmax=h+resolution(h)),
+            ymin=0, ymax=.9, fill="white")+
+  geom_text(data=lab.df,
+            mapping=aes(x=h, label=lab),
+            y = 1.07, hjust=.5, vjust=.5, parse=TRUE)+
+  theme(panel.border = element_blank(),
+        panel.background = element_rect(fill = "white"),
+        panel.grid = element_blank(),
+        axis.title=element_blank(),
+        axis.text=element_blank(),
+        axis.ticks=element_blank())
+```
+
+Colors generated using `hsv()` function in R.
+```{r}
+color <- hsv(seq(0, 360) / 360, 1, 1)
+angle <- seq(0, 360, 60)
+```
+
+Let us revisit our earlier example:
+```{r}
+ggp <- ggplot(example.df) +
+  facet_grid(site~.)+
+  geom_line(aes(datetime, WIGE))+
+  geom_point(aes(datetime, WIGE, color=WIRI))+
+  scale_color_gradientn(colors = color, breaks=angle, limits=range(angle), expand=c(0, 0))+
+  scale_x_chron(name="date", limits=range(example.dates))
+print(ggp)
+```
+
+## Example 1
+
+We will use the date variable often:
+```{r}
+df[["date"]] <- dates(df[["datetime"]])
+```
+
+Select dates in which daily mean PM10 exceeded 50 $\mu$g/m$^3$ threshold:
+
+```{r}
+
+exceeded.zue.daily50 <- df %>%
+  filter(site=="ZUE") %>%
+  group_by(site, date) %>%
+  filter(length(na.omit(PM10))/24 > 0.75) %>%
+  summarize(exceeded = mean(PM10, na.rm=TRUE) > 50) %>%
+  ungroup
+
+hd <- left_join(
+  exceeded.zue.daily50 %>% filter(exceeded),
+  df
+)
+```
+Define plots
+```{r}
+## concentrations
+ggp1 <- ggplot(hd)+
+  geom_line(aes(hour, PM10))+
+  facet_grid(.~date)
+
+## wind speed and direction
+ggp2 <- ggplot(hd %>% mutate(date = format(date)))+
+  geom_line(aes(hour, WIGE), color="gray")+
+  geom_point(aes(hour, WIGE, color=WIRI))+
+  scale_color_gradientn(colors = color, breaks=angle, limits=range(angle), expand=c(0, 0))+
+  facet_grid(.~date)
+  ##guides(color = "none")
+```
+
+```{r, fig.width=10, fig.height=3, out.width='92%', out.height='92%', fig.align='left'}
+print(ggp1)
+```
+
+```{r, fig.width=12, fig.height=3}
+print(ggp2)
+```
+
+For wind analysis, we want to include also those periods in which the 50 $\mu$g/m$^3$ threshold was not exceeded for contrast.
+```{r}
+wd <- left_join(
+  exceeded.zue.daily50,
+  df
+)
+```
+
+We see that these events only occur during the winter and spring seasons (`"DFJ"` and `"MAM"`).
+```{r}
+wd %>% filter(exceeded) %>% distinct(season)
+```
+
+```{r, fig.width=10, fig.height=5}
+ggp <- plotWindrose(wd %>% filter(season %in% c("DJF", "MAM")) %>%
+                    mutate(label = ifelse(exceeded, "exceeded", "not exceeded")),
+                    spd = "WIGE", dir = "WIRI") +
+  facet_grid(.~label)
+print(ggp)
+```
+
+## Example 2
+Select dates in which hourly PM10 exceeded 100 $\mu$g/m$^3$:
+```{r}
+exceeded.zue.100 <- df %>%
+  filter(site=="ZUE") %>%
+  group_by(site, date) %>%
+  summarize(exceeded = any(PM10 > 100)) %>%
+  filter(exceeded)
+
+hd <- left_join(
+  exceeded.zue.100,
+  df
+)
+```
+
+Define plots
+```{r}
+## concentrations
+ggp1 <- ggplot(hd %>% mutate(datelabel = format(date)))+
+  geom_line(aes(hour, PM10))+
+  facet_grid(.~datelabel)
+
+## wind speed and direction
+ggp2 <- ggplot(hd %>% mutate(datelabel = format(date)))+
+  geom_line(aes(hour, WIGE), color="gray")+
+  geom_point(aes(hour, WIGE, color=WIRI))+
+  scale_color_gradientn(colors = color, breaks=angle, limits=range(angle), expand=c(0, 0))+
+  facet_grid(.~datelabel)
+```
+
+```{r, fig.width=7, fig.height=3, out.width='80%', out.height='80%'}
+print(ggp1)
+```
+
+```{r, fig.width=8, fig.height=3}
+print(ggp2)
+```
