@@ -6,22 +6,23 @@ library(ggplot2)
 library(RColorBrewer)
 
 plotWindrose <- function(data,
-                         spd = "speed",
-                         dir = "direction",
-                         spdres = 2,
-                         dirres = 30,
-                         spdmin = floor(min(data[,spd], na.rm=TRUE)),
-                         spdmax = ceiling(max(data[,spd], na.rm=TRUE)),
-                         palette = "YlGnBu",
-                         countmax = NA,
-                         opts = NA,
-                         debug = 0,
-                         decreasing=FALSE){
+                         spd        = "speed",
+                         dir        = "direction",
+                         spdres     = 2,
+                         dirres     = 30,
+                         spdmin     = floor(min(data[[spd]], na.rm=TRUE)),
+                         spdmax     = ceiling(max(data[[spd]], na.rm=TRUE)),
+                         palette    = "YlGnBu",
+                         countmax   = NA,
+                         decreasing = FALSE,
+                         debug      = 0) {
+
   ## check inputs ----
   if (debug>0){
     cat("Speed = ", spd, "\n")
     cat("Direction = ", dir, "\n")
   }
+
   ## Tidy up input data ----
   dnu <- (is.na(data[[spd]]) | is.na(data[[dir]]))
   data<- data[!dnu,]
@@ -51,9 +52,11 @@ plotWindrose <- function(data,
                               c(seq(spdmin+spdres,spdmax,by = spdres)))
 
   }
+
   if (debug > 0){
     cat(speedcuts.colors, "\n")
   }
+
   ## Bin wind speed data ----
     data$spd.binned <- cut(data[[spd]],
                            breaks = speedcuts.breaks,
@@ -74,11 +77,13 @@ plotWindrose <- function(data,
                         "-",
                         seq(3*dirres/2, 360-dirres/2, by = dirres)),
                   paste(360-dirres/2,"-",dirres/2))
+
   ## assign each wind direction to a bin
   if (debug>0){
     cat(dir.breaks,"\n")
     cat(dir.labels,"\n")
   }
+
   data$dir.binned <- cut(data[[dir]],
                          breaks = dir.breaks,
                          ordered_result = TRUE)
@@ -99,9 +104,7 @@ plotWindrose <- function(data,
                           aes(x = dir.binned,
                               fill = spd.binned)) +
     geom_bar()
-  if (!is.na(opts)){
-    plot.windrose <- eval(parse(text = paste("plot.windrose +", opts)))
-  }
+
   plot.windrose <- plot.windrose +
     scale_x_discrete(drop = FALSE,
                      labels = waiver()) +
@@ -109,8 +112,8 @@ plotWindrose <- function(data,
     scale_fill_manual(name = "Wind Speed (m/s)",
                       values = speedcuts.colors,
                       drop = FALSE) +
+    labs(x = "") ## so it doesn't conflict with theme()
     ## theme(axis.title.x = element_blank())
-    labs(x = "")
 
   ## adjust axes if required
   if (!is.na(countmax)){

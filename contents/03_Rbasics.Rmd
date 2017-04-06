@@ -13,15 +13,15 @@ opts_chunk$set(fig.path='figures_rmd/lec03', fig.align='center')
 
 # Programming with data using R
 
-In order to perform the data analysis, we need a tool to help us 
+In order to perform the data analysis, we need a tool to help us
 
-* clean and transform the data, 
-* visualize our data to generate hypotheses and confirm that assumptions required for statistical tests are met (e.g., normality), and 
+* clean and transform the data,
+* visualize our data to generate hypotheses and confirm that assumptions required for statistical tests are met (e.g., normality), and
 * apply the tests and harvest results.
 
-R is such a tool that was created for "Programming with Data", and will be covered in this lesson. 
+R is such a tool that was created for "Programming with Data", and will be covered in this lesson.
 
-* We will cover some basic concepts of R programming in this course, with an emphasis on demonstrating *what* you can (or should) do with a programming language. Once you know this, you can look up *how* to perform a specific task. 
+* We will cover some basic concepts of R programming in this course, with an emphasis on demonstrating *what* you can (or should) do with a programming language. Once you know this, you can look up *how* to perform a specific task.
 
 * Many demonstrations and example code will be provided. If you find a code block that accomplishes what you need, then you can use it directly or read up on the function or functions to adapt the block to your needs.
 * Everyone has a different level of background in programming, but it is possible to find appropriate resources at every level.
@@ -36,7 +36,7 @@ We will require each student to learn a lot on his or her own as it is not possi
 * Working with data
     * *Modern Applied Statistics with S*
     * *Data Manipulation with R*
-  
+
 <img src="./figures/An Introduction to R.jpeg" alt="Rintro" width="10%"/>
 <img src="./figures/Data Manipulation with R.jpeg" alt="Rmanip" width="10%"/>
 
@@ -138,7 +138,7 @@ These libraries should be present on the machines in room GRB001. On your own ma
 ```
 install.packages("packagename",repos="http://stat.ethz.ch/CRAN/")
 ```
-or, for multiple packages at once, 
+or, for multiple packages at once,
 ```
 install.packages(c("packagename1","packagename2"),repos="http://stat.ethz.ch/CRAN/")
 ```
@@ -148,9 +148,9 @@ In the *assignment* of values to symbols/variables, `<-` or `=` can be used. The
 
     ```{r}
     x <- 1   # scalar (a vector of length 1)
-    x = 1   
+    x = 1
     x <- 1:5 # vector
-    x = 1:5 
+    x = 1:5
     ```
 
 Functions accept a set of arguments (inputs) and return a value (output). Even binary operators can be written as a function in *prefix* notation -- e.g.,  x+1` is equivalent to ```+``(x,1)`.
@@ -221,7 +221,7 @@ In R, all variables are objects and all operations are functions. All functions 
 ## Labeling elements
 
 Elements can have optional labels.
-    
+
 Vectors, lists can have names.
 ```{r}
 (v <- c(a=1, b=3, c=5))
@@ -239,7 +239,7 @@ print(m)
 
 ## Text processing
 
-Processing strings of characters is a relevant part of data analysis. 
+Processing strings of characters is a relevant part of data analysis.
 
 Manipulate strings:
 ```{r}
@@ -272,7 +272,7 @@ names(data)
 ```
 Note non-ASCII encoding.
 
-We can delete everything after whitespace: 
+We can delete everything after whitespace:
 ```{r}
 sub("[ ].*$","",names(data))
 ```
@@ -307,7 +307,7 @@ setdiff(dates, newdate1)
 ## Extract/replace
 
 Can refer to elements by sequence number, or by label.
-  
+
 Vectors:
 ```{r}
 v[2]
@@ -332,7 +332,7 @@ l[["b"]]
 l[["b"]] <- 10
 print(l)
 ```
-    
+
 You may also see the `$` operator used, but this is used to extract or assign to a single element of a list or data frame.
 ```{r}
 l$b
@@ -364,9 +364,9 @@ dimensions.
 
 ## Arithmetic operations
 
-The usual arithmetic operators/functions: 
+The usual arithmetic operators/functions:
 ```
-+, -, *, /,                      # binary operators 
++, -, *, /,                      # binary operators
 sum(), prod(), cumsum(), diff(), # apply to vector
 ```
 
@@ -389,7 +389,7 @@ for(i in 1:length(x)) {
 }
 print(y)
 ```
-  
+
 If-else:
 ```{r}
 i <- 3
@@ -409,7 +409,7 @@ Within the use, you can use a few additional structures:
 ```
   break # break out of loop
   next  # skip rest of loop
-```                                                                      
+```
 
 ## Logical values
 
@@ -490,27 +490,27 @@ Explore the possibilities:
 ```{r}
 Bar(1)
 Bar(1, 3)
-Bar(3, 1)    
+Bar(3, 1)
 Bar(second=3, first=1)
 Bar(s=3, 1)
-```    
+```
 
 # Special types
 
 ## Categorical variables (factor class)
 
   The `factor` class in R is useful for representing categorical variables, which are discrete variables with a defined set of possibilities.
-  
+
 ```{r}
-sites <- factor(c("Lausanne","Zurich"),                  # values
-                 levels=c("Bern","Lausanne","Zurich"))   # set from which values are drawn
+sites <- factor(c("Lausanne","Zurich"),                # values
+                 levels=c("Bern","Lausanne","Zurich")) # set from which values are drawn
 sites
 unclass(sites)
 sites == "Lausanne"
-sites[1] <- Fribourg" # not in defined set of possibilities
+sites[1] <- "Fribourg"                                 # not in defined set of possibilities
 methods(class="factor")
 ```
-  
+
 *Caution*: factors are integer at heart.
 
 ```{r}
@@ -519,7 +519,7 @@ methods(class="factor")
 vec["four"]
 fac[2]
 vec[fac[2]]
-```  
+```
 
 This behavior occurs because:
 ```{r}
@@ -550,9 +550,9 @@ Common data frame operations defined in base R, with improvements in speeed or u
 | pivot frame          | `stack()`, `unstack()`          | `melt()`, `dcast()`              |
 
 ### Chaining operations
-  
+
   Apply a series of functions in sequence. Subset rows where label is equal to "b", and then change the value to 3.
-  
+
 Note the following sequence of operations:
 ```{r}
 mutate(filter(dtable,label=="b"),value=3)
@@ -567,12 +567,12 @@ The `%>%` is a "postfix operator" and assigns the preceding object (data frame) 
 
 
 ### Modfying tables
-    
+
   Return new data frame (original is unmodified):
 ```{r}
 (newtable <- dtable %>% mutate(value2=NA))
 print(dtable)
-```    
+```
 
   ``In place'' (modify original data frame):
 ```{r}
@@ -583,8 +583,8 @@ print(dtable)
 ### Merging example
 
   Merging tables is a powerful feature.
-  
-  
+
+
 ```{r}
 dtable[,"value2"] <- NULL # delete column
 
@@ -650,18 +650,18 @@ ReadTSeries <- function(filename, timecolumn="datetime", timeformat="%d.%m.%Y %H
 data <- ReadTSeries("data/2013/LAU.csv")
 ```
 
-Add month column:  
+Add month column:
 
 ```{r}
 data[,"month"] <- months(data[,"datetime"])
 head(data)
 ```
-    
+
 *Return single value (or series of individually computed values)*: use `summarize()`.
 
 ```{r}
-data %>% 
-  group_by(month) %>% 
+data %>%
+  group_by(month) %>%
     summarize(mean=mean(O3,na.rm=TRUE),
               sd=sd(O3,na.rm=TRUE))
 ```
@@ -676,8 +676,8 @@ Statsfn <- function(subtable) {
 ```
 
 ```{r}
-data %>% 
-  group_by(month) %>% 
+data %>%
+  group_by(month) %>%
     do(Statsfn(.))
 ```
 
@@ -755,7 +755,7 @@ Reading/writing text files:
 
 ```
 scan()
-read.table()  
+read.table()
 write.table()
 ...
 ```
@@ -777,7 +777,7 @@ Namespaces can be thought of as containers which resolve conflicts among variabl
 
 First, let us look at `data`:
 ```{r}
-exists("data") 
+exists("data")
 class(data)        # this is our data set we loaded previously
 rm(data)           # we can delete our object
 exists("data")     # an object called 'data' still exists
@@ -798,7 +798,7 @@ df <- data.frame(x=1:5)
 ```
 and these new objects will co-exist with the original objects in separate namespaces.
 
-In this case, when `df` is used in your code, it will first look in the namespace that you are working in, and then move on down the `search()` list for other definitions. 
+In this case, when `df` is used in your code, it will first look in the namespace that you are working in, and then move on down the `search()` list for other definitions.
 ```{r}
 df
 ```
@@ -815,7 +815,7 @@ If you want gory details, look [here](http://blog.obeautifulcode.com/R/How-R-Sea
 
 # Graphics
 
-There are several graphics "paradigms". In base graphics, a graphic is specified by its primitive elements. In ggplot(2) as illustrated earlier, a graphic is build by describing how the data relates to its grammar. 
+There are several graphics "paradigms". In base graphics, a graphic is specified by its primitive elements. In ggplot(2) as illustrated earlier, a graphic is build by describing how the data relates to its grammar.
 
 ## Anatomy of a graphic
 
@@ -910,7 +910,7 @@ Murrell, *R Graphics*, 2003
 </table>
 
 ## Saving figures
-  
+
 Example data table:
 
 ```{r}
@@ -1047,25 +1047,35 @@ Style guides:
 * http://adv-r.had.co.nz/Style.html
 
 Submit specific questions to online forums:
- 
+
 * http://stackoverflow.com
 * http://stats.stackexchange.com
 
 
 # Final words on working with R
 
+A good editor or Integrated Development Environment (IDE) is important. RStudio is recommended if you want to install R on your own computer (Emacs+ESS is also nice if you already use Emacs).
+
 Troubleshooting input/output:
 
 * Always check your working directory with `getwd()`.
-* Set your working directory with `setwd("pathname")`.
-* Check the files (residing on your hard disk) in your working directory with `list.files()`.
-* Check the objects (residing in memory) in your workspace with `ls()`.
+* Set your working directory with `setwd("pathname")` (or through the menu with RStudio).
+* Check the files (residing on your hard disk) in your working directory with `list.files()` (or through the directory viewer in RStudio).
+* Check the objects (residing in memory) in your workspace with `ls()` (or workspace viewer in RStudio).
 
 Troubleshooting graphics:
+
 * Try `dev.off()` to close any devices that might be open (might have to do this several times). This can happen if an error was encountered before the device could be closed previously.
-* Try `print(graphicsobject)`; in these exercises the `graphicsobject` is often saved as `ggp`.
+* Try `print(graphicsobject)`; in these exercises the `graphicsobject` is often saved as `ggp` (for *ggp*lot).
 
 Aborting:
+
 * Hit `Control-c` at the interpreter.
 
-A good editor or Integrated Development Environment (IDE) is important. RStudio is recommended if you want to install R on your own computer (Emacs+ESS is also nice if you already use Emacs).
+Clearing the console:
+
+* Hit `Control-l` or type `cat("\014")`.
+
+Clearning the workspace (*warning*):
+
+* `rm(list=ls())` will technically delete objects in your global workspace, but be forewarned that it is safer to re-start a new instance of R as this removal function does not reset the order in which packages are loaded. Therefore, it is possible that your code will not run in the same way as if you re-started in new instance of R.

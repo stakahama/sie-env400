@@ -25,6 +25,7 @@ Topics addressed are the following:
 7. <a href="http://rawgit.com/stakahama/aprl-env400-assignment/master/contents/07_stochastic.html" target="_blank">Stochastic processes and random variables</a>
 8. <a href="http://rawgit.com/stakahama/aprl-env400-assignment/master/contents/08_inferential.html" target="_blank">Inferential statistics and hypothesis testing</a>
 9. <a href="http://rawgit.com/stakahama/aprl-env400-assignment/master/contents/09_extremevals.html" target="_blank">Extreme values: detection and accommodation</a>
+10. <a href="http://rawgit.com/stakahama/aprl-env400-assignment/master/contents/10_wind.html" target="_blank">Considering meteorology (wind directions)</a>
 
 We recommend interfacing with R through [RStudio](http://rstudio.com/), which you can also download on your own machine. You can set `Sessions -> Set Working Directory -> To Source File Location` so that input/output of files will be managed through this working directory on your computer.
 

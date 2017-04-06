@@ -560,7 +560,7 @@ Why concentrations may depart from lognormal distribution:
 * mixing of sources (e.g., contribution from local sources)
 * physical upper limit on concentration -- either at emission source or in the environment (lognormal distribution assumes upper limit is infinity)
 * instrument detection limits lead to skewness in concentrations near zero
-*
+
 
 Further discussion can be found in the academic literature -- e.g., @Kao1995, @Hadley2003, @Morrison2010.
 

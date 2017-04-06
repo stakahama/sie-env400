@@ -12,7 +12,9 @@ library(knitr)
 opts_chunk$set(fig.path='figures_rmd/lec10_', fig.align='center', warning=FALSE, message=FALSE)
 ```
 
-# R example
+In this lesson, we will incorporate analysis of wind directions to help explain origins of air pollutants.
+
+# Load libraries; set preferences
 
 ```{r, include=FALSE}
 Month2Season <- function(month) {
@@ -36,7 +38,7 @@ options(chron.year.abb=FALSE)
 theme_set(theme_bw()) # just my preference for plots
 ```
 
-## Read in wind data
+# Read in wind data
 
 In previous modules, we covered temperature, precipitation, and radiation intensity. Here we will use wind speed and direction.
 
@@ -45,7 +47,7 @@ An example met file provided by NABEL looks like the following:
 ```{r}
 cat(encodeString(readLines("data/2013/LAU_Wind_MW1_13.txt", n=20)), sep="\n")
 ```
-Columns 6 and 7 are wind direction and wind speed, respectively.
+Columns 6 and 7 are wind direction (in degrees) and wind speed (m/s), respectively.
 
 We will define a function for reading in meteorological files.
 ```{r}
@@ -63,6 +65,7 @@ ReadMet <- function(filename) {
 }
 ```
 
+
 Read in met data:
 ```{r}
 datapath <- "data/2013"
@@ -70,21 +73,33 @@ met <- full_join(cbind(site="LAU", ReadMet(file.path(datapath, "LAU_Wind_MW1_13.
                  cbind(site="ZUE", ReadMet(file.path(datapath, "ZUE_Wind_MW1_13.txt"))))
 ```
 
-## Merge
+## Merge with concentrations
 Read in concentration data using functions defined in Lesson 4:
 
 ```{r}
 conc <- readRDS("data/2013/lau-zue.rds")
 ```
 
-We will merge the data frames.
+We will merge the data frames. In this case, the wind data is already averaged into hourly intervals so has the same time basis as the pollutant concentrations. *For the data provided for your exercise, you will want to average the 5-minute time resolution to hourly resolution using methods shown in previous lessons.* After obtaining hourly values, you can use the `join` operation:
+
 ```{r}
 df <- full_join(conc, met)
 tail(df)
 ```
 
+Let us look at a summary of hourly wind speeds by season (now that we have obtained the seasons from the concentration data frame `df`):
 
-## Visualizing wind roses (histograms)
+```{r, fig.width=10, fig.height=5}
+ggp <- ggplot(df %>% mutate(hour = factor(hour)))+
+  facet_grid(site~season)+
+  geom_boxplot(aes(hour, WIGE))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+print(ggp)
+```
+
+For summarizing wind directions, we will use wind roses. We will examine cases in which we want to visualize wind directions for specific days.
+
+# Visualizing wind roses (histograms)
 
 We will use a function modified from [Andy Clifton](https://github.com/AndyClifton/SurfaceStationSummary/blob/master/functions/WindRose.R) for plotting wind roses.
 
@@ -103,15 +118,15 @@ High wind speeds in the interior:
 ggp2 <- plotWindrose(df, spd = "WIGE", dir = "WIRI", decreasing=TRUE)
 print(ggp2)
 ```
-These can give different visual impressions. We will adopt the first convention for the remaining examples.
+These plots can give different visual impressions. We will adopt the first convention for the remaining examples.
 
 Using syntax shown previously, we can group summaries by site and season:
-```{r, fig.width=7, fig.height=11}
-ggp1 + facet_grid(season~site)
+```{r, fig.width=12, fig.height=6}
+ggp1 + facet_grid(site~season)
 ```
 
 
-## Visualizing wind direction in time
+# Visualizing wind direction in time
 
 Let us select the last week in July.
 ```{r}
@@ -129,9 +144,9 @@ ggp <- ggplot(example.df %>% melt(measure.vars=c("WIRI", "WIGE")))+
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 print(ggp)
 ```
-We find that the wind speed makes sense but wind directions are erratic.
+We find that the wind speed makes sense but wind directions appear erratic because the wind direction is a periodic function.
 
-Let us consider how to represent ... Color models...
+Let us consider a better way to represent wind directions. We will map directions to radial coordinates (hue) in the HSV color wheel, which also uses a color scheme that is periodic. To understand this color wheel, let us generally speak about *color models* which describe an abstraction of colors in mathematical coordinate systems. Most people are familiar with the RGB color cube, described in Cartesian coordinates, shown on the left below. The HSV color wheel describes colors in a cylindrical coordinate system, and is shown on the right.
 
 <figure>
 <center>
@@ -157,7 +172,7 @@ lab.df <- data.frame(direction = seq(0, 360*max(hsv.df$h), 30))
 lab.df$lab <- sprintf("%.f*degree", lab.df$direction)
 lab.df$h <- lab.df$direction / 360
 ##
-ggplot(hsv.df) +
+ggp.hsv.wheel <- ggplot(hsv.df) +
   coord_polar(theta="x") +
   scale_fill_identity() +
   geom_rect(data=hsv.df,
@@ -174,6 +189,7 @@ ggplot(hsv.df) +
         axis.title=element_blank(),
         axis.text=element_blank(),
         axis.ticks=element_blank())
+print(ggp.hsv.wheel)
 ```
 
 Colors generated using `hsv()` function in R.
@@ -186,37 +202,48 @@ Let us revisit our earlier example:
 ```{r}
 ggp <- ggplot(example.df) +
   facet_grid(site~.)+
-  geom_line(aes(datetime, WIGE))+
+  geom_line(aes(datetime, WIGE), color="gray")+
   geom_point(aes(datetime, WIGE, color=WIRI))+
   scale_color_gradientn(colors = color, breaks=angle, limits=range(angle), expand=c(0, 0))+
   scale_x_chron(name="date", limits=range(example.dates))
 print(ggp)
 ```
 
-## Example 1
+# Examples
 
-We will use the date variable often:
+We will revisit some anomalous periods identified in the previous module.
+
+We will use the date variable often, so we save the variable to a different column:
+
 ```{r}
 df[["date"]] <- dates(df[["datetime"]])
 ```
 
+## Example 1
+
+
 Select dates in which daily mean PM10 exceeded 50 $\mu$g/m$^3$ threshold:
 
 ```{r}
+PercentRecovery <- function(x)
+  length(na.omit(x)) / length(x) * 1e2
 
-exceeded.zue.daily50 <- df %>%
-  filter(site=="ZUE") %>%
-  group_by(site, date) %>%
-  filter(length(na.omit(PM10))/24 > 0.75) %>%
-  summarize(exceeded = mean(PM10, na.rm=TRUE) > 50) %>%
-  ungroup
+daily.zue <- df %>%
+  filter(site=="ZUE") %>%                               # only Zurich
+  group_by(site, date) %>%                              # conceptually "split" the data by site and date
+  summarize(percent.recovery = PercentRecovery(PM10),   # calculate percent recovery
+            PM10.mean = mean(PM10, na.rm=TRUE)) %>%     # calculate daily mean
+  ungroup                                               # undo the group_by for later operations
 
 hd <- left_join(
-  exceeded.zue.daily50 %>% filter(exceeded),
+  daily.zue %>%
+  filter(percent.recovery > 75 & PM10.mean > 50) %>%
+  select(site, date),
   df
 )
 ```
-Define plots
+Define plots:
+
 ```{r}
 ## concentrations
 ggp1 <- ggplot(hd)+
@@ -231,6 +258,7 @@ ggp2 <- ggplot(hd %>% mutate(date = format(date)))+
   facet_grid(.~date)
   ##guides(color = "none")
 ```
+Display plots:
 
 ```{r, fig.width=10, fig.height=3, out.width='92%', out.height='92%', fig.align='left'}
 print(ggp1)
@@ -240,43 +268,52 @@ print(ggp1)
 print(ggp2)
 ```
 
-For wind analysis, we want to include also those periods in which the 50 $\mu$g/m$^3$ threshold was not exceeded for contrast.
+Let us summarize wind speed and directions between periods in which the 50 $\mu$g/m$^3$ threshold was both exceeded and not exceeded for contrast. The difference with the `join` operation above is that we keep all the rows with the following operation (as we do not apply a filter to select only exceeded rows):
+
 ```{r}
 wd <- left_join(
-  exceeded.zue.daily50,
+  daily.zue %>%
+  mutate(category = ifelse(PM10.mean > 50, "exceeded", "not exceeded")) %>%
+  select(site, date, category),
   df
 )
 ```
 
-We see that these events only occur during the winter and spring seasons (`"DFJ"` and `"MAM"`).
+We see that these events only occur during the winter and spring seasons (`"DJF"` and `"MAM"`):
+
 ```{r}
-wd %>% filter(exceeded) %>% distinct(season)
+wd %>%
+  filter(category=="exceeded") %>% # select only exceeded dates
+  distinct(season)                 # only unique values
 ```
 
+In addition, the wind consistently came from the North during these periods.
 ```{r, fig.width=10, fig.height=5}
-ggp <- plotWindrose(wd %>% filter(season %in% c("DJF", "MAM")) %>%
-                    mutate(label = ifelse(exceeded, "exceeded", "not exceeded")),
+ggp <- plotWindrose(wd %>% filter(season %in% c("DJF", "MAM")),
                     spd = "WIGE", dir = "WIRI") +
-  facet_grid(.~label)
+  facet_grid(.~category)
 print(ggp)
 ```
 
 ## Example 2
-Select dates in which hourly PM10 exceeded 100 $\mu$g/m$^3$:
+
+Select dates in which hourly PM10 exceeded 100 $\mu$g/m$^3$. The `left_join` operation effectively selects rows in data frame `df` with `site` and `date` variables in which the values are exceeded:
+
 ```{r}
 exceeded.zue.100 <- df %>%
-  filter(site=="ZUE") %>%
-  group_by(site, date) %>%
-  summarize(exceeded = any(PM10 > 100)) %>%
-  filter(exceeded)
+  filter(site=="ZUE") %>%                      # only Zurich
+  group_by(site, date) %>%                     # conceptually "split" the data by site and date
+  summarize(is.exceeded = any(PM10 > 100)) %>% # determine whether any hourly value exceeds 100 for each day
+  ungroup
 
 hd <- left_join(
-  exceeded.zue.100,
+  exceeded.zue.100 %>% filter(is.exceeded),    # remove days (rows) which do not have exceeding periods
   df
 )
 ```
 
-Define plots
+Define plots:
+
 ```{r}
 ## concentrations
 ggp1 <- ggplot(hd %>% mutate(datelabel = format(date)))+
@@ -291,6 +328,8 @@ ggp2 <- ggplot(hd %>% mutate(datelabel = format(date)))+
   facet_grid(.~datelabel)
 ```
 
+Display plots:
+
 ```{r, fig.width=7, fig.height=3, out.width='80%', out.height='80%'}
 print(ggp1)
 ```
@@ -298,3 +337,5 @@ print(ggp1)
 ```{r, fig.width=8, fig.height=3}
 print(ggp2)
 ```
+
+The events are likely localized in space, and concentrations decrease as the wind speeds pick up in the early mornings (also with new boundary layer forming in the morning hours).
