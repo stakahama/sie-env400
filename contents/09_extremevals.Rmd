@@ -34,7 +34,7 @@ In hourly concentrations plotted below for 2013 in Lausanne (LAU) and Zurich (ZU
 
 **Outline**
 
-Given the problem statement, "describe differences and reasons for variations in pollutant concentrations by across sites and seasons," we have followed the following strategy:
+Previously, we have used various tools to describe overall trends and relationships among variables:
 
 * Visualization:
     * Time series
@@ -44,9 +44,10 @@ Given the problem statement, "describe differences and reasons for variations in
     * Changes in concentrations to time (hour of day, weekday/weekend, season) indicate role of meteorology, emissions, and photochemistry.
     * Scatter plots and correlations indicate relationships among co-occuring pollutants and meteorological variables.
     * Distribution of pollutant concentrations can indicate dominant processes affecting pollutant concentrations in the atmosphere.
-* In this exercise, we will learn methods to identify observations *which fall outside of general patterns described previously*.
 
-We will discuss methods for handling observations which fall outside of the general patterns reflected by aggregate measures (summary statistics) of pollutant concentrations so far. These surprisng data points may arise from experimental error, anamolous activity, or unusual meteorology.
+In this module, we will learn methods to identify observations *which fall outside of general patterns described previously*.
+
+We will discuss methods for handling observations which fall outside of the general patterns reflected by aggregate measures (summary statistics) of pollutant concentrations so far. These surprisng data points may arise from experimental error, anamolous activity, or unusual meteorology. Their identification may be useful in  re-calculating summary statistics which are more representative of the rest of the data points that are not unduely influenced by one or few points, and/or isolating extreme events for further study.
 
 ## Extreme values and outliers
 
@@ -58,7 +59,7 @@ In practice, univariate or multivariate observations that fall outside of the ge
 * An outlier or extreme value is sometimes removed from a data set for lack of  representativeness, but it should always be noted that data points have been removed, and  accompanied by justification.
 
 
-We will discuss statistical justifications for classifying extreme values as "outliers" in the univariate case, which will provide an appropriate perspective for thinking about extreme observations in the general case.
+We will discuss statistical procedures for identifying "outliers" among extreme values in the univariate case, which will provide an appropriate perspective for thinking about extreme observations in the general (multivariate) case.
 
 <center>
 <figure>

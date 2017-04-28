@@ -109,22 +109,22 @@ source("WindRose.R")
 
 Wind roses are effectively histograms in polar coordinates. There are different conventions for ordering frequency by wind speed. Two are shown below. First, low wind speeds in the interior:
 ```{r}
-ggp1 <- plotWindrose(df, spd = "WIGE", dir = "WIRI", decreasing=FALSE) # default in our code.
+ggp1 <- plotWindrose(df %>% filter(site=="ZUE"), spd = "WIGE", dir = "WIRI", decreasing=FALSE)
+                                        # (decreasing=FALSE is the default in our code)
 print(ggp1)
 ```
 
 High wind speeds in the interior:
 ```{r}
-ggp2 <- plotWindrose(df, spd = "WIGE", dir = "WIRI", decreasing=TRUE)
+ggp2 <- plotWindrose(df %>% filter(site=="ZUE"), spd = "WIGE", dir = "WIRI", decreasing=TRUE)
 print(ggp2)
 ```
 These plots can give different visual impressions. We will adopt the first convention for the remaining examples.
 
 Using syntax shown previously, we can group summaries by site and season:
 ```{r, fig.width=12, fig.height=6}
-ggp1 + facet_grid(site~season)
+plotWindrose(df, spd = "WIGE", dir = "WIRI") + facet_grid(site~season)
 ```
-
 
 # Visualizing wind direction in time
 
@@ -246,12 +246,13 @@ Define plots:
 
 ```{r}
 ## concentrations
-ggp1 <- ggplot(hd)+
+ggp1 <- ggplot(hd %>% mutate(date = format(date, "y.m.d")))+
   geom_line(aes(hour, PM10))+
+  geom_point(aes(hour, PM10))+
   facet_grid(.~date)
 
 ## wind speed and direction
-ggp2 <- ggplot(hd %>% mutate(date = format(date)))+
+ggp2 <- ggplot(hd %>% mutate(date = format(date, "y.m.d")))+
   geom_line(aes(hour, WIGE), color="gray")+
   geom_point(aes(hour, WIGE, color=WIRI))+
   scale_color_gradientn(colors = color, breaks=angle, limits=range(angle), expand=c(0, 0))+
@@ -316,12 +317,12 @@ Define plots:
 
 ```{r}
 ## concentrations
-ggp1 <- ggplot(hd %>% mutate(datelabel = format(date)))+
+ggp1 <- ggplot(hd %>% mutate(datelabel = format(date, "y.m.d")))+
   geom_line(aes(hour, PM10))+
   facet_grid(.~datelabel)
 
 ## wind speed and direction
-ggp2 <- ggplot(hd %>% mutate(datelabel = format(date)))+
+ggp2 <- ggplot(hd %>% mutate(datelabel = format(date, "y.m.d")))+
   geom_line(aes(hour, WIGE), color="gray")+
   geom_point(aes(hour, WIGE, color=WIRI))+
   scale_color_gradientn(colors = color, breaks=angle, limits=range(angle), expand=c(0, 0))+
