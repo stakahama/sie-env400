@@ -1,6 +1,6 @@
 # Analysis of Swiss National Air Pollution Monitoring Network (NABEL) Measurements
 
-This module is an exercise for analyzing NABEL air quality monitoring network data assigned in the Air Pollution and Climate Change (ENV-400) Masters class at EPFL. Students are assumed to have a little programming background, mostly in MATLAB/Octave.
+This module is an exercise for analyzing NABEL air quality monitoring network data assigned in the Air Pollution and Climate Change (ENV-400) Masters class at EPFL. Students are assumed to have a little programming background, mostly in MATLAB/GNU Octave.
 
 <center>
 <figure>
