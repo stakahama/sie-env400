@@ -93,9 +93,9 @@ Check column classes:
 ColClasses(data)
 ```
 
-Convert date/time to useful data types:
+Convert date/time to useful data types - the hourly timestamps in the file denote the end of the measurement periods so we will convert them to start times by subtracting one hour (out of 24):
 ```{r}
-data[,"datetime"] <- as.chron(data[,"datetime"], "%d.%m.%Y %H:%M")
+data[,"datetime"] <- as.chron(data[,"datetime"], "%d.%m.%Y %H:%M") - 1/24
 data[,"month"] <- months(data[,"datetime"])
 data[,"date"] <- dates(data[,"datetime"])
 ```
@@ -105,6 +105,7 @@ Check data sample, structure, and column classes:
 head(data)
 str(data)
 ```
+
 ```{r, results='asis'}
 ColClasses(data)
 ```
@@ -183,7 +184,7 @@ Plot ECDF (empirical cumulative distribution function):
 ```{r, fig.width=8, fig.height=5}
 ggp <- ggplot(O3.dailymax) +
   geom_line(aes(O3),stat="ecdf") +
-    labs(y = "ECDF")
+  labs(y = "ECDF")
 print(ggp)
 ```
 
@@ -224,8 +225,8 @@ This is amenable for plotting:
 ```{r, fig.width=8, fig.height=12}
 ggp <- ggplot(lf) +
   geom_line(aes(datetime, value))+
-    facet_grid(variable~., scale="free_y") +
-      scale_x_chron()
+  facet_grid(variable~., scale="free_y") +
+  scale_x_chron()
 print(ggp)
 ```
 
@@ -261,7 +262,7 @@ The mean cal also be calculated in the process of plotting:
 ```{r, fig.width=8, fig.height=12}
 ggp <- ggplot(lf) +
   geom_bar(aes(month, value), stat="summary", fun.y="mean")+
-    facet_grid(variable~., scale="free_y")
+  facet_grid(variable~., scale="free_y")
 print(ggp)
 ```
 
@@ -269,10 +270,10 @@ Add errorbars to denote the full range in values:
 ```{r, fig.width=8, fig.height=12}
 ggp <- ggplot(lf, aes(month, value)) +
   geom_bar(stat="summary", fun.y="mean")+
-    geom_errorbar(stat="summary",
-                  fun.ymin=min, #function(x) quantile(x, .25),
-                  fun.ymax=max, #function(x) quantile(x, .75))+
-                  width=0.1) +
-    facet_grid(variable~., scale="free_y")
+  geom_errorbar(stat="summary",
+                fun.ymin=min, #function(x) quantile(x, .25),
+                fun.ymax=max, #function(x) quantile(x, .75))+
+                width=0.1) +
+  facet_grid(variable~., scale="free_y")
 print(ggp)
 ```

@@ -61,7 +61,7 @@ ReadTSeries <- function(filename, timecolumn="datetime", timeformat="%d.%m.%Y %H
   data <- read.table(filename, skip=5, header=TRUE, sep=";", check.names=FALSE)
   names(data) <- sub("[ ].*$","",names(data)) # strip units for simplification
   names(data) <- sub("Date/time", timecolumn, names(data), fixed=TRUE)
-  data[,timecolumn] <- as.chron(data[,timecolumn], timeformat)
+  data[,timecolumn] <- as.chron(data[,timecolumn], timeformat) - 1/24 # end time -> start time
   ## additional variables
   data[,"year"] <- years(data[,timecolumn])
   data[,"month"] <- months(data[,timecolumn])

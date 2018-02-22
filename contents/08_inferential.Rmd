@@ -662,7 +662,7 @@ ComputeStats <- function(x) {
   m <- mean(x)
   s <- sd(x)
   n <- length(x)
-  t <- qt(.975, n)
+  t <- qt(.975, n - 1)
   data.frame(mean=m,
              conf.lower=m-t*s/sqrt(n),
              conf.upper=m+t*s/sqrt(n),
