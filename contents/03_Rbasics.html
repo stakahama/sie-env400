@@ -1073,7 +1073,7 @@ exists(&quot;data&quot;)     # an object called 'data' still exists</code></pre>
 ##         .Call(C_df, x, df1, df2, log)
 ##     else .Call(C_dnf, x, df1, df2, ncp, log)
 ## }
-## &lt;bytecode: 0x7fb4fbd92cd8&gt;
+## &lt;bytecode: 0x7f99afcbb9c0&gt;
 ## &lt;environment: namespace:stats&gt;</code></pre>
 <p>However, you can still assign values to these symbols:</p>
 <pre class="r"><code>df &lt;- data.frame(x=1:5)</code></pre>
@@ -1094,7 +1094,7 @@ exists(&quot;data&quot;)     # an object called 'data' still exists</code></pre>
 ##         .Call(C_df, x, df1, df2, log)
 ##     else .Call(C_dnf, x, df1, df2, ncp, log)
 ## }
-## &lt;bytecode: 0x7fb4fbd92cd8&gt;
+## &lt;bytecode: 0x7f99afcbb9c0&gt;
 ## &lt;environment: namespace:stats&gt;</code></pre>
 <p>Or, more generally, use <code>get</code>:</p>
 <pre class="r"><code>get(&quot;df&quot;,&quot;package:stats&quot;)</code></pre>
@@ -1104,7 +1104,7 @@ exists(&quot;data&quot;)     # an object called 'data' still exists</code></pre>
 ##         .Call(C_df, x, df1, df2, log)
 ##     else .Call(C_dnf, x, df1, df2, ncp, log)
 ## }
-## &lt;bytecode: 0x7fb4fbd92cd8&gt;
+## &lt;bytecode: 0x7f99afcbb9c0&gt;
 ## &lt;environment: namespace:stats&gt;</code></pre>
 <p>If you want gory details, look <a href="http://blog.obeautifulcode.com/R/How-R-Searches-And-Finds-Stuff/">here</a>.</p>
 </div>
@@ -1260,15 +1260,21 @@ output &lt;- Map(f,input)</code></pre>
 <h1>Troubleshooting and debugging</h1>
 <p>Common errors:</p>
 <ul>
-<li>You are not in the correct working directory (affects input/output, often resulting in error <code>&quot;No such file or directory&quot;</code>).</li>
+<li>You are not in the correct working directory (affects input/output, often resulting in error <code>&quot;No such file or directory&quot;</code>).
+<ul>
 <li>Always check your working directory with <code>getwd()</code>.</li>
 <li>Set your working directory with <code>setwd(&quot;pathname&quot;)</code> (or through the menu with RStudio).</li>
 <li>Check the files (residing on your hard disk) in your working directory with <code>list.files()</code> (or through the directory viewer in RStudio).</li>
-<li>Your packages are not loaded in the intended order (affects function calls).</li>
+</ul></li>
+<li>Your packages are not loaded in the intended order (affects function calls).
+<ul>
 <li>Check order using <code>search()</code>. Functions with identical names are taken from packages in the order listed.</li>
 <li>You can detach packages you are no longer using. For instance, to detach a package called <code>plyr</code>, use the syntax: <code>detach(&quot;package:plyr&quot;, unload=TRUE)</code>.</li>
-<li>You have unintentionally deleted or overwritten objects (data object is not found, or is not the correct type).</li>
+</ul></li>
+<li>You have unintentionally deleted or overwritten objects (data object is not found, or is not the correct type).
+<ul>
 <li>Check the objects (residing in memory) in your workspace with <code>ls()</code> (or workspace viewer in RStudio).</li>
+</ul></li>
 </ul>
 <p>Troubleshooting graphics:</p>
 <ul>

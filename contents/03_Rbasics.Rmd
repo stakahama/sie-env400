@@ -1016,14 +1016,14 @@ If structuring your programs in this way appeals to you, read up on ["functional
 Common errors:
 
 * You are not in the correct working directory (affects input/output, often resulting in error `"No such file or directory"`).
-  - Always check your working directory with `getwd()`.
-  - Set your working directory with `setwd("pathname")` (or through the menu with RStudio).
-  - Check the files (residing on your hard disk) in your working directory with `list.files()` (or through the directory viewer in RStudio).
+	- Always check your working directory with `getwd()`.
+	- Set your working directory with `setwd("pathname")` (or through the menu with RStudio).
+	- Check the files (residing on your hard disk) in your working directory with `list.files()` (or through the directory viewer in RStudio).
 * Your packages are not loaded in the intended order (affects function calls).
-  - Check order using `search()`. Functions with identical names are taken from packages in the order listed.
-  - You can detach packages you are no longer using. For instance, to detach a package called `plyr`, use the syntax: `detach("package:plyr", unload=TRUE)`.
+	- Check order using `search()`. Functions with identical names are taken from packages in the order listed.
+	- You can detach packages you are no longer using. For instance, to detach a package called `plyr`, use the syntax: `detach("package:plyr", unload=TRUE)`.
 * You have unintentionally deleted or overwritten objects (data object is not found, or is not the correct type).
-  - Check the objects (residing in memory) in your workspace with `ls()` (or workspace viewer in RStudio).
+	- Check the objects (residing in memory) in your workspace with `ls()` (or workspace viewer in RStudio).
 
 Troubleshooting graphics:
 
