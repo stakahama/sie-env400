@@ -42,6 +42,8 @@ R provides many functions for extraction of time information, but for atmospheri
 
 ```{r}
 Month2Season <- function(month) {
+  ## month is an integer (1-12)
+  ## a factor with levels {"DJF", "MAM", "JJA", "SON"} is returned
   seasons <- c("DJF", "MAM", "JJA", "SON")
   index <- findInterval(month %% 12, seq(0, 12, 3))
   factor(seasons[index], seasons)
