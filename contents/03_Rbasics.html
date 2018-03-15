@@ -1073,7 +1073,7 @@ exists(&quot;data&quot;)     # an object called 'data' still exists</code></pre>
 ##         .Call(C_df, x, df1, df2, log)
 ##     else .Call(C_dnf, x, df1, df2, ncp, log)
 ## }
-## &lt;bytecode: 0x7faa515e1578&gt;
+## &lt;bytecode: 0x7ff410219758&gt;
 ## &lt;environment: namespace:stats&gt;</code></pre>
 <p>However, you can still assign values to these symbols:</p>
 <pre class="r"><code>df &lt;- data.frame(x=1:5)</code></pre>
@@ -1094,7 +1094,7 @@ exists(&quot;data&quot;)     # an object called 'data' still exists</code></pre>
 ##         .Call(C_df, x, df1, df2, log)
 ##     else .Call(C_dnf, x, df1, df2, ncp, log)
 ## }
-## &lt;bytecode: 0x7faa515e1578&gt;
+## &lt;bytecode: 0x7ff410219758&gt;
 ## &lt;environment: namespace:stats&gt;</code></pre>
 <p>Or, more generally, use <code>get</code>:</p>
 <pre class="r"><code>get(&quot;df&quot;,&quot;package:stats&quot;)</code></pre>
@@ -1104,7 +1104,7 @@ exists(&quot;data&quot;)     # an object called 'data' still exists</code></pre>
 ##         .Call(C_df, x, df1, df2, log)
 ##     else .Call(C_dnf, x, df1, df2, ncp, log)
 ## }
-## &lt;bytecode: 0x7faa515e1578&gt;
+## &lt;bytecode: 0x7ff410219758&gt;
 ## &lt;environment: namespace:stats&gt;</code></pre>
 <p>If you want gory details, look <a href="http://blog.obeautifulcode.com/R/How-R-Searches-And-Finds-Stuff/">here</a>.</p>
 </div>
@@ -1222,6 +1222,10 @@ dev.print(device=png,
           file=&quot;filename.png&quot;,
           width=20,height=20,
           units=&quot;cm&quot;,res=72)</code></pre>
+<p>For ggplot specifically, it is possible to use <code>ggsave()</code>:</p>
+<pre><code>ggplot(dtable)+
+  geom_point(aes(x,y))
+ggsave(&quot;filename.pdf&quot;, width=7, height=7)</code></pre>
 <p>Graphics devices:</p>
 <pre><code>pdf()
 bitmap(,type=&quot;pdfwrite&quot;)
@@ -1233,7 +1237,7 @@ jpeg()
 tiff()
 svg() ## see package...
 ...</code></pre>
-<p>Access devices</p>
+<p>Functions to access devices:</p>
 <pre><code>dev.list()
 dev.new()
 dev.copy()
@@ -1278,7 +1282,7 @@ output &lt;- Map(f,input)</code></pre>
 </ul>
 <p>Troubleshooting graphics:</p>
 <ul>
-<li>Try <code>dev.off()</code> to close any devices that might be open (might have to do this several times). This can happen if an error was encountered before the device could be closed previously.</li>
+<li>If your plotting command does not work, try <code>dev.list()</code> to see if multiple graphics devices are open. This can happen if an error was encountered before the device could be closed in a previous call, and further plotting may be write to an unintended graphics device. Use <code>dev.off()</code> to close devices that are open (might have to do this several times).</li>
 <li>Try <code>print(graphicsobject)</code>; in these exercises the <code>graphicsobject</code> is often saved as <code>ggp</code>.</li>
 </ul>
 <p>Aborting a computation:</p>

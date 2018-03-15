@@ -961,7 +961,12 @@ dev.print(device=png,
           units="cm",res=72)
 ```
 
-
+For ggplot specifically, it is possible to use `ggsave()`:
+```
+ggplot(dtable)+
+  geom_point(aes(x,y))
+ggsave("filename.pdf", width=7, height=7)
+```
 
 Graphics devices:
 ```
@@ -977,7 +982,7 @@ svg() ## see package...
 ...
 ```
 
-Access devices
+Functions to access devices:
 ```
 dev.list()
 dev.new()
@@ -1027,7 +1032,7 @@ Common errors:
 
 Troubleshooting graphics:
 
-* Try `dev.off()` to close any devices that might be open (might have to do this several times). This can happen if an error was encountered before the device could be closed previously.
+* If your plotting command does not work, try `dev.list()` to see if multiple graphics devices are open. This can happen if an error was encountered before the device could be closed in a previous call, and further plotting may be write to an unintended graphics device. Use `dev.off()` to close  devices that are open (might have to do this several times). 
 * Try `print(graphicsobject)`; in these exercises the `graphicsobject` is often saved as `ggp`.
 
 Aborting a computation:
