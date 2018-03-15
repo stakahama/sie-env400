@@ -44,4 +44,3 @@ The module complements [lectures](https://moodle.epfl.ch/course/view.php?id=1324
 * Kulkarni, Pramod, Baron, Paul A., and Willeke, Klaus. *Aerosol Measurement: Principles, Techniques, and Applications*. John Wiley & Sons, 2011.
 * Seinfeld, John H. and Pandis, Spyros N. *Atmospheric Chemistry and Physics: From Air Pollution to Climate Change*. John Wiley & Sons, 3rd ed., New York, 2016.
 * Wark, Keith, Warner, Cecil F., and Davis, Wayne T. *Air Pollution: Its Origin and Control*. Addison-Wesley, 3rd ed., 1998.
-
