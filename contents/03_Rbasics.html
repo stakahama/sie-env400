@@ -1073,7 +1073,7 @@ exists(&quot;data&quot;)     # an object called 'data' still exists</code></pre>
 ##         .Call(C_df, x, df1, df2, log)
 ##     else .Call(C_dnf, x, df1, df2, ncp, log)
 ## }
-## &lt;bytecode: 0x7f99afcbb9c0&gt;
+## &lt;bytecode: 0x7faa515e1578&gt;
 ## &lt;environment: namespace:stats&gt;</code></pre>
 <p>However, you can still assign values to these symbols:</p>
 <pre class="r"><code>df &lt;- data.frame(x=1:5)</code></pre>
@@ -1094,7 +1094,7 @@ exists(&quot;data&quot;)     # an object called 'data' still exists</code></pre>
 ##         .Call(C_df, x, df1, df2, log)
 ##     else .Call(C_dnf, x, df1, df2, ncp, log)
 ## }
-## &lt;bytecode: 0x7f99afcbb9c0&gt;
+## &lt;bytecode: 0x7faa515e1578&gt;
 ## &lt;environment: namespace:stats&gt;</code></pre>
 <p>Or, more generally, use <code>get</code>:</p>
 <pre class="r"><code>get(&quot;df&quot;,&quot;package:stats&quot;)</code></pre>
@@ -1104,7 +1104,7 @@ exists(&quot;data&quot;)     # an object called 'data' still exists</code></pre>
 ##         .Call(C_df, x, df1, df2, log)
 ##     else .Call(C_dnf, x, df1, df2, ncp, log)
 ## }
-## &lt;bytecode: 0x7f99afcbb9c0&gt;
+## &lt;bytecode: 0x7faa515e1578&gt;
 ## &lt;environment: namespace:stats&gt;</code></pre>
 <p>If you want gory details, look <a href="http://blog.obeautifulcode.com/R/How-R-Searches-And-Finds-Stuff/">here</a>.</p>
 </div>
@@ -1293,7 +1293,11 @@ output &lt;- Map(f,input)</code></pre>
 <ul>
 <li><code>rm(list=ls())</code> will technically delete objects in your global workspace, but be forewarned that it is safer to re-start a new instance of R as this removal function does not reset the order in which packages are loaded. Therefore, it is possible that your code will not run in the same way as if you re-started in new instance of R.</li>
 </ul>
-<p>Other errors: * Rather than running the entire script, run blocks of R code interactively to isolate the location of the error. * You can follow the example below to precisely identify the location of the offending call.</p>
+<p>Other errors:</p>
+<ul>
+<li>Rather than running the entire script, run blocks of R code interactively to isolate the location of the error.</li>
+<li>You can follow the example below to precisely identify the location of the offending call.</li>
+</ul>
 <div id="simple-example" class="section level2">
 <h2>Simple example</h2>
 <p>As an example, let us consider the problem of multiplying two numbers. Their data types must be numeric, and an error will be returned if this is not the case.</p>
