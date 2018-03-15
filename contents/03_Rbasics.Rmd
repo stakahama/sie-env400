@@ -1011,6 +1011,84 @@ Given a seqeuence `a, b, c`, `Map` and `cellfun` take function `f` and apply it 
 
 If structuring your programs in this way appeals to you, read up on ["functional programming"](http://adv-r.had.co.nz/Functional-programming.html). We will use this convention as necessary during this course.
 
+# Debugging
+
+## Simple example
+
+As an example, let us consider the problem of multiplying two numbers. Their data types must be numeric, and an error will be returned if this is not the case.
+```{r, eval=FALSE}
+> 2 * "1"
+Error in 2 * "1" : non-numeric argument to binary operator
+```
+
+Let us define 1) a function to obtain the product of two numbers, and 2) a function which increments a number by one:
+```{r}
+product <- function(x, y) {
+	x * y
+}
+adder1 <- function(x) {
+	x + 1
+}
+```
+
+An error will be returned when applying the two functions:
+```{r, eval=FALSE}
+> adder1(product(x, y))
+Error in x * y : non-numeric argument to binary operator
+```
+
+or, using the pipe notation:
+```{r, eval=FALSE}
+> library(magrittr) # for the %>%
+> product(x, y) %>% adder1()
+Error in x * y : non-numeric argument to binary operator
+```
+
+First, determine which function call is causing the problem. Is it `product(x, y)` or `adder` called on its result?
+
+In an interactive language like R or MATLAB, it is easy to evaluate the function calls in sequence to find where the error occurs.
+```{r, eval=FALSE}
+> z <- product(x, y)
+> adder(z)
+```
+and see where the error happens. In this case, it is `product(x, y)`.
+
+The next step is to determine whether the *arguments* passed to `product` are sensible. Therefore, you would evaluate:
+```{r, eval=FALSE}
+> x
+[1] 2
+> y
+[1] "1"
+```
+
+and see that the arguments to `product` are not numeric, and therefore suggests the path to correction.
+
+If the error is not obvious, you will have to insert print statements or use language-specific debugging tools. Error handling functions can be used when certain types of errors are expected.
+
+
+## Debugging functions
+
+
+- `debug()`: call *on* function
+- `debugonce()`: call *on* function
+- `browser()`: place *in* function
+- `trace()`: call *on* function
+- `recover()`: set in `options()` or `trace()`
+
+
+## Error handling functions
+
+- `try()`
+- `tryCatch()`
+
+Some references: [1](http://www.win-vector.com/blog/2012/10/error-handling-in-r/), [2](http://adv-r.had.co.nz/Exceptions-Debugging.html). Revisiting the simple example, `try` can be used in the following way:
+
+```{r, eval=FALSE}
+z <- try(x * y)
+
+if(is(z, "try-error")) 
+  z <- x * as.numeric(y)
+````
 
 # Seeking help
 

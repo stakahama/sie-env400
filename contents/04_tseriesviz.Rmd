@@ -36,7 +36,6 @@ theme_set(theme_bw()) # just my preference for plots
 
 # Load data
 
-
 Based on past work, we can define a function that reads in the data and additionally provides several time variables.
 
 R provides many functions for extraction of time information, but for atmospheric applications we often classify time periods according to season (which is not provided). We will define our own function to convert month to season:
@@ -57,12 +56,14 @@ Month2Season(c(1, 3, 12))
 Next, we define the function for importing the time series:
 ```{r}
 ReadTSeries <- function(filename, timecolumn="datetime", timeformat="%d.%m.%Y %H:%M") {
-  ## read the table
+  ## read the table, strip units in column names, rename time column
+  ##   and change data type of time column from a string of characters to
+  ##   a numeric type so that we can perform operations on it
   data <- read.table(filename, skip=5, header=TRUE, sep=";", check.names=FALSE)
   names(data) <- sub("[ ].*$","",names(data)) # strip units for simplification
   names(data) <- sub("Date/time", timecolumn, names(data), fixed=TRUE)
   data[,timecolumn] <- as.chron(data[,timecolumn], timeformat) - 1/24 # end time -> start time
-  ## additional variables
+  ## extract additional variables from the time column
   data[,"year"] <- years(data[,timecolumn])
   data[,"month"] <- months(data[,timecolumn])
   data[,"day"] <- days(data[,timecolumn])
@@ -77,7 +78,7 @@ ReadTSeries <- function(filename, timecolumn="datetime", timeformat="%d.%m.%Y %H
 }
 ```
 
-Read and merge Lausanne (LAU) and Z&uuml;rich (ZUE) data:
+Read and merge (with `full_join`) Lausanne (LAU) and Z&uuml;rich (ZUE) data:
 ```{r}
 datapath <- "data/2013"
 
@@ -107,19 +108,21 @@ Plotting your data is very good practice. Check for general trends and extreme v
 
 View all the measurements:
 ```{r, warning=FALSE, fig.width=8, fig.height=10}
-ggp <- ggplot(lf)+
-  facet_grid(variable~site, scale="free_y")+
-  geom_line(aes(datetime, value, color=site))+
-  scale_x_chron()+
-  theme(axis.text.x=element_text(angle=30, hjust=1))
-print(ggp)
+ggp <- ggplot(lf)+                                   # `lf` is the data frame
+  facet_grid(variable~site, scale="free_y")+         # panels created out of these variables
+  geom_line(aes(datetime, value, color=site))+       # plot `value` vs. `time` as lines
+  scale_x_chron()+                                   # format x-axis labels (time units)
+  theme(axis.text.x=element_text(angle=30, hjust=1)) # rotate x-axis labels
+print(ggp)                                           # view the plot
 ```
 
 In the following figures, we will summarize the measurements using non-parametric (order) statistics, which we will cover in a subsequent lecture.
 
 ## Seasonal variations
 
-Summary by month:
+Here we will use `ggplot` to compute and display statistical summaries. A box and whisker plot displays the 25th, 50th, and 75th percentiles of the data using a box, and 1.5 times the interquartile range (75th minus 25th percentile interval) using whiskers that extend beyond the box. Points which lie outside this range are denoted by individual symbols. Calling `geom_boxplot` will combine computation and display of these summaries for each categorical variable use for paneling (*faceting*) and grouping (along the *x*-axis in the following examples).
+
+Display summary by month:
 ```{r, warning=FALSE, fig.width=8, fig.height=10}
 ggp <- ggplot(lf) +
   facet_grid(variable ~ site, scale = "free_y") +
@@ -139,9 +142,12 @@ print(ggp)
 
 The following function returns a function to be used for calculation of error bars.
 ```{r}
-Percentile <- function(perc)
-  function(x) quantile(x, perc*1e-2, na.rm=TRUE)
+Percentile <- function(perc) function(x) 
+  ## `perc` is the percentile which should be computed for the numeric vector `x`
+  quantile(x, perc*1e-2, na.rm=TRUE)
 ```
+
+Here we will again use `ggplot` to compute and display a set of statistical summaries in a different way. We specify both the data and mapping within `ggplot`, and use `geom_line` to display the computed medians and `geom_errorbar` to display the computed 25th and 75th percentiles.
 
 Diurnal (hourly) variations in pollutant concentrations at Lausanne site:
 ```{r, warning=FALSE, fig.width=8, fig.height=10}
@@ -156,7 +162,7 @@ ggp <- ggplot(data=lf %>% filter(site=="LAU" & !is.na(value)),
 print(ggp)
 ```
 
-Diurnal variations in O_3 concentrations:
+Diurnal variations in O$_3$ concentrations:
 ```{r, warning=FALSE, fig.width=8, fig.height=4}
 ggp <- ggplot(data=lf %>% filter(variable=="O3"),
               mapping=aes(x=hour, y=value, group=daytype, color=daytype)) +
@@ -168,9 +174,9 @@ ggp <- ggplot(data=lf %>% filter(variable=="O3"),
   ggtitle("O3")
 print(ggp)
 ```
-Note that for concentrations of the same pollutant, we fix the y-scale to be the same for both rows.
+Note that for concentrations of the same pollutant, we fix the *y*-scale to be the same for both rows.
 
-Diurnal variations in NO_2 concentrations:
+Diurnal variations in NO$_2$ concentrations:
 ```{r, warning=FALSE, fig.width=8, fig.height=5}
 ggp <- ggplot(data=lf %>% filter(variable=="NO2"),
               mapping=aes(x=hour, y=value, group=site, color=site)) +
@@ -184,4 +190,114 @@ print(ggp)
 ```
 
 Why are concentrations in Lausanne higher? (hint: check location of monitoring equipment)
+
+# Creating summaries: Exceedances of daily limit values
+
+We can more generally summarize extreme values that exceedance daily limit values set forth by regulation in Switzerland.
+
+```{r}
+limits.daily <- data.frame(value=c(100,80,8,50),
+                           variable=c("SO2","NO2","CO","PM10"))
+```
+
+Let us compute the daily means, but also note the percent recovery of data. Sometimes, measurements are not available for all periods for different reasons - e.g., there was an instrument malfunction, or because the instrument was taken offline for calibration.
+If the values used to compute the "daily mean" does not constitute a full day, then how representative is this mean? Taking into consideration such irregularities in data that violate assumptions of the statistics you will compute is part of a broader task known as "data cleaning". 
+
+In the syntax below, note the use of `group_by` (*split*) and `summarize` (*aggregate*) operations (the results are automatically *combined*) for computing summary statistics (`percent.recovery` and the mean `value`). The `ungroup` is optional but allows us to specify other grouping variables in the future (otherwise, the grouping variables would remain fixed for the data table, `daily`).
+
+```{r}
+daily <- lf %>%
+  filter(variable %in% limits.daily[["variable"]]) %>% # select variables
+  mutate(date = dates(datetime)) %>%                   # get the date value
+  group_by(site, date, variable) %>%
+  summarize(percent.recovery = length(na.omit(value))/length(value)*1e2,
+            value = mean(value, na.rm=TRUE)) %>%
+  ungroup()                                            # undo grouping for future use
+```
+
+The selection of threshold is often arbitrary, but a threshold recovery of 75% or 80% is typically used in practice to claim a valid mean. We will use 75%:
+
+```{r}
+threshold <- 75
+```
+
+Let us see how many days the data recovery is at or below this threshold for each variable:
+```{r}
+daily %>%
+  filter(percent.recovery <= threshold) %>%
+  count(site, variable)
+```
+Lausanne does not have an SO<sub>2</sub> monitor, so this makes sense, and we are only missing a few days of PM$_{10}$ measurements at each site. We can see which dates we do not have adequate data recovery:
+
+```{r}
+filter(daily, percent.recovery <= threshold & variable=="PM10")
+```
+
+What can you do when you have such missing values? One approach is to remove means computed for dates with less than the required threshold of data recovery. Another approach used in statistics is called *imputation*, whereby missing values are populated with best estimates for its value (e.g., by interpolation or by drawing from a well-characterized distribution). For this exercise, we will simply take the first approach.
+
+
+Let us visualize the time series with limit values indicated for each variable:
+
+```{r, fig.width=7, fig.height=6}
+ggp <- ggplot(daily %>% filter(percent.recovery > threshold))+
+  facet_grid(variable~site, scale="free_y")+  
+  geom_line(aes(x=date, y=value))+
+  geom_hline(data=limits.daily, mapping=aes(yintercept=value), linetype=2)+
+  scale_x_chron(format="%d.%m")+
+  theme(axis.text.x=element_text(angle=30, hjust=1))
+print(ggp)
+```
+Note that in the command above, the data used for drawing horizontal lines are specified separately for the `geom_hline` function.
+
+We can also view exceedances through empirical cumulative distribution functions (ECDF) of concentrations (to be covered in a later lecture):
+
+```{r, fig.width=7, fig.height=6}
+ggp <- ggplot(daily %>% filter(percent.recovery > threshold))+
+  facet_grid(variable~site, scale="free_y")+  
+  geom_line(aes(x=value), stat="ecdf")+
+  geom_point(aes(x=value), stat="ecdf")+
+  geom_vline(data=limits.daily, mapping=aes(xintercept=value), linetype=2)
+print(ggp)
+```
+
+To select which days exceed the limit values, we will use a "lookup table" in which the limit value can be referred to by its key (variable name). The following statement creates a named vector where limit values (`value`) is labeled by the pollutant (`variable`):
+
+```{r}
+(limits.vec <- with(limits.daily, setNames(value, variable)))
+```
+
+We can then use this vector (lookup table) to select the dates which exceed the limit values for each variable:
+
+```{r}
+exceedances <- daily %>%
+  filter(percent.recovery > threshold &
+         value > limits.vec[as.character(variable)])
+```
+
+Let us view this data table:
+```{r}
+head(exceedances)
+tail(exceedances)
+```
+
+If we want a summary of the number of exceedances, `count` serves the purpose of `group_by` and `summarize` with a single function:
+```{r}
+exceedances %>%
+  count(site, variable)
+```
+
+If we want the summary in monthly resolution, we can make a simple modification to the code above:
+```{r}
+exceedances %>%
+  mutate(month = months(date)) %>%
+  count(site, variable, month)
+```
+
+We can export this table with the following command:
+
+```{r, eval=FALSE}
+write.csv2(exceedances, file="exceedances.csv", row.names=FALSE)
+```
+
+Note that `write.csv2` uses the European convention for comma-separated-value files, where the delimiter is actually a semicolon (`;`) rather than comma (`,`).
 
