@@ -73,8 +73,6 @@ ReadTSeries <- function(filename, timecolumn="datetime", timeformat="%d.%m.%Y %H
   data[,"dayofwk"] <- weekdays(data[,timecolumn])
   data[,"daytype"] <- ifelse(data[,"dayofwk"] %in% c("Sat","Sun"), "Weekend", "Weekday")
   data[,"season"] <- Month2Season(unclass(data[,"month"]))
-  ## avoid package conflict (for version installed in GRB001)
-  data[,timecolumn] <- c(unclass(data[,timecolumn]))
   ## return value
   data
 }
