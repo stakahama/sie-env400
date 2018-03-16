@@ -224,13 +224,13 @@ threshold <- 75
 Let us see how many days the data recovery is at or below this threshold for each variable:
 ```{r}
 daily %>%
-  filter(percent.recovery <= threshold) %>%
+  filter(percent.recovery < threshold) %>%
   count(site, variable)
 ```
 Lausanne does not have an SO<sub>2</sub> monitor, so this makes sense, and we are only missing a few days of PM$_{10}$ measurements at each site. We can see which dates we do not have adequate data recovery:
 
 ```{r}
-filter(daily, percent.recovery <= threshold & variable=="PM10")
+filter(daily, percent.recovery < threshold & variable=="PM10")
 ```
 
 What can you do when you have such missing values? One approach is to remove means computed for dates with less than the required threshold of data recovery. Another approach used in statistics is called *imputation*, whereby missing values are populated with best estimates for its value (e.g., by interpolation or by drawing from a well-characterized distribution). For this exercise, we will simply take the first approach.
@@ -239,7 +239,7 @@ What can you do when you have such missing values? One approach is to remove mea
 Let us visualize the time series with limit values indicated for each variable:
 
 ```{r, fig.width=7, fig.height=6}
-ggp <- ggplot(daily %>% filter(percent.recovery > threshold))+
+ggp <- ggplot(daily %>% filter(percent.recovery >= threshold))+
   facet_grid(variable~site, scale="free_y")+  
   geom_line(aes(x=date, y=value))+
   geom_hline(data=limits.daily, mapping=aes(yintercept=value), linetype=2)+
@@ -252,7 +252,7 @@ Note that in the command above, the data used for drawing horizontal lines are s
 We can also view exceedances through empirical cumulative distribution functions (ECDF) of concentrations (to be covered in a later lecture):
 
 ```{r, fig.width=7, fig.height=6}
-ggp <- ggplot(daily %>% filter(percent.recovery > threshold))+
+ggp <- ggplot(daily %>% filter(percent.recovery >= threshold))+
   facet_grid(variable~site, scale="free_y")+  
   geom_line(aes(x=value), stat="ecdf")+
   geom_point(aes(x=value), stat="ecdf")+
@@ -270,7 +270,7 @@ We can then use this vector (lookup table) to select the dates which exceed the 
 
 ```{r}
 exceedances <- daily %>%
-  filter(percent.recovery > threshold &
+  filter(percent.recovery >= threshold &
          value > limits.vec[as.character(variable)])
 ```
 

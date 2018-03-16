@@ -80,10 +80,10 @@ Read in concentration data using functions defined in Lesson 4:
 conc <- readRDS("data/2013/lau-zue.rds")
 ```
 
-We will merge the data frames. In this case, the wind data is already averaged into hourly intervals so has the same time basis as the pollutant concentrations. *For the data provided for your exercise, you will want to average the 5-minute time resolution to hourly resolution using methods shown in previous lessons.* After obtaining hourly values, you can use the `join` operation:
+We will merge the data frames. In this case, the wind data is already averaged into hourly intervals so has the same time basis as the pollutant concentrations. *For the data provided for your exercise, you will want to average the 5-minute time resolution to hourly resolution using methods shown in previous lessons.* After obtaining hourly values, you can use the `join` operation. Here we use `left_join` to merge to periods for which we have air pollution data (in `conc`). Note that we also drop the `datetime` column from the `met` data frame so that we do not merge on numeric values (the numeric column named `datetime` also appears in `conc`), which is generally bad practice (it is better to merge based on character or factor columns).
 
 ```{r}
-df <- full_join(conc, met)
+df <- left_join(conc, met %>% select(-datetime))
 tail(df)
 ```
 
@@ -237,11 +237,12 @@ daily.zue <- df %>%
 
 hd <- left_join(
   daily.zue %>%
-  filter(percent.recovery > 75 & PM10.mean > 50) %>%
+  filter(percent.recovery >= 75 & PM10.mean > 50) %>%
   select(site, date),
   df
 )
 ```
+
 Define plots:
 
 ```{r}
@@ -289,10 +290,20 @@ wd %>%
 ```
 
 In addition, the wind consistently came from the North during these periods.
+
 ```{r, fig.width=10, fig.height=5}
 ggp <- plotWindrose(wd %>% filter(season %in% c("DJF", "MAM")),
                     spd = "WIGE", dir = "WIRI") +
   facet_grid(.~category)
+print(ggp)
+```
+
+To see the left figure more clearly, we can filter only the `"exceeded"` values.
+
+```{r}
+ggp <- plotWindrose(wd %>% filter(season %in% c("DJF", "MAM") & category=="exceeded"),
+                    spd = "WIGE", dir = "WIRI") +
+  ggtitle("exceeded")
 print(ggp)
 ```
 
