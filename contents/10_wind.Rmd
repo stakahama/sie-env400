@@ -104,7 +104,7 @@ mean.angle <- function(theta, r=1, ...) {
   x <- mean(r * cos(theta.rad), ...)
   y <- mean(r * sin(theta.rad), ...)
   theta.deg <- atan2(y, x) * 180/pi
-  theta.deg
+  ifelse(theta.deg < 0, theta.deg + 360, theta.deg) # [-179,180] to [0,359]
 }
 ```
 
