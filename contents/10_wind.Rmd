@@ -121,7 +121,6 @@ mean(c(359, 1)) # arithmetic mean
 ```{r}
 mean.angle(c(359, 1)) # mean in Cartesian coordinates
 ```
-(The negative value before the zero appears because of issues with numerical precision.)
 
 ```{r, echo=FALSE}
 options(digits = opt.digits)
