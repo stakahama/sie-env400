@@ -82,7 +82,7 @@ conc <- readRDS("data/2013/lau-zue.rds")
 
 We will merge the data frames. In this case, the wind data is already averaged into hourly intervals so has the same time basis as the pollutant concentrations. *For the data provided for your exercise, you will want to average the 5-minute time resolution to hourly resolution drawing upon methods shown in previous lessons (hint: use `summarize`).* 
 
-For averaging wind direction, you need to convert to Cartesian coordinates before averaging. Explanation - if you have two angles, 1$^\circ$ and 359$^\circ$, the arithmetic mean is 180$^\circ$, rather than 0$^\circ$. An algorithm for averaging in Cartesian coordinates can be expressed as follows:
+For averaging wind direction, you need to convert angle values (polar coordinate representation) to Cartesian coordinates before averaging. Explanation - if you have two angles, 1$^\circ$ and 359$^\circ$, the arithmetic mean is 180$^\circ$, rather than 0$^\circ$. An algorithm for averaging in Cartesian coordinates can be expressed as follows:
 
 \begin{align*}
 \bar{x} &= \langle \cos\theta \rangle\\
@@ -95,7 +95,8 @@ The function below shows an implemention in R that can be used in place of the a
 
 ```{r}
 mean.angle <- function(theta, r=1, ...) {
-  ## Average angles in Cartesian coordinates
+  ## Function for averaging angles
+  ## Polar coordinates -> Cartesian coordinates -> polar coordinates
   ##   'theta' is in degrees
   ##   'r=1' for unit circle
   ##   returns value is mean theta in degrees
