@@ -197,11 +197,12 @@ daily.max <- dcast(dm, site + year + month + day + season ~ variable)
 rm(dm) # no longer needed
 ```
 
-Recall the relationship between temperature and O~3~ shown in a previous lecture. Note the seasonal dependence of this relationship.
+Recall the relationship between temperature and O~3~ shown in a previous lecture. Note the seasonal dependence of this relationship. Note use of `use="pairwise.complete.obs"` for calculation of correlation with missing values.
+
 ```{r, fig.width=10, fig.height=5, warning=FALSE}
 ggp <- ggplot(daily.max)+
   facet_grid(site~season)+
-  geom_point(aes(TEMP,O3))
+  geom_point(aes(TEMP, O3, use="pairwise.complete.obs"))
 print(ggp)
 ```
 
@@ -250,11 +251,17 @@ print(ggp)
 ```
 
 For the following *scatterplot matrix*, we will use a package called `lattice` which is a plotting system that exists in parallel to R's base graphics and `ggplot2` package (confusing, I know). We additionally define a function to include correlation coefficients in our panels.
+
+```{r, echo=FALSE}
+## cor(..., use="pairwise.complete.obs") does not remove -Inf, which can result when taking maximum of empty data frame.
+```
+
 ```{r}
 library(lattice)
 
 CorrelationValue <- function(x, y, ...) {
-  correlation <- cor(x, y,use="pairwise")
+  i <- is.finite(x) & is.finite(y) 
+  correlation <- cor(x[i], y[i]) 
   if(!is.na(correlation)) {
     cpl <- current.panel.limits()
     panel.text(mean(cpl$xlim),mean(cpl$ylim),

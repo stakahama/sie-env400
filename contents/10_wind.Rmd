@@ -147,7 +147,7 @@ For summarizing wind directions, we will use wind roses. We will examine cases i
 
 # Visualizing wind roses (histograms)
 
-We will use a function modified from [Andy Clifton](https://github.com/AndyClifton/SurfaceStationSummary/blob/master/functions/WindRose.R) for plotting wind roses.
+We will use [this](https://raw.githubusercontent.com/stakahama/aprl-env400-assignment/master/contents/WindRose.R) function originally modified from [Andy Clifton](https://github.com/AndyClifton/SurfaceStationSummary/blob/master/functions/WindRose.R) for plotting wind roses.
 
 ```{r}
 source("WindRose.R")
