@@ -385,6 +385,9 @@ Conceived by William S. Gosset under the pseudonym, Student, while employed at b
 <figure>
 <img src="./figures/Student.png" width="50%"/>
 </figure>
+<figcaption>
+Title page from @Student1908.
+</figcaption>
 </center>
 <br>
 
@@ -395,9 +398,6 @@ Conceived by William S. Gosset under the pseudonym, Student, while employed at b
 <figure>
 <img src="./figures/students_t.svg" width="50%"/>
 </figure>
-<figcaption>
-Title page from @Student1908.
-</figcaption>
 </center>
 <br>
 
@@ -648,7 +648,7 @@ df <- readRDS("data/2013/lau-zue.rds")
 pivot to long format:
 ```{r}
 id.vars <- c("site", "datetime", "year", "month", "day", "hour", "season", "dayofwk", "daytype")
-lf <- melt(df %>% filter(site=="LAU"), id.vars=id.vars)
+lf <- melt(df, id.vars=id.vars)
 ```
 
 ## Calculate metrics
@@ -671,10 +671,11 @@ ComputeStats <- function(x) {
 }
 ```
 
-Apply to ozone concentrations in January and July:
+Apply to ozone concentrations in January and July in Lausanne:
 
 ```{r}
-table <- lf %>% filter(variable=="O3" &
+table <- lf %>% filter(site=="LAU" &
+                       variable=="O3" &
                        month %in% c("Jan","Jul"))
 
 mystats <- table %>%
@@ -738,6 +739,39 @@ out[["p.value"]]
 
 Since the $p$-value is less than $\alpha=0.05$, we can say that we would reject the null hypothesis (that on average, the weekend concentrations are the same as weekday concentrations) at the $\alpha=0.05$ significance level.
 
+We can extend this over other seasons and pollutants:
+
+```{r}
+TTest <- function(value, daytype) {
+  ## if all values are missing,
+  ##   the t-test will raise an error
+  wkend <- value[daytype=="Weekend"]
+  wkday <- value[daytype=="Weekday"]
+  if(length(na.omit(wkend)) > 0 & length(na.omit(wkday)) > 0) {
+    out <- t.test(wkend, wkday, alternative="two.sided")
+    pval <- out[["p.value"]]
+  } else {
+    pval <- NA
+  }
+  pval
+}
+
+pvals <- lf %>%
+  filter(!variable %in% c("TEMP", "PREC", "RAD")) %>%
+  group_by(site, season, variable) %>%
+  summarize(p.value = TTest(value, daytype))
+```
+
+```{r, fig.width=8, fig.height=5}
+ggplot(pvals) +
+  facet_grid(site ~ season) +
+  geom_point(aes(variable, p.value), shape=3, color=4)+
+  geom_hline(yintercept = .05, linetype = 2) +
+  scale_y_log10() + 
+  theme(axis.text.x = element_text(angle=45, hjust=1))+
+  labs(x="", y="p-value")
+```
+
 
 ## Fitting probability distributions
 
@@ -750,7 +784,7 @@ library(fitdistrplus)
 
 The `fitdist` function fits a distribution by maximum likelihood by default (see `?fitdist` for more information). Let is fit a lognormal distribution (`"lnorm"`), which also produces a plot:
 ```{r}
-hourly <- lf %>% filter(month=="Jul" & variable=="NO2")
+hourly <- lf %>% filter(site=="LAU" & month=="Jul" & variable=="NO2")
 concvec <- c(na.omit(hourly[["value"]]))
 fit <- fitdist(concvec, "lnorm")
 ```
