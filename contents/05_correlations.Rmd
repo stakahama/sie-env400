@@ -197,20 +197,20 @@ daily.max <- dcast(dm, site + year + month + day + season ~ variable)
 rm(dm) # no longer needed
 ```
 
-Recall the relationship between temperature and O~3~ shown in a previous lecture. Note the seasonal dependence of this relationship. Note use of `use="pairwise.complete.obs"` for calculation of correlation with missing values.
+Recall the relationship between temperature and O~3~ shown in a previous lecture. Note the seasonal dependence of this relationship. 
 
 ```{r, fig.width=10, fig.height=5, warning=FALSE}
 ggp <- ggplot(daily.max)+
   facet_grid(site~season)+
-  geom_point(aes(TEMP, O3, use="pairwise.complete.obs"))
+  geom_point(aes(TEMP, O3))
 print(ggp)
 ```
 
-The corresponding correlation values can be obtained with the built-in function, `cor` (see `?cor).
+The corresponding correlation values can be obtained with the built-in function, `cor` (see `?cor). Note use of `use="pairwise.complete.obs"` for calculation of correlation with missing values.
 
 ```{r}
 (cor.values <- daily.max %>% group_by(site, season) %>%
-   summarize(correlation=cor(TEMP, O3)))
+   summarize(correlation=cor(TEMP, O3, use="pairwise.complete.obs")))
 ```
 
 We can format this table and save to file:
@@ -262,7 +262,7 @@ library(lattice)
 CorrelationValue <- function(x, y, ...) {
   i <- is.finite(x) & is.finite(y) 
   correlation <- cor(x[i], y[i]) 
-  if(!is.na(correlation)) {
+  if(is.finite(correlation)) {
     cpl <- current.panel.limits()
     panel.text(mean(cpl$xlim),mean(cpl$ylim),
                bquote(italic(r)==.(sprintf("%.2f",correlation))),
