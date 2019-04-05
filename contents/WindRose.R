@@ -34,23 +34,19 @@ plotWindrose <- function(data,
                                                      min(9,
                                                          n.colors.in.range)),
                                                  palette))(n.colors.in.range)
-  if (max(data[[spd]],na.rm = TRUE) > spdmax){
-    speedcuts.breaks <- c(seq(spdmin,spdmax,by = spdres),
-                          max(data[[spd]],na.rm = TRUE))
-    speedcuts.labels <- c(paste(c(seq(spdmin,spdmax-spdres,by = spdres)),
-                                '-',
-                                c(seq(spdmin+spdres,spdmax,by = spdres))),
-                          paste(spdmax,
-                                "-",
-                                max(data[[spd]],na.rm = TRUE)))
-    speedcuts.colors <- c(speedcuts.colors,
-                          "grey50")
-  } else{
-    speedcuts.breaks <- c(seq(spdmin,spdmax,by = spdres))
-    speedcuts.labels <- paste(c(seq(spdmin,spdmax-spdres,by = spdres)),
+  
+  speedcuts.breaks <- c(seq(spdmin,spdmax,by = spdres))
+  speedcuts.labels <- paste(c(seq(spdmin,spdmax-spdres,by = spdres)),
+                            '-',
+                            c(seq(spdmin+spdres,spdmax,by = spdres)))
+  
+  if(max(speedcuts.breaks) < spdmax){ ## edit 05.04.2019
+    spdmax. <- spdmax + spdres
+    speedcuts.breaks <- c(seq(spdmin,spdmax.,by = spdres))
+    speedcuts.labels <- paste(c(seq(spdmin,spdmax.-spdres,by = spdres)),
                               '-',
-                              c(seq(spdmin+spdres,spdmax,by = spdres)))
-
+                              c(seq(spdmin+spdres,spdmax.,by = spdres)))
+    speedcuts.colors <- c(speedcuts.colors, "grey50")
   }
 
   if (debug > 0){
@@ -58,10 +54,11 @@ plotWindrose <- function(data,
   }
 
   ## Bin wind speed data ----
-    data$spd.binned <- cut(data[[spd]],
-                           breaks = speedcuts.breaks,
-                           labels = speedcuts.labels,
-                           ordered_result = TRUE)
+  data$spd.binned <- cut(data[[spd]],
+                         breaks = speedcuts.breaks,
+                         labels = speedcuts.labels,
+                         include.lowest = TRUE, # edit 05.04.2019
+                         ordered_result = TRUE)
   if(!decreasing) { ## ST
     ## reverse order
     data$spd.binned <- with(data, factor(spd.binned, rev(levels(spd.binned))))
@@ -113,7 +110,7 @@ plotWindrose <- function(data,
                       values = speedcuts.colors,
                       drop = FALSE) +
     labs(x = "") ## so it doesn't conflict with theme()
-    ## theme(axis.title.x = element_blank())
+  ## theme(axis.title.x = element_blank())
 
   ## adjust axes if required
   if (!is.na(countmax)){

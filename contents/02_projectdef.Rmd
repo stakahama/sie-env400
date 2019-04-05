@@ -200,7 +200,7 @@ To return a data table after grouping rows of another data table by \cverb=varia
 ```{r, eval=FALSE}
 library(dplyr)
 data_table %>%                             # data table
-  group_by(variable1,varaible2) %>%        # grouping variables
+  group_by(variable1,variable2) %>%        # grouping variables
     summarize(correlation=cor(x,y))        # (aggregating) function
 ```
 

@@ -8,7 +8,7 @@ output:
 
 ```{r, include=FALSE}
 library(knitr)
-opts_chunk$set(fig.path='figures_rmd/lec01_', fig.align='center', warning=FALSE, message=FALSE)
+opts_chunk$set(fig.path=file.path("figures_rmd", "lec01_"), fig.align="center", warning=FALSE, message=FALSE)
 ```
 
 In this lesson, we will compare procedural and declarative approaches to computing aggregate values (mean, maximum value) from time series of concentrations at a single site.
@@ -68,7 +68,7 @@ getwd()
 
 Define your input file relative to this path:
 ```{r}
-filename <- "data/2013/LAU.csv"
+filename <- file.path("data", "2013", "LAU.csv")
 file.exists(filename)
 ```
 
@@ -130,7 +130,7 @@ unique.months <- levels(data[,"month"])
 
 O3.monthly <- NULL
 for(.month in unique.months) {
-  table <- data %>% filter(month == .month)
+  table <- filter(data, month == .month)
   tmp <- data.frame(month=.month, O3=mean(table[,"O3"], na.rm=TRUE))
   O3.monthly <- rbind(O3.monthly, tmp)
 }

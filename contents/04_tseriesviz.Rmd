@@ -8,7 +8,7 @@ output:
 
 ```{r, include=FALSE}
 library(knitr)
-opts_chunk$set(fig.path='figures_rmd/lec04_', fig.align='center')
+opts_chunk$set(fig.path=file.path("figures_rmd", "lec04_"), fig.align="center")
 ```
 
 # Import libraries and define options
@@ -80,7 +80,7 @@ ReadTSeries <- function(filename, timecolumn="datetime", timeformat="%d.%m.%Y %H
 
 Read and merge (with `full_join`) Lausanne (LAU) and Z&uuml;rich (ZUE) data:
 ```{r}
-datapath <- "data/2013"
+datapath <- file.path("data", "2013")
 
 df <- full_join(cbind(site="LAU", ReadTSeries(file.path(datapath, "LAU.csv"))),
                 cbind(site="ZUE", ReadTSeries(file.path(datapath, "ZUE.csv"))))
@@ -137,6 +137,22 @@ ggp <- ggplot(lf %>% filter(site=="LAU" & !is.na(value))) +
   geom_boxplot(aes(daytype, value), outlier.size = 0.5, outlier.shape = 3)
 print(ggp)
 ```
+
+The precipitation is better expressed as a cumulative sum, so can be displayed separately. To combine the figures, we will use `grid.arrange` from the `gridExtra` library:
+```{r, message=FALSE, warning=FALSE, fig.width=8, fig.height=8}
+ggp1 <- ggplot(lf %>% filter(site=="LAU" & !is.na(value) & variable!="PREC")) +
+  facet_grid(variable ~ season, scale = "free_y") +
+  geom_boxplot(aes(daytype, value), outlier.size = 0.5, outlier.shape = 3) +
+  labs(x="")
+
+ggp2 <- ggplot(lf %>% filter(site=="LAU" & !is.na(value) & variable=="PREC")) +
+  facet_grid(variable ~ season, scale = "free_y") +
+  geom_bar(aes(daytype, value), stat="sum", show.legend = FALSE)
+
+library(gridExtra)
+grid.arrange(ggp1, ggp2)
+```
+
 
 ## Diurnal variations
 
