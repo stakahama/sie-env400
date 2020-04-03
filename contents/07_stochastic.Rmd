@@ -270,7 +270,7 @@ The annual probability density appears to be multimodal, but we can see that thi
 ggp <- ggplot(lau)+
   geom_line(aes(x=O3, ymax=..density..),
             stat="density", position="identity")+
-              xlab(expression("O3 concentration"~(mu*g/m^3)))
+            xlab(expression("O3 concentration"~(mu*g/m^3)))
 print(ggp)
 ```
 
@@ -279,7 +279,7 @@ ggp <- ggplot(lau)+
   geom_line(aes(x=O3, ymax=..density.., group=month, color=month),
             stat="density",
             position="identity")+
-              xlab(expression("O3 concentration"~(mu*g/m^3)))
+            xlab(expression("O3 concentration"~(mu*g/m^3)))
 print(ggp)
 ```
 
@@ -292,7 +292,7 @@ We can also view the empirical CDFs (ECDF) of hourly concentrations for 2013. EC
 ggp <- ggplot(lau)+
   geom_line(aes(x=O3), stat="ecdf")+
     xlab(expression("O3 concentration"~(mu*g/m^3)))+
-      ylab("Probability")
+    ylab("Probability")
 print(ggp)
 ```
 
@@ -319,9 +319,9 @@ lf <- melt(df[, c(id.vars, pollutants)], id.vars=id.vars)
 
 ```{r, fig.width=10, fig.height=3.5}
 ggp <- ggplot(lf)+
+  facet_grid(site~variable,scale="free_x")+
   geom_line(aes(x=value, group=month, color=month),
             stat="ecdf", position="identity")+
-  facet_grid(site~variable,scale="free_x")+
   xlab("Value")+
   ylab("Probability")
 print(ggp)
@@ -367,10 +367,11 @@ stats.central <- lf %>% filter(site=="LAU" & !is.na(value)) %>%
 ```
 ```{r, fig.width=10, fig.height=5}
 ggp <- ggplot(stats.central)+
+  facet_grid(variable~season,scale="free_y")+
   geom_bar(aes(stat, value),
            stat="identity",
            fill="gray")+
-  facet_grid(variable~season,scale="free_y")
+  scale_y_continuous(expand=expansion(mult=c(0, 0.1)))
 print(ggp)
 ```
 Why are geomean values missing?
@@ -384,10 +385,11 @@ stats.disp <- lf %>% filter(site=="LAU" & !is.na(value)) %>%
 
 ```{r, fig.width=10, fig.height=5}
 ggp <- ggplot(stats.disp)+
+  facet_grid(variable~season,scale="free_y")+
   geom_bar(aes(stat, value),
            stat="identity",
            fill="gray")+
-  facet_grid(variable~season,scale="free_y")
+  scale_y_continuous(expand=expansion(mult=c(0, 0.1)))
 print(ggp)
 ```
 Why are geosd values missing?

@@ -28,7 +28,7 @@ opts_chunk$set(fig.path='figures_rmd/lec09_', fig.align='center', warning=FALSE,
 In hourly concentrations plotted below for 2013 in Lausanne (LAU) and Zurich (ZUE), we can identify several extreme values. We will particularly focus on the PM$_{10}$ and EC concentrations in Zurich and examine them further.
 <center>
 <figure>
-<img src="./figures/lec04_unnamed-chunk-10-1.png">
+<img src="./figures_rmd/lec04_unnamed-chunk-10-1.png">
 </figure>
 </center>
 
@@ -554,6 +554,7 @@ metric.central <- lf %>% group_by(site, variable) %>%
 ```{r, fig.width=5, fig.height=10}
 ggp <- ggplot(metric.central)+
   geom_bar(aes(metric, value), stat="identity", fill="gray")+
+  scale_y_continuous(expand=expansion(mult=c(0, 0.1)))+
   facet_grid(variable~site, scale="free_y")+
   xlab("")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -569,6 +570,7 @@ metric.disp <- lf %>% group_by(site, variable) %>%
 ```{r, fig.width=5, fig.height=10}
 ggp <- ggplot(metric.disp)+
   geom_bar(aes(metric, value), stat="identity", fill="gray")+
+  scale_y_continuous(expand=expansion(mult=c(0, 0.1)))+
   facet_grid(variable~site, scale="free_y")+
   xlab("")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))

@@ -697,12 +697,13 @@ print(ggp)
 
 ```{r}
 ggp <- ggplot(mystats)+
+  facet_wrap(~month)+
   geom_bar(aes(x=daytype, y=mean), stat="identity", fill="gray")+
   geom_errorbar(aes(x=daytype,
                     ymin=sd.lower,
                     ymax=sd.upper),
                 width=0.1)+
-  facet_wrap(~month)
+  scale_y_continuous(expand=expansion(mult=c(0, 0.1)))
 print(ggp)
 ```
 
@@ -710,13 +711,14 @@ Uncertainty in calculated means:
 
 ```{r}
 ggp <- ggplot(mystats)+
+  facet_wrap(~month)+
   geom_bar(aes(x=daytype, y=mean),
            stat="identity", fill="gray")+
   geom_errorbar(aes(x=daytype,
                     ymin=conf.lower,
                     ymax=conf.upper),
                 width=0.1)+
-  facet_wrap(~month)
+  scale_y_continuous(expand=expansion(mult=c(0, 0.1)))
 print(ggp)
 ```
 

@@ -25,7 +25,7 @@ In general, you will find that an R script often follows a set of common operati
 
 Load libraries
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library(dplyr)
 library(reshape2)
 library(chron)
@@ -148,7 +148,8 @@ class(O3.monthly[,"month"])
 Another visual representation:
 ```{r, fig.width=8, fig.height=5}
 ggp <- ggplot(O3.monthly) +
-  geom_bar(aes(month, O3), stat="identity")
+  geom_bar(aes(month, O3), stat="identity") +
+  scale_y_continuous(expand=expansion(mult=c(0, 0.1)))
 print(ggp)
 ```
 
@@ -224,8 +225,8 @@ ColClasses(lf)
 This is amenable for plotting:
 ```{r, fig.width=8, fig.height=12}
 ggp <- ggplot(lf) +
+  facet_grid(variable~., scale="free_y") +  
   geom_line(aes(datetime, value))+
-  facet_grid(variable~., scale="free_y") +
   scale_x_chron()
 print(ggp)
 ```
@@ -261,19 +262,20 @@ dcast(lf, month~variable, fun.aggregate=mean, na.rm=TRUE)
 The mean cal also be calculated in the process of plotting:
 ```{r, fig.width=8, fig.height=12}
 ggp <- ggplot(lf) +
-  geom_bar(aes(month, value), stat="summary", fun.y="mean")+
-  facet_grid(variable~., scale="free_y")
+  facet_grid(variable~., scale="free_y") +
+  geom_bar(aes(month, value), stat="summary", fun="mean") +
+  scale_y_continuous(expand=expansion(mult=c(0, 0.1)))
 print(ggp)
 ```
 
 Add errorbars to denote the full range in values:
 ```{r, fig.width=8, fig.height=12}
 ggp <- ggplot(lf, aes(month, value)) +
-  geom_bar(stat="summary", fun.y="mean")+
+  facet_grid(variable~., scale="free_y") +
+  geom_bar(stat="summary", fun="mean") +
   geom_errorbar(stat="summary",
-                fun.ymin=min, #function(x) quantile(x, .25),
-                fun.ymax=max, #function(x) quantile(x, .75))+
-                width=0.1) +
-  facet_grid(variable~., scale="free_y")
+                fun.min=min, #function(x) quantile(x, .25),
+                fun.max=max, #function(x) quantile(x, .75))+
+                width=0.1)
 print(ggp)
 ```
