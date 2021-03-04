@@ -119,7 +119,7 @@ Illustration of lag for 20.07.2013 in Lausanne:
 * Increase in radiation also leads to increase in temperatures, which accelerate rates of reaction.
 * The ozone production is not instantaneous, hence the lag.
 
-Could a similar relationship be confirmed by examining correlations between the daily maximum values of radiation and ozone?
+This example is shown mostly for illustrative purposes; such a relationship between radiation intensity and ozone concentration may be better captured by examining correlations between the daily maximum values of the two variables.
 
 ## Confounding interpretations
 
@@ -160,14 +160,12 @@ For entertainment purposes, you may wish to visit the website of [*Spurious corr
 
 
 ```{r}
-library(dplyr)
-library(reshape2)
+library(tidyverse)
 library(chron)
-library(ggplot2)
 ```
 
 ```{r}
-source("GRB001.R")
+source("functions_extra.R")
 ```
 
 ```{r, results="hide"}
@@ -190,8 +188,9 @@ Before computing correlations, we will first visualize the relationships using *
 
 Let us calculate the daily maximum values for each variable:
 ```{r}
-lf <- melt(df, measure.vars=variables)
-dm <- lf %>% group_by(site, year, month, day, season, variable) %>%
+lf <- gather(df, variable, value, all_of(variables))
+dm <- lf %>%
+  group_by(site, year, month, day, season, variable) %>%
   summarize(value=max(value, na.rm=TRUE))
 daily.max <- dcast(dm, site + year + month + day + season ~ variable)
 rm(dm) # no longer needed
@@ -200,10 +199,9 @@ rm(dm) # no longer needed
 Recall the relationship between temperature and O~3~ shown in a previous lecture. Note the seasonal dependence of this relationship. 
 
 ```{r, fig.width=10, fig.height=5, warning=FALSE}
-ggp <- ggplot(daily.max)+
+ggplot(daily.max)+
   facet_grid(site~season)+
   geom_point(aes(TEMP, O3))
-print(ggp)
 ```
 
 The corresponding correlation values can be obtained with the built-in function, `cor` (see `?cor). Note use of `use="pairwise.complete.obs"` for calculation of correlation with missing values.
@@ -215,7 +213,7 @@ The corresponding correlation values can be obtained with the built-in function,
 
 We can format this table and save to file:
 ```{r}
-(cor.values.wf <- dcast(cor.values, season~site, value.var="correlation"))
+(cor.values.wf <- spread(cor.values, site, correlation))
 ```
 
 ```{r, eval=FALSE}
@@ -225,32 +223,30 @@ write.csv2(cor.values.wf, "correlations.csv", row.names=FALSE)
 
 Or, we can visualize the values:
 ```{r, fig.width=7, fig.heigth=3.5}
-ggp <- ggplot(cor.values)+
+ggplot(cor.values)+
   geom_bar(aes(season, correlation), stat="identity")+
   scale_y_continuous(limits=c(0,1))+
-  facet_grid(.~site)
-print(ggp)
+  facet_grid(.~site)+
+  scale_y_continuous(expand=expansion(mult=c(0, 0.1)))
 ```
 
 We can examine the correlation of other pollutants or meterological variables with O~3~.
 ```{r, fig.width=20, fig.height=6, warning=FALSE}
-lf <- melt(daily.max, measure.vars=setdiff(variables, "O3")) # everything but ozone
-ggp <- ggplot(lf)+
+gather(daily.max, variable, value, all_of(setdiff(variables, "O3"))) %>% # everything but ozone
+  ggplot+
   facet_grid(site~variable, scale="free_x")+
   geom_point(aes(value, O3, group=season, color=season), shape=4)
-print(ggp)
 ```
 
 We will next look at a scatter plot between hourly measurements of CO and NO~2~. Why does this  relationship exist?
 
 ```{r, fig.width=10, fig.height=5, warning=FALSE}
-ggp <- ggplot(df)+
+ggplot(df)+
   facet_grid(site~season)+
   geom_point(aes(CO, NO2))
-print(ggp)
 ```
 
-For the following *scatterplot matrix*, we will use a package called `lattice` which is a plotting system that exists in parallel to R's base graphics and `ggplot2` package (confusing, I know). We additionally define a function to include correlation coefficients in our panels.
+For the following *scatterplot matrix*, we will use a built-in library called `lattice` which is a plotting system that exists in parallel to R's base graphics and `ggplot2` package (you can check out `ggpairs` from the `GGally` package for a `ggplot2`-based solution). We additionally define a function to include correlation coefficients in our panels.
 
 ```{r, echo=FALSE}
 ## cor(..., use="pairwise.complete.obs") does not remove -Inf, which can result when taking maximum of empty data frame.
@@ -275,20 +271,18 @@ CorrelationValue <- function(x, y, ...) {
 Plot daily maximum values as pairwise points (only Lausanne) using this syntax:
 ```{r, fig.width=16, fig.height=16}
 ix <- grepl("LAU", daily.max[["site"]], fixed=TRUE)
-spp <- splom(~daily.max[ix,c("O3","NO2","CO","PM10","TEMP","PREC","RAD")] | daily.max[ix,"season"],
-             upper.panel = CorrelationValue,
-             pch=4)
-print(spp)
+splom(~daily.max[ix,c("O3","NO2","CO","PM10","TEMP","PREC","RAD")] | daily.max[ix,"season"],
+      upper.panel = CorrelationValue,
+      pch=4)
 ```
 
 Plot hourly data as pairwise points. Given the large number of points, we can "smooth" the visual representation.
 ```{r, fig.width=16, fig.height=16, warning=FALSE}
 ix <- grepl("LAU", df[["site"]], fixed=TRUE)
-spp <- splom(~df[ix,c("O3","NO2","CO","PM10","TEMP","PREC","RAD")] | df[ix,"season"],
-             upper.panel = CorrelationValue,
-             panel = panel.smoothScatter,
-             pch=4)
-print(spp)
+splom(~df[ix,c("O3","NO2","CO","PM10","TEMP","PREC","RAD")] | df[ix,"season"],
+      upper.panel = CorrelationValue,
+      panel = panel.smoothScatter,
+      pch=4)
 ```
 
 
@@ -316,10 +310,9 @@ lagged <- df %>%
 ```
 
 ```{r, fig.width=12, fig.height=18}
-ggp <- ggplot(lagged) +
+ggplot(lagged) +
   geom_point(aes(RAD, O3, group=site, color=site), shape=4)+
     facet_grid(lag~season)
-print(ggp)
 ```
 
 R includes a function, `ccf`, for calculating the cross correlation. The value passed to the `na.action=na.pass` says to compute covariances from the complete cases when there are missing values. Calling this function will generate a corresponding plot by default (which can be turned off). See `?ccf` for further details.
@@ -345,10 +338,9 @@ Note the syntax, `...` in the function definition This passes on any additional 
 Plot:
 
 ```{r, fig.width=15, fig.height=5}
-ggp <- ggplot(lagged.values)+
+ggplot(lagged.values)+
   geom_segment(aes(x=lag,xend=lag,y=0,yend=value))+
   facet_grid(site~season)+
   xlab("lag (hours)")+
   ylab("Cross correlation coefficient")
-print(ggp)
 ```

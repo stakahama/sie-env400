@@ -117,14 +117,12 @@ Check out:
 For the rest of the examples, we will assume the following libraries have been imported and options set:
 
 ```{r, message=FALSE}
-library(dplyr)
-library(reshape2)
+library(tidyverse)
 library(chron)
-library(ggplot2)
 ```
 
 ```{r}
-source("GRB001.R")
+source("functions_extra.R")
 ```
 
 ```{r, results="hide"}
@@ -534,20 +532,21 @@ Note that each column can have a different data type.
 (dtable <- data.frame(label=c("a","b"),value=c(1,2)))
 ```
 
-```{r, results='asis'}
+```{r}
 ColClasses(dtable)
 ```
 
 Common data frame operations defined in base R, with improvements in speeed or usability provided by the `reshape2` and `dplyr` packages. Many of these will be further demonstrated in context throughout the rest of the course.
 
-| Operation            | base R                          | dplyr/reshape2                   |
-|----------------------+---------------------------------+----------------------------------|
+| Operation            | base R                          | `dplyr`/`tidyr`/`reshape2`       |
+|----------------------|---------------------------------|----------------------------------|
 | subset rows          | `[`, `subset()`                 | `filter()`                       |
 | select columns       | `[`, `subset()`                 | `select()`                       |
 | modify column values | `[<-`, `transform()`            | `mutate()`                       |
 | rename coluimns      |                                 | `rename()`                       |
 | join tables          | `merge()`, `rbind()`, `cbind()` | `{full/inner/left/right}_join()` |
-| pivot frame          | `stack()`, `unstack()`          | `melt()`, `dcast()`              |
+| pivot frame          | `stack()`, `unstack()`          | `gather()`, `spread()`           |
+|                      |                                 | `melt()`, `dcast()`              |
 
 ### Chaining operations
 
@@ -616,20 +615,28 @@ data <- read.table("data/2013/LAU.csv", sep=";", skip=6,
   col.names=c("datetime","O3","NO2","CO","PM10","TEMP","PREC","RAD"))
 ```
 
-Convert to "long" format:
+View first two rows.
 ```{r}
-library(reshape2)                     # makes melt() available
-lf <- melt(data[1:2,],                # data table
-           id.vars="datetime",        # columns to keep fixed (collapse/stack all other variables)
-           variable.name="variable",  # name of new variable column
-           value.name="value")        # name of new value column
+data[1:2,]
 ```
 
-Convert back to "wide" format:
+Convert to "long" format.
 ```{r}
-wf <- dcast(lf,                       # data table
-            datetime~variable,        # keep 'datetime' fixed; unstack variables in ???variable??? column
-            value.var="value")        # column from which values should be taken to fill new wide-format table
+lf <- gather(data[1:2,],     # data table, first two rows
+             key = variable, # name of new variable column
+             value = value,  # name of new value column           
+             -datetime)      # columns to keep fixed (collapse/stack all other variables)
+```
+
+```{r}
+head(lf)
+```
+
+Convert back to "wide" format.
+```{r}
+wf <- spread(lf,             # data table
+             key = variable, # column from which new column names should be taken
+             value = value)  # column from which values should be taken to fill new wide-format table
 ```
 
 ```{r}
@@ -809,13 +816,27 @@ stats::df
 
 Or, more generally, use `get`:
 ```{r}
-get("df","package:stats")
+get("df", "package:stats")
 ```
-If you want gory details, look [here](http://blog.obeautifulcode.com/R/How-R-Searches-And-Finds-Stuff/).
+
+To access functions that are private to a particular package, use `:::`.
+```{r}
+stats:::df
+```
+(In this case the triple colon is not necessary as `df` is not a private function but is shown for illustrative purposes.)
+
+For more details, see [here](http://blog.obeautifulcode.com/R/How-R-Searches-And-Finds-Stuff/).
 
 # Graphics
 
-There are several graphics "paradigms". In base graphics, a graphic is specified by its primitive elements. In ggplot(2) as illustrated earlier, a graphic is build by describing how the data relates to its grammar.
+There are several graphics "paradigms". 
+
+* base graphics (built-in)
+* grid graphics (built-in)
+* lattice graphics (built-in)
+* ggplot2 (external)
+
+In base graphics, a graphic is specified by its primitive elements. Grid graphics provide low-level functions; lattice and ggplot2 are built on top of grid graphics. Lattice graphics is an implementation of Trellis graphics in R. In ggplot(2), as illustrated earlier, is an implementation of the "grammar of graphics."
 
 ## Anatomy of a graphic
 

@@ -115,14 +115,12 @@ The periodogram is a finite Fourier transform of the autocovariance $\{c_{xx}(k)
 
 
 ```{r}
-library(dplyr)
-library(reshape2)
+library(tidyverse)
 library(chron)
-library(ggplot2)
 ```
 
 ```{r}
-source("GRB001.R")
+source("functions_extra.R")
 ```
 
 ```{r, results="hide"}
@@ -136,11 +134,12 @@ theme_set(theme_bw()) # just my preference for plots
 df <- readRDS("data/2013/lau-zue.rds")
 ```
 
-
+Select ZUE site and convert to long format. When providing a character vector of column names, wrap in `all_of`.
 ```{r}
 id.vars <- c("site", "datetime", "year", "month", "day", "hour", "season", "dayofwk", "daytype")
-
-lf <- melt(filter(df, site=="ZUE"), id.vars=id.vars)
+lf <- df %>%
+  filter(df, site=="ZUE") %>%
+  gather(variable, value, -all_of(id.vars))
 ```
 
 <!-- ```{r} -->
@@ -167,7 +166,8 @@ SelfLag <- function(x, k) {
   data.frame(lag=k, x0=head(x,-k), xk=tail(x,-k))
 }
 
-lagged <- lf %>% group_by(site, season, variable) %>%
+lagged <- lf %>%
+  group_by(site, season, variable) %>%
   do(rbind(SelfLag(.[["value"]], 1),
            SelfLag(.[["value"]], 3),
            SelfLag(.[["value"]], 5),
@@ -177,21 +177,20 @@ lagged <- lf %>% group_by(site, season, variable) %>%
 We will plot the effect of the lag (shown across rows) on two meteorological variables: radiation and temperature.
 
 ```{r, fig.width=7, fig.height=7}
-ggp <- ggplot(filter(lagged, variable=="RAD"))+
+ggplot(filter(lagged, variable=="RAD"))+
   geom_abline(intercept=0, slope=1)+  
   geom_point(aes(x0, xk), shape=3, color="gray")+
   facet_grid(lag~season)+
   labs(x=expression(x(t[0])), y=expression(x(t[k])))
-print(ggp)
 ```
 
 ```{r, fig.width=7, fig.height=7}
-ggp <- ggplot(filter(lagged, variable=="TEMP"))+
+filter(lagged, variable=="TEMP") %>%
+  ggplot+
   geom_abline(intercept=0, slope=1)+  
   geom_point(aes(x0, xk), shape=3, color="gray")+
   facet_grid(lag~season)+
   labs(x=expression(x(t[0])), y=expression(x(t[k])))
-print(ggp)
 ```
 We can see that the autocorrelation in temperature persists for longer period of time (the correlation between lagged values for `TEMP` deteriorates much more slowly with increasing amount of lag than for `RAD`).
 
@@ -211,13 +210,12 @@ autocorr <- lf %>% group_by(site, season, variable) %>%
 We can view the correlelograms for all variables:
 
 ```{r, fig.width=7, fig.height=9}
-ggp <- ggplot(autocorr)+
+ggplot(autocorr)+
   geom_hline(yintercept=0)+        
   geom_point(aes(lag, acf))+
   geom_segment(aes(lag, 0, xend=lag, yend=acf))+
   facet_grid(variable~season)+
   labs(x="lag", y="acf")
-print(ggp)
 ```
 
 ## Power spectrum
@@ -293,12 +291,11 @@ We can similarly produce a power spectrum:
 ```{r, fig.width=8, fig.height=8}
 period <- data.frame(label=factor(names(hrs), names(hrs)), freq=1/hrs)
 
-ggp <- ggplot(spec)+
+ggplot(spec)+
   geom_vline(aes(xintercept=freq, color=label), data=period, linetype=2)+  
   geom_line(aes(freq, spec))+
   facet_grid(variable~season, scale="free_y")+
   scale_y_log10()
-print(ggp)
 ```
 
 ### Application to multiple variables (daily values)
@@ -306,7 +303,8 @@ print(ggp)
 We can also calculate daily averages and apply the spectra decomposition:
 
 ```{r}
-daily <- lf %>% mutate(date=dates(datetime)) %>%
+daily <- lf %>%
+  mutate(date=dates(datetime)) %>%
   group_by(site, variable, season, date) %>%
   summarize(value=mean(value, na.rm=TRUE))
 
@@ -320,11 +318,10 @@ period.daily <- data.frame(label=c("weekly", "monthly"),
 Plot results for daily power spectra:
 
 ```{r, fig.width=7, fig.height=7}
-ggp <- ggplot(spec.daily)+
+ggplot(spec.daily)+
   geom_vline(aes(xintercept=freq, color=label), data=period.daily, linetype=2)+  
   geom_line(aes(freq, spec))+
   facet_grid(variable~season, scale="free_y")
-print(ggp)
 ```
 
 # References

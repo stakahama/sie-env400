@@ -12,9 +12,12 @@ library(knitr)
 opts_chunk$set(fig.path='figures_rmd/lec08_', fig.align='center', warning=FALSE, message=FALSE)
 ```
 
+$$
+\require{mhchem}
 \newcommand{\E}{\operatorname{E}}
 \newcommand{\Var}{\operatorname{Var}}
 \newcommand{\erf}{\operatorname{erf}}
+$$
 
 # Background
 
@@ -624,14 +627,12 @@ Hypothesis testing and $p$-values are used extensively in the medical and psycho
 
 
 ```{r}
-library(dplyr)
-library(reshape2)
+library(tidyverse)
 library(chron)
-library(ggplot2)
 ```
 
 ```{r}
-source("GRB001.R")
+source("functions_extra.R")
 ```
 
 ```{r, results="hide"}
@@ -645,10 +646,10 @@ theme_set(theme_bw()) # just my preference for plots
 df <- readRDS("data/2013/lau-zue.rds")
 ```
 
-pivot to long format:
+Pivot to long format. When providing a character vector of column names, wrap in `all_of`.
 ```{r}
 id.vars <- c("site", "datetime", "year", "month", "day", "hour", "season", "dayofwk", "daytype")
-lf <- melt(df, id.vars=id.vars)
+lf <- gather(df, variable, value, -all_of(id.vars))
 ```
 
 ## Calculate metrics
@@ -674,9 +675,10 @@ ComputeStats <- function(x) {
 Apply to ozone concentrations in January and July in Lausanne:
 
 ```{r}
-table <- lf %>% filter(site=="LAU" &
-                       variable=="O3" &
-                       month %in% c("Jan","Jul"))
+table <- lf %>%
+  filter(site=="LAU" &
+         variable=="O3" &
+         month %in% c("Jan","Jul"))
 
 mystats <- table %>%
   group_by(month, daytype) %>%
@@ -688,29 +690,28 @@ head(mystats)
 Summarize variability:
 
 ```{r}
-ggp <- ggplot(table)+
+ggplot(table)+
   geom_boxplot(aes(daytype, value))+
-  facet_wrap(~month)
-print(ggp)
+  facet_wrap(~month)+
+  labs(x=expression(O[3]))
 ```
 
 
 ```{r}
-ggp <- ggplot(mystats)+
+ggplot(mystats)+
   facet_wrap(~month)+
   geom_bar(aes(x=daytype, y=mean), stat="identity", fill="gray")+
   geom_errorbar(aes(x=daytype,
                     ymin=sd.lower,
                     ymax=sd.upper),
                 width=0.1)+
-  scale_y_continuous(expand=expansion(mult=c(0, 0.1)))
-print(ggp)
+  scale_y_continuous(expression(O[3]), expand=expansion(mult=c(0, 0.1)))
 ```
 
 Uncertainty in calculated means:
 
 ```{r}
-ggp <- ggplot(mystats)+
+ggplot(mystats)+
   facet_wrap(~month)+
   geom_bar(aes(x=daytype, y=mean),
            stat="identity", fill="gray")+
@@ -718,8 +719,7 @@ ggp <- ggplot(mystats)+
                     ymin=conf.lower,
                     ymax=conf.upper),
                 width=0.1)+
-  scale_y_continuous(expand=expansion(mult=c(0, 0.1)))
-print(ggp)
+  scale_y_continuous(expression("mean"~O[3]), expand=expansion(mult=c(0, 0.1)))
 ```
 
 We can also compute the corresponding $t$-statistic.
@@ -741,7 +741,32 @@ out[["p.value"]]
 
 Since the $p$-value is less than $\alpha=0.05$, we can say that we would reject the null hypothesis (that on average, the weekend concentrations are the same as weekday concentrations) at the $\alpha=0.05$ significance level.
 
-We can extend this over other seasons and pollutants:
+We generally ascribe a weekend increase in $\ce{O3}$ to reduction in $\ce{NO_x}$, either through the diminution of the termination reaction ($\ce{NO2 + OH -> HNO3}$) or the $\ce{NO}$ titration reaction ($\ce{NO + O3 -> NO2 + O2}$). We know that Lausanne is a near-road site where the $\ce{NO}$ titration reaction is active; the weekend increase is not observed in the sum of oxidants ($\ce{O_x}$).
+```{r}
+mystats2 <- lf %>%
+  filter(site=="LAU" &
+         variable %in% c("O3", "NO2") &
+         month %in% c("Jan","Jul")) %>%
+  spread(variable, value) %>%
+  mutate(value = O3 + NO2) %>%
+  group_by(month, daytype) %>%
+  do(ComputeStats(.[["value"]]))
+```
+
+```{r}
+ggplot(mystats2)+
+  facet_wrap(~month)+
+  geom_bar(aes(x=daytype, y=mean),
+           stat="identity", fill="gray")+
+  geom_errorbar(aes(x=daytype,
+                    ymin=conf.lower,
+                    ymax=conf.upper),
+                width=0.1)+
+  scale_y_continuous(expression("mean"~O[x]), expand=expansion(mult=c(0, 0.1)))
+```
+
+
+We can extend the $p$-value calculation over other seasons and pollutants:
 
 ```{r}
 TTest <- function(value, daytype) {
@@ -760,6 +785,11 @@ TTest <- function(value, daytype) {
 
 pvals <- lf %>%
   filter(!variable %in% c("TEMP", "PREC", "RAD")) %>%
+  ## add Ox
+  spread(variable, value) %>%
+  mutate(Ox = O3 + NO2) %>%
+  gather(variable, value, -all_of(id.vars)) %>%
+  ## calculate p-value
   group_by(site, season, variable) %>%
   summarize(p.value = TTest(value, daytype))
 ```
@@ -908,6 +938,6 @@ Example usage:
 ```{r, eval=FALSE}
 fit <- fitdist(ReplaceNonpositive(concvec), "lnorm")
 ```
-Here we have introduced an approximation to the observed measurements. Alternatively, you may consider replacing values $< 0$ with 1/2 the minimum detection limit if this information is available. While there exist some studies on the effect of such choices on a variety of estimates or statistical tests, for this specific instance the effect is not known as the sensitivity to various approximatoins are not explicitly explored.  In any case, you should adopt the practice of reporting such "pretreatment" of the data in your analysis.
+Here we have introduced an approximation to the observed measurements. Alternatively, you may consider replacing values $< 0$ with 1/2 the minimum detection limit if this information is available. While there exist some studies on the effect of such choices on a variety of estimates or statistical tests, for this specific instance the effect is not known as the sensitivity to various approximations are not explicitly explored.  In any case, you should adopt the practice of reporting such "pretreatment" of the data in your analysis.
 
 # References

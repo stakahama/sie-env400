@@ -1,5 +1,5 @@
 ---
-title: "Assignment definition"
+title: "Assignment description"
 output:
   html_document:
     toc: true
@@ -103,8 +103,8 @@ ReadTSeries <- function(filename, timecolumn="datetime", timeformat="%d.%m.%Y %H
 ```{r, echo=FALSE}
 library(reshape2)
 df <- ReadTSeries("data/2013/LAU.csv")
-lf <- melt(df, c("datetime", "season", "year","month","day","hour","dayofwk","daytype"))
-arr <- unclass(by(lf[["value"]], lf[c("year", "month", "day", "hour", "variable")], identity))
+lf <- melt(df, c("datetime", "season", "year", "month", "day", "hour", "dayofwk", "daytype"))
+arr <- unclass(by(lf[["value"]], lf[, c("year", "month", "day", "hour", "variable")], identity))
 ```
 
 ```{r}
@@ -148,7 +148,7 @@ Like matrices, but different:
 
 * Can be a collection of heterogeneous data types along columns: float, integer, string, Boolean, etc.
 * The set of operations defined for tables contain ones which are different from matrices. For instance:
-  * matrices: scalar, matrix, Hadamard, and Kronecker products; transpose, determinant, decomposition (e.g., SVD), ``slice'' (equivalent of subset/select for tables)
+  * matrices: scalar, matrix, Hadamard, and Kronecker products; transpose, determinant, decomposition (e.g., SVD), "slice" (equivalent of subset/select for tables)
   * tables: join, group, subset (observations), select (variables)
 
 
@@ -196,22 +196,23 @@ Example (as shown in Lesson 1):
 
 The basic syntax for SAC and describing a graphic in R can be similar in structure.
 
-To return a data table after grouping rows of another data table by \cverb=variable1, variable2=; applying \cverb=cor= to each piece, and recombining:
+To return a data table after grouping rows of another data table by `variable1` and `variable2`; applying `cor` to each piece, and recombining:
 ```{r, eval=FALSE}
 library(dplyr)
-data_table %>%                             # data table
-  group_by(variable1,variable2) %>%        # grouping variables
-    summarize(correlation=cor(x,y))        # (aggregating) function
+data_table %>%                      # data table
+  group_by(variable1, variable2) %>% # grouping variables
+  summarize(correlation=cor(x, y))   # (aggregating) function
 ```
 
 There are *many* variations on this specification, but this is the general idea for creating a graphic:
 ```{r, eval=FALSE}
 library(ggplot2)
-ggplot(data=data_table) +                  # data table
-  facet_grid(variable1~variable2) +        # grouping variables
-    geom_line(mapping=aes(x,y,color=z))    # aesthetics
+ggplot(data=data_table) +             # data table
+  facet_grid(variable1~variable2) +   # grouping variables
+  geom_line(mapping=aes(x, y, color=z)) # aesthetics
 ```
 
 The last example shows the application of a popular programming concept for graph specification. We will show more such examples in the following lessons.
 
+*Note that `dplyr` and `ggplot2` packages can now be loaded together through the `tidyverse` package. For data table pivoting, there are many options, including `melt`/`dcast` from the `reshape2` package shown above. We will use `gather`/`spread` from the `tidyr` package (which can is also loaded through `tidyverse`.*
 

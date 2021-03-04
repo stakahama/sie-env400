@@ -233,8 +233,7 @@ Generally, estimators which are *unbiased* with *low variance* are desired.
 * Bias: $B(\hat{\theta}) = \E(\hat{\theta}) - \theta$
 * Variance: $\Var(\hat{\theta}) = \E\left(\left[\hat{\theta}-\E(\hat{\theta})\right]^2\right)$
 
-These properties have consequences for conclusions we draw from hypothesis testing (and problems in statistical inference in general). For descriptive statistics, high variance of an estimator may be less of an issue (though the bias of any single estimate may be greater).
-
+These properties have consequences for conclusions we draw from hypothesis testing (and problems in statistical inference in general). For descriptive statistics, high variance of an estimator may be less of an issue (though the deviation of any single estimate from $\theta$ may be greater).
 
 
 <!-- % Consistency. As the sample size increases, the sampling distribution of the estimator becomes concentrationed around the true value of the parameter being  estimated -->
@@ -276,14 +275,12 @@ There are other estimators with properties which are desirable in certain contex
 
 
 ```{r}
-library(dplyr)
-library(reshape2)
+library(tidyverse)
 library(chron)
-library(ggplot2)
 ```
 
 ```{r}
-source("GRB001.R")
+source("functions_extra.R")
 ```
 
 ```{r, results="hide"}
@@ -300,7 +297,7 @@ df <- readRDS("data/2013/lau-zue.rds")
 Pivot to long format:
 ```{r}
 id.vars <- c("site", "datetime", "year", "month", "day", "hour", "season", "dayofwk", "daytype")
-lf <- melt(df, id.vars=id.vars)
+lf <- gather(df, variable, value, -all_of(id.vars))
 ```
 
 ## Identifying extreme values
@@ -310,40 +307,40 @@ lf <- melt(df, id.vars=id.vars)
 Select at PM$_{10}$ for Zurich.
 
 ```{r}
-pm10.zue <- filter(lf, site=="ZUE" & variable=="PM10")
-pm10.zue[["date"]] <- format(dates(pm10.zue[["datetime"]]), "y.m.d")
-pm10.zue[["day"]] <- as.numeric(as.character(pm10.zue[["day"]]))
+pm10.zue <- lf %>%
+  filter(site=="ZUE" & variable=="PM10") %>%
+  mutate(date = format(dates(datetime), "y.m.d"),
+         day = as.numeric(as.character(day)))
 ```
 
 View the time series.
 
 ```{r, fig.width=15, height=3}
-ggp <- ggplot(mutate(pm10.zue, day.of.month=day+hour/24))+
+pm10.zue %>%
+  mutate(day.of.month=day+hour/24) %>%
+  ggplot+
   geom_line(aes(day.of.month, value))+
   facet_grid(.~month)+
   xlab("Day")+
   ylab(expression("PM"[10]~"concentration"~(mu*g/m^3)))
-print(ggp)
 ```
 
 View the PDF/ECDF.
 
 ```{r}
-ggp <- ggplot(pm10.zue, aes(x=value))+
+ggplot(pm10.zue, aes(x=value))+
   geom_line(stat="density", position="identity")+
   geom_point(y=0, shape=4)+
   xlab(expression("Hourly PM"[10]~"concentration"~(mu*g/m^3)))+
   ylab("Probability density")
-print(ggp)
 ```
 
 ```{r}
-ggp <- ggplot(pm10.zue, aes(value))+
+ggplot(pm10.zue, aes(value))+
   geom_line(stat="ecdf")+
   geom_point(stat="ecdf")+
   xlab(expression("Hourly PM"[10]~"concentration"~(mu*g/m^3)))+
   ylab("Probability")
-print(ggp)
 ```
 
 We select periods for which the concentration was greater than 100 $\mu$g/m$^3$.
@@ -364,13 +361,12 @@ highdays <- filter(pm10.zue, date %in% highvals[["date"]])
 ```
 
 ```{r, fig.width=15, fig.height=3}
-ggp <- ggplot(highdays, aes(hour, value))+
+ggplot(highdays, aes(hour, value))+
   geom_line()+
   geom_point()+
   facet_grid(.~date)+
   xlab("Hour of day")+
   ylab(expression("PM"[10]~"concentration"~(mu*g/m^3)))
-print(ggp)
 ```
 
 We see that despite these periods of high concentration, the mean daily values are still below the limit of 50 $\mu$g/m$^3$.
@@ -406,36 +402,33 @@ daily <- pm10.zue %>%
 View the time series.
 
 ```{r, fig.width=15, fig.height=3}
-ggp <- ggplot(daily)+
+ggplot(daily)+
   geom_line(aes(day, value))+
   facet_grid(.~month)+
   xlab("Day")+
   ylab(expression("PM"[10]~"concentration"~(mu*g/m^3)))
-print(ggp)
 ```
 
 
 View PDF/ECDF of daily means.
 
 ```{r}
-ggp <- ggplot(daily)+
+ggplot(daily)+
   geom_line(aes(x=value), stat="density", position="identity")+
   geom_point(aes(x=value), y=0, shape=4)+
   geom_vline(xintercept=50, linetype=2)+
   xlab(expression("Daily Mean PM"[10]~"concentration"~(mu*g/m^3)))+
   ylab("Probability density")
-print(ggp)
 ```
 
 
 ```{r}
-ggp <- ggplot(daily, aes(value))+
+ggplot(daily, aes(value))+
   geom_line(stat="ecdf")+
   geom_point(stat="ecdf")+
   geom_vline(xintercept=50, linetype=2)+
   xlab(expression("Daily Mean PM"[10]~"concentration"~(mu*g/m^3)))+
   ylab("Probability")
-print(ggp)
 ```
 
 If we observe concentrations for days in which the 50 $\mu$g/m$^3$ limit is exceeded, we find that the concentrations are generally high throughout the day, and persist for more than a day at a time.
@@ -446,14 +439,14 @@ exceeded <- filter(daily, value > 50)
 ```
 
 ```{r, fig.width=15, fig.height=3}
-ggp <- ggplot(filter(pm10.zue, date %in% exceeded[["date"]]), aes(hour, value))+
+filter(pm10.zue, date %in% exceeded[["date"]]) %>%
+  ggplot(aes(hour, value))+
   geom_line()+
   geom_point()+
   facet_grid(.~date)+
   xlab("Hour of day")+
   ylab(expression("PM10 concentration"~(mu*g/m^3)))+
   scale_y_continuous(limits=c(0,100))
-print(ggp)
 ```
 
 ## Tests of discordancy
@@ -467,12 +460,11 @@ ec.zue <- filter(lf, site=="ZUE" & variable=="EC")
 We can view its ECDF:
 
 ```{r}
-ggp <- ggplot(ec.zue, aes(x=value))+
+ggplot(ec.zue, aes(x=value))+
   geom_line(stat="ecdf")+
   geom_point(stat="ecdf")+
   xlab("EC concentration"~(mu*g/m^3))+
   ylab("Probability")
-print(ggp)
 ```
 
 Let us select the day with the highest value:
@@ -484,12 +476,11 @@ anomolous.day <- filter(ec.zue, dates(datetime) == dates(datetime[which.max(valu
 Visualizing the time series for this day only, we see that it happens late at night on 1 August:
 
 ```{r}
-ggp <- ggplot(anomolous.day, aes(hour, value))+
+ggplot(anomolous.day, aes(hour, value))+
   geom_line()+
   geom_point()+
   xlab(paste("Hour of day", dates(anomolous.day[1,"datetime"])))+
   ylab("EC concentration"~(mu*g/m^3))
-print(ggp)
 ```
 
 *Clearly*, this point is an outlier? It is often convenient to state a criterion by which a measurement is labeled as an outlier (rather than simply an extreme value). This may not mean it is a bad measurement, but that it falls out of expected trends - may be used to motivate periods for further study.
@@ -552,13 +543,12 @@ metric.central <- lf %>% group_by(site, variable) %>%
 ```
 
 ```{r, fig.width=5, fig.height=10}
-ggp <- ggplot(metric.central)+
+ggplot(metric.central)+
   geom_bar(aes(metric, value), stat="identity", fill="gray")+
   scale_y_continuous(expand=expansion(mult=c(0, 0.1)))+
   facet_grid(variable~site, scale="free_y")+
   xlab("")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
-print(ggp)
 ```
 
 Compare dispersion metrics:
@@ -568,13 +558,12 @@ metric.disp <- lf %>% group_by(site, variable) %>%
 ```
 
 ```{r, fig.width=5, fig.height=10}
-ggp <- ggplot(metric.disp)+
+ggplot(metric.disp)+
   geom_bar(aes(metric, value), stat="identity", fill="gray")+
   scale_y_continuous(expand=expansion(mult=c(0, 0.1)))+
   facet_grid(variable~site, scale="free_y")+
   xlab("")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
-print(ggp)
 ```
 
 ## Interpretation

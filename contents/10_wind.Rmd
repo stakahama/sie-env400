@@ -25,10 +25,8 @@ Month2Season <- function(month) {
 ```
 
 ```{r}
+library(tidyverse)
 library(chron)
-library(dplyr)
-library(ggplot2)
-library(reshape2)
 ```
 
 ```{r, results="hide"}
@@ -129,18 +127,21 @@ options(digits = opt.digits)
 After obtaining hourly values, you can use the `join` operation. Here we use `left_join` to merge to periods for which we have air pollution data (in `conc`). Note that we also drop the `datetime` column from the `met` data frame so that we do not merge on numeric values (the numeric column named `datetime` also appears in `conc`), which is generally bad practice (it is better to merge based on character or factor columns).
 
 ```{r}
-df <- left_join(conc, met %>% select(-datetime))
+df <- left_join(conc,
+                met %>% select(-datetime) %>% mutate(year=as.character(year)))
+                                        # conc[["year"]] is otherwise incompatible with met[["year"]]
 tail(df)
 ```
 
 Let us look at a summary of hourly wind speeds by season (now that we have obtained the seasons from the concentration data frame `df`):
 
 ```{r, fig.width=10, fig.height=5}
-ggp <- ggplot(df %>% mutate(hour = factor(hour)))+
+df %>%
+  mutate(hour = factor(hour)) %>%
+  ggplot+
   facet_grid(site~season)+
   geom_boxplot(aes(hour, WIGE))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
-print(ggp)
 ```
 
 For summarizing wind directions, we will use wind roses. We will examine cases in which we want to visualize wind directions for specific days.
@@ -155,21 +156,24 @@ source("WindRose.R")
 
 Wind roses are effectively histograms in polar coordinates. There are different conventions for ordering frequency by wind speed. Two are shown below. First, low wind speeds in the interior:
 ```{r}
-ggp1 <- plotWindrose(df %>% filter(site=="ZUE"), spd = "WIGE", dir = "WIRI", decreasing=FALSE)
+df %>%
+  filter(site=="ZUE") %>%
+  plotWindrose(spd = "WIGE", dir = "WIRI", decreasing=FALSE)
                                         # (decreasing=FALSE is the default in our code)
-print(ggp1)
 ```
 
 High wind speeds in the interior:
 ```{r}
-ggp2 <- plotWindrose(df %>% filter(site=="ZUE"), spd = "WIGE", dir = "WIRI", decreasing=TRUE)
-print(ggp2)
+df %>%
+  filter(site=="ZUE") %>%
+  plotWindrose(spd = "WIGE", dir = "WIRI", decreasing=TRUE)
 ```
 These plots can give different visual impressions. We will adopt the first convention for the remaining examples.
 
 Using syntax shown previously, we can group summaries by site and season:
 ```{r, fig.width=12, fig.height=6}
-plotWindrose(df, spd = "WIGE", dir = "WIRI") + facet_grid(site~season)
+plotWindrose(df, spd = "WIGE", dir = "WIRI") +
+  facet_grid(site~season)
 ```
 
 # Visualizing wind direction in time
@@ -183,12 +187,13 @@ str(example.df)
 
 If we plot time series:
 ```{r}
-ggp <- ggplot(example.df %>% melt(measure.vars=c("WIRI", "WIGE")))+
+example.df %>%
+  gather(variable, value, c(WIRI, WIGE)) %>%
+  ggplot+
   facet_grid(variable~site, scale="free_y")+
   geom_line(aes(datetime, value))+
   scale_x_chron(name="date")+
   theme(axis.text.x = element_text(angle = 45, hjust=1))
-print(ggp)
 ```
 We find that the wind speed makes sense but wind directions appear erratic because the wind direction is a periodic function.
 
@@ -218,7 +223,7 @@ lab.df <- data.frame(direction = seq(0, 360*max(hsv.df$h), 30))
 lab.df$lab <- sprintf("%.f*degree", lab.df$direction)
 lab.df$h <- lab.df$direction / 360
 ##
-ggp.hsv.wheel <- ggplot(hsv.df) +
+ggplot(hsv.df) +
   coord_polar(theta="x") +
   scale_fill_identity() +
   geom_rect(data=hsv.df,
@@ -235,7 +240,6 @@ ggp.hsv.wheel <- ggplot(hsv.df) +
         axis.title=element_blank(),
         axis.text=element_blank(),
         axis.ticks=element_blank())
-print(ggp.hsv.wheel)
 ```
 
 Colors generated using `hsv()` function in R.
@@ -246,13 +250,12 @@ angle <- seq(0, 360, 60)
 
 Let us revisit our earlier example:
 ```{r}
-ggp <- ggplot(example.df) +
+ggplot(example.df) +
   facet_grid(site~.)+
   geom_line(aes(datetime, WIGE), color="gray")+
   geom_point(aes(datetime, WIGE, color=WIRI))+
   scale_color_gradientn(colors = color, breaks=angle, limits=range(angle), expand=c(0, 0))+
   scale_x_chron(name="date", limits=range(example.dates))
-print(ggp)
 ```
 
 # Examples
@@ -293,13 +296,17 @@ Define plots:
 
 ```{r}
 ## concentrations
-ggp1 <- ggplot(hd %>% mutate(date = format(date, "y.m.d")))+
+ggp1 <- hd %>%
+  mutate(date = format(date, "y.m.d")) %>%
+  ggplot+
   geom_line(aes(hour, PM10))+
   geom_point(aes(hour, PM10))+
   facet_grid(.~date)
 
 ## wind speed and direction
-ggp2 <- ggplot(hd %>% mutate(date = format(date, "y.m.d")))+
+ggp2 <- hd %>%
+  mutate(date = format(date, "y.m.d")) %>%
+  ggplot+
   geom_line(aes(hour, WIGE), color="gray")+
   geom_point(aes(hour, WIGE, color=WIRI))+
   scale_color_gradientn(colors = color, breaks=angle, limits=range(angle), expand=c(0, 0))+
@@ -338,19 +345,19 @@ wd %>%
 In addition, the wind consistently came from the North during these periods.
 
 ```{r, fig.width=10, fig.height=5}
-ggp <- plotWindrose(wd %>% filter(season %in% c("DJF", "MAM")),
-                    spd = "WIGE", dir = "WIRI") +
+wd %>%
+  filter(season %in% c("DJF", "MAM")) %>%
+  plotWindrose(spd = "WIGE", dir = "WIRI") +
   facet_grid(.~category)
-print(ggp)
 ```
 
 To see the left figure more clearly, we can filter only the `"exceeded"` values.
 
 ```{r}
-ggp <- plotWindrose(wd %>% filter(season %in% c("DJF", "MAM") & category=="exceeded"),
-                    spd = "WIGE", dir = "WIRI") +
+wd %>%
+  filter(season %in% c("DJF", "MAM") & category=="exceeded") %>%
+  plotWindrose(spd = "WIGE", dir = "WIRI") +
   ggtitle("exceeded")
-print(ggp)
 ```
 
 ## Example 2
@@ -374,12 +381,16 @@ Define plots:
 
 ```{r}
 ## concentrations
-ggp1 <- ggplot(hd %>% mutate(datelabel = format(date, "y.m.d")))+
+ggp1 <- hd %>%
+  mutate(datelabel = format(date, "y.m.d")) %>%
+  ggplot+
   geom_line(aes(hour, PM10))+
   facet_grid(.~datelabel)
 
 ## wind speed and direction
-ggp2 <- ggplot(hd %>% mutate(datelabel = format(date, "y.m.d")))+
+ggp2 <- hd %>%
+  mutate(datelabel = format(date, "y.m.d")) %>%
+  ggplot+
   geom_line(aes(hour, WIGE), color="gray")+
   geom_point(aes(hour, WIGE, color=WIRI))+
   scale_color_gradientn(colors = color, breaks=angle, limits=range(angle), expand=c(0, 0))+

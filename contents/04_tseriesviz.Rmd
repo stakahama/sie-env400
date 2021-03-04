@@ -13,16 +13,17 @@ opts_chunk$set(fig.path=file.path("figures_rmd", "lec04_"), fig.align="center")
 
 # Import libraries and define options
 
+$$
+\require{mhchem}
+$$
 
 ```{r, message=FALSE, warning=FALSE}
-library(dplyr)
-library(reshape2)
+library(tidyverse)
 library(chron)
-library(ggplot2)
 ```
 
 ```{r}
-source("GRB001.R")
+source("functions_extra.R")
 ```
 
 Define options
@@ -99,7 +100,9 @@ saveRDS(df, "data/2013/lau-zue.rds")
 
 Elongate the data frame, as before.
 ```{r}
-lf <- melt(df, id.vars=c("site", "datetime", "season", "year", "month", "day", "hour", "dayofwk", "daytype"))
+lf <- df %>%
+  gather(variable, value,
+         -c(site, datetime, season, year, month, day, hour, dayofwk, daytype))
 ```
 
 # View variability in pollutant concentrations
@@ -108,12 +111,11 @@ Plotting your data is very good practice. Check for general trends and extreme v
 
 View all the measurements:
 ```{r, warning=FALSE, fig.width=8, fig.height=10}
-ggp <- ggplot(lf)+                                   # `lf` is the data frame
+  ggplot(lf)+                                        # `lf` is the data frame
   facet_grid(variable~site, scale="free_y")+         # panels created out of these variables
   geom_line(aes(datetime, value, color=site))+       # plot `value` vs. `time` as lines
   scale_x_chron()+                                   # format x-axis labels (time units)
   theme(axis.text.x=element_text(angle=30, hjust=1)) # rotate x-axis labels
-print(ggp)                                           # view the plot
 ```
 
 In the following figures, we will summarize the measurements using non-parametric (order) statistics, which we will cover in a subsequent lecture.
@@ -124,33 +126,39 @@ Here we will use `ggplot` to compute and display statistical summaries. A box an
 
 Display summary by month:
 ```{r, warning=FALSE, fig.width=8, fig.height=10}
-ggp <- ggplot(lf) +
+  ggplot(lf) +
   facet_grid(variable ~ site, scale = "free_y") +
   geom_boxplot(aes(month, value), outlier.size = 0.5, outlier.shape = 3)
-print(ggp)
 ```
 
 By day type and season:
 ```{r, warning=FALSE, fig.width=8, fig.height=8}
-ggp <- ggplot(lf %>% filter(site=="LAU" & !is.na(value))) +
+lf %>%
+  filter(site=="LAU" & !is.na(value)) %>%
+  ggplot +
   facet_grid(variable ~ season, scale = "free_y") +
   geom_boxplot(aes(daytype, value), outlier.size = 0.5, outlier.shape = 3)
-print(ggp)
 ```
+Note that we have piped the data frame to the `ggplot` function.
 
 The precipitation is better expressed as a cumulative sum, so can be displayed separately. To combine the figures, we will use `grid.arrange` from the `gridExtra` library:
 ```{r, message=FALSE, warning=FALSE, fig.width=8, fig.height=8}
-ggp1 <- ggplot(lf %>% filter(site=="LAU" & !is.na(value) & variable!="PREC")) +
+library(gridExtra)
+
+ggp1 <- lf %>%
+  filter(site=="LAU" & !is.na(value) & variable!="PREC") %>%
+  ggplot +
   facet_grid(variable ~ season, scale = "free_y") +
   geom_boxplot(aes(daytype, value), outlier.size = 0.5, outlier.shape = 3) +
   labs(x="")
 
-ggp2 <- ggplot(lf %>% filter(site=="LAU" & !is.na(value) & variable=="PREC")) +
+ggp2 <- lf %>%
+  filter(site=="LAU" & !is.na(value) & variable=="PREC") %>%
+  ggplot +
   facet_grid(variable ~ season, scale = "free_y") +
   geom_bar(aes(daytype, value), stat="sum", show.legend = FALSE) +
   scale_y_continuous(expand=expansion(mult=c(0, 0.1)))
 
-library(gridExtra)
 grid.arrange(ggp1, ggp2)
 ```
 
@@ -168,45 +176,83 @@ Here we will again use `ggplot` to compute and display a set of statistical summ
 
 Diurnal (hourly) variations in pollutant concentrations at Lausanne site:
 ```{r, warning=FALSE, fig.width=8, fig.height=10}
-ggp <- ggplot(data=lf %>% filter(site=="LAU" & !is.na(value)),
-              mapping=aes(x=hour, y=value, group=daytype, color=daytype)) +
+lf %>%
+  filter(site=="LAU" & !is.na(value)) %>%
+  ggplot(aes(x=hour, y=value, group=daytype, color=daytype)) +
   facet_grid(variable ~ season, scale = "free_y", drop=TRUE) +
   geom_line(stat="summary", fun="median")+
   geom_errorbar(stat="summary",
                 fun.min=Percentile(25),
                 fun.max=Percentile(75))+
   ggtitle("LAU")
-print(ggp)
 ```
 
-Diurnal variations in O$_3$ concentrations:
+Diurnal variations in $\ce{O3}$ concentrations:
 ```{r, warning=FALSE, fig.width=8, fig.height=4}
-ggp <- ggplot(data=lf %>% filter(variable=="O3"),
-              mapping=aes(x=hour, y=value, group=daytype, color=daytype)) +
+lf %>%
+  filter(variable=="O3") %>%
+  ggplot(aes(x=hour, y=value, group=daytype, color=daytype)) +
   facet_grid(site ~ season, drop=TRUE) +
   geom_line(stat="summary", fun="median")+
   geom_errorbar(stat="summary",
                 fun.min=Percentile(25),
                 fun.max=Percentile(75))+
   ggtitle("O3")
-print(ggp)
 ```
 Note that for concentrations of the same pollutant, we fix the *y*-scale to be the same for both rows.
 
-Diurnal variations in NO$_2$ concentrations:
+Diurnal variations in $\ce{NO2}$ concentrations:
 ```{r, warning=FALSE, fig.width=8, fig.height=5}
-ggp <- ggplot(data=lf %>% filter(variable=="NO2"),
-              mapping=aes(x=hour, y=value, group=site, color=site)) +
+lf %>%
+  filter(variable=="NO2") %>%
+  ggplot(aes(x=hour, y=value, group=site, color=site)) +
   facet_grid(season ~ dayofwk, drop=TRUE) +
   geom_line(stat="summary", fun="median")+
   geom_errorbar(stat="summary",
                 fun.min=Percentile(25),
                 fun.max=Percentile(75))+
   ggtitle("NO2")
-print(ggp)
 ```
 
 Why are concentrations in Lausanne higher? (hint: check location of monitoring equipment)
+
+# Ox
+
+Ozone can be quenched near $\ce{NO_x}$ emission sources by the titration of $\ce{O3}$ by $\ce{NO}$. Since the sum of oxidants ($\ce{O_x}$ = $\ce{O3}$ + $\ce{NO2}$) is a conserved quantity in the "NO titration" reaction ($\ce{NO + O3 -> NO2 + O2}$), we can expect that reductions in $\ce{O_x}$ will not be observed as for $\ce{O3}$ near $\ce{NO}$ emission sources.
+
+```{r}
+Ox <- lf %>% 
+  filter(variable %in% c("O3", "NO2") & season=="JJA") %>%
+  spread(variable, value) %>%
+  mutate(Ox = O3 + NO2) %>%
+  select(-NO2) %>%
+  gather(variable, value, c(O3, Ox))
+```
+
+```{r, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
+Ox %>%
+  ggplot(aes(x=hour, y=value, group=variable, color=variable)) +
+  facet_grid(site ~ daytype, drop=TRUE) +
+  geom_line(stat="summary", fun="median")+
+  geom_errorbar(stat="summary",
+                fun.min=Percentile(25),
+                fun.max=Percentile(75))
+```
+
+We can also view the relative contribution of $\ce{NO2}$ to $\ce{O_x}$ to understand the diurnal variation in $\ce{O_x}$. In the morning, $\ce{NO2}$ contributes a greater share due to the $\ce{NO}$ titration reaction and less in the afternoon when the photochemical production of $\ce{O3}$.
+
+```{r, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
+Ox %>% 
+  spread(variable, value) %>%
+  mutate(ratio = 1 - O3/Ox) %>%
+  ggplot(aes(x=hour, y=ratio)) +
+  facet_grid(site ~ daytype, drop=TRUE) +
+  geom_line(stat="summary", fun="median")+
+  geom_errorbar(stat="summary",
+                fun.min=Percentile(25),
+                fun.max=Percentile(75)) +
+  scale_y_continuous(expression(NO[2]/O[x]), limits=c(0, 1))
+```
 
 # Creating summaries: Exceedances of daily limit values
 
@@ -256,25 +302,27 @@ What can you do when you have such missing values? One approach is to remove mea
 Let us visualize the time series with limit values indicated for each variable:
 
 ```{r, fig.width=7, fig.height=6}
-ggp <- ggplot(daily %>% filter(percent.recovery >= threshold))+
+daily %>%
+  filter(percent.recovery >= threshold) %>%
+  ggplot+
   facet_grid(variable~site, scale="free_y")+  
   geom_line(aes(x=date, y=value))+
   geom_hline(data=limits.daily, mapping=aes(yintercept=value), linetype=2)+
   scale_x_chron(format="%d.%m")+
   theme(axis.text.x=element_text(angle=30, hjust=1))
-print(ggp)
 ```
 Note that in the command above, the data used for drawing horizontal lines are specified separately for the `geom_hline` function.
 
 We can also view exceedances through empirical cumulative distribution functions (ECDF) of concentrations (to be covered in a later lecture):
 
 ```{r, fig.width=7, fig.height=6}
-ggp <- ggplot(daily %>% filter(percent.recovery >= threshold))+
+daily %>%
+  filter(percent.recovery >= threshold) %>%
+  ggplot+
   facet_grid(variable~site, scale="free_y")+  
   geom_line(aes(x=value), stat="ecdf")+
   geom_point(aes(x=value), stat="ecdf")+
   geom_vline(data=limits.daily, mapping=aes(xintercept=value), linetype=2)
-print(ggp)
 ```
 
 To select which days exceed the limit values, we will use a "lookup table" in which the limit value can be referred to by its key (variable name). The following statement creates a named vector where limit values (`value`) is labeled by the pollutant (`variable`):
