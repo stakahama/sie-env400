@@ -206,8 +206,7 @@ Why are concentrations in Lausanne higher? (hint: check location of monitoring e
 
 # Sum of oxidants (Ox)
 
-Ozone can be quenched near $\ce{NO_x}$ emission sources by the titration of $\ce{O3}$ by $\ce{NO}$. Since the sum of oxidants ($\ce{O_x}$ = $\ce{O3}$ + $\ce{NO2}$) is a conserved quantity in the "NO titration" reaction ($\ce{NO + O3 -> NO2 + O2}$), we can expect that reductions in $\ce{O_x}$ will not be observed as for $\ce{O3}$ near $\ce{NO}$ emission sources.
-
+Ozone can be quenched near $\ce{NO_x}$ emission sources by the titration of $\ce{O3}$ by $\ce{NO}$. The sum of oxidants ($\ce{O_x}$ = $\ce{O3}$ + $\ce{NO2}$) is a conserved quantity in the "NO titration" reaction ($\ce{NO + O3 -> NO2 + O2}$), and is sometimes examined alongside $\ce{O_3}$.
 ```{r}
 Ox <- lf %>% 
   filter(variable %in% c("O3", "NO2") & season=="JJA") %>%
@@ -217,7 +216,7 @@ Ox <- lf %>%
   gather(variable, value, c(O3, Ox))
 ```
 
-```{r, message=FALSE, warning=FALSE, fig.width=4, fig.height=4}
+```{r, message=FALSE, warning=FALSE, fig.width=5, fig.height=4}
 Ox %>%
   ggplot(aes(x=hour, y=value, group=variable, color=variable)) +
   facet_grid(site ~ daytype, drop=TRUE) +
@@ -227,8 +226,7 @@ Ox %>%
                 fun.max=Percentile(75))
 ```
 
-We can also view the relative contribution of $\ce{NO2}$ to $\ce{O_x}$ to understand the diurnal variation in $\ce{O_x}$. In the morning, $\ce{NO2}$ contributes a greater share due to the $\ce{NO}$ titration reaction and less in the afternoon when the photochemical production of $\ce{O3}.$
-
+We can also view the relative contribution of $\ce{NO2}$ to $\ce{O_x}$ to understand the diurnal variation in $\ce{O_x}$. 
 ```{r, message=FALSE, warning=FALSE, fig.width=4, fig.height=4}
 Ox %>% 
   spread(variable, value) %>%
