@@ -74,7 +74,6 @@ for(i in 1:4) {
   mods[[i]] <- lmi <- lm(ff, data = anscombe)
   ## print(anova(lmi))
 }
-
 op <- par(mfrow = c(2, 2), mar = 0.1+c(3.5,3.5,.5,.5), mgp=c(2,.5,0), oma =  c(0, 0, 2, 0))
 for(i in 1:4) {
   ff[2:3] <- lapply(paste0(c("y","x"), i), as.name)
@@ -119,7 +118,7 @@ Illustration of lag for 20.07.2013 in Lausanne:
 * Increase in radiation also leads to increase in temperatures, which accelerate rates of reaction.
 * The ozone production is not instantaneous, hence the lag.
 
-This example is shown mostly for illustrative purposes; such a relationship between radiation intensity and ozone concentration may be better captured by examining correlations between the daily maximum values of the two variables.
+This example is shown for illustrative purposes; such a relationship between radiation intensity and ozone concentration may be better captured by examining correlations between the daily maximum values of the two variables.
 
 ## Confounding interpretations
 
@@ -224,7 +223,7 @@ write.csv2(cor.values.wf, "correlations.csv", row.names=FALSE)
 Or, we can visualize the values:
 ```{r, fig.width=7, fig.heigth=3.5}
 ggplot(cor.values)+
-  geom_bar(aes(season, correlation), stat="identity")+
+  geom_col(aes(season, correlation))+
   scale_y_continuous(limits=c(0,1))+
   facet_grid(.~site)+
   scale_y_continuous(expand=expansion(mult=c(0, 0.1)))

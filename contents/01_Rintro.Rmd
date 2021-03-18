@@ -145,7 +145,7 @@ class(O3.monthly[,"month"])
 Another visual representation:
 ```{r, fig.width=8, fig.height=5}
 ggplot(O3.monthly) +
-  geom_bar(aes(month, O3), stat="identity") +
+  geom_col(aes(month, O3)) +
   scale_y_continuous(expand=expansion(mult=c(0, 0.1)))
 ```
 

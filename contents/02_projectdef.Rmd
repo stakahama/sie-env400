@@ -32,18 +32,6 @@ See course handout for exact assignment instructions.
 
 <hr style="height:1px;border:none;color:#333;background-color:#333;">
 
-# Lesson outline
-
-1. Motivating example
-2. Assignment definition [we are here]
-3. R basics
-4. Visualizing time series
-5. Correlations and cross-correlations
-6. Autocorrelation and periodicity
-7. Stochastic processes and random variables
-8. Inferential statistics and hypothesis testing
-9. Extreme values: detection and accommodation
-
 # Data analysis
 
 *Data analysis* describes the process of reducing a set of data to a few relevant conclusions.
