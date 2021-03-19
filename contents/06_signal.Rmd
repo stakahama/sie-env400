@@ -138,7 +138,7 @@ Select ZUE site and convert to long format. When providing a character vector of
 ```{r}
 id.vars <- c("site", "datetime", "year", "month", "day", "hour", "season", "dayofwk", "daytype")
 lf <- df %>%
-  filter(df, site=="ZUE") %>%
+  filter(site=="ZUE") %>%
   gather(variable, value, -all_of(id.vars))
 ```
 
@@ -225,7 +225,7 @@ ggplot(autocorr)+
 R has a built-in function, `spectrum`, to calculate the power spectrum. For illustration, we will apply it to hourly time series from July. For further details, see `?spectrum`.
 
 ```{r, error=TRUE}
-ix <- df[["month"]]=="Jul"
+ix <- "ZUE"==df[["site"]] & "JJA"==df[["season"]]
 spec <- spectrum(df[ix,"CO"])
 ```
 

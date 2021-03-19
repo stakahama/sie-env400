@@ -31,7 +31,7 @@ Notes on the using R with this course:
 
 * Unless you already have a favorite text editor or IDE, we recommend interfacing with R through [RStudio](http://rstudio.com/), which you can also download on your own machine. You can set `Sessions -> Set Working Directory -> To Source File Location` so that input/output of files will be managed through this working directory on your computer. 
 * The R code in this module is partially written with pedagogical intentions, so may not be the most efficient. 
-* Calls to `library(dplyr)` and `library(ggplot2)` shown in these examples can now be replaced with `library(tidyverse)`, and formatting functions within the `reshape2` package can be replaced with dplyr functions (e.g., `gather()` and `spread()`).
+* The R code can be extracted with `knitr::purl("filename.Rmd")` in R or `R -e 'knitr::purl("filename.Rmd")'` from the shell.
 
 The module complements [lectures](https://moodle.epfl.ch/course/view.php?id=13241) on the mechanisms of emission, atmospheric chemical processes, and measurement techniques for these pollutants drawn from seminal textbooks on the subject:
 

@@ -110,15 +110,16 @@ kable(out)
 
 ## Cross (lagged) correlations illustrated
 
-Illustration of lag for 20.07.2013 in Lausanne:
+Lag for 20.07.2013 in Lausanne (example for illustrative purposes):
 
 <img src="./figures/lag_example.png" alt="lag_example" width="100%"/>
 
 * Radiation initiates the photochemistry for ozone formation and is strongly linked to the concentration of atmospheric oxidants.
-* Increase in radiation also leads to increase in temperatures, which accelerate rates of reaction.
-* The ozone production is not instantaneous, hence the lag.
+* Increase in radiation also leads to (delayed) increase in temperatures, which accelerate rates of reaction.
+* Emissions of NO suppresses net production of ozone early in the day.
+* VOC precursors also contribute to ozone formation.
 
-This example is shown for illustrative purposes; such a relationship between radiation intensity and ozone concentration may be better captured by examining correlations between the daily maximum values of the two variables.
+A relationship between radiation intensity and ozone concentration may be better described by examining correlations between the daily maximum values of the two variables.
 
 ## Confounding interpretations
 
@@ -188,11 +189,10 @@ Before computing correlations, we will first visualize the relationships using *
 Let us calculate the daily maximum values for each variable:
 ```{r}
 lf <- gather(df, variable, value, all_of(variables))
-dm <- lf %>%
+daily.max <- lf %>%
   group_by(site, year, month, day, season, variable) %>%
-  summarize(value=max(value, na.rm=TRUE))
-daily.max <- dcast(dm, site + year + month + day + season ~ variable)
-rm(dm) # no longer needed
+  summarize(value=max(value, na.rm=TRUE)) %>%
+  spread(variable, value)
 ```
 
 Recall the relationship between temperature and O~3~ shown in a previous lecture. Note the seasonal dependence of this relationship. 
@@ -204,7 +204,6 @@ ggplot(daily.max)+
 ```
 
 The corresponding correlation values can be obtained with the built-in function, `cor` (see `?cor). Note use of `use="pairwise.complete.obs"` for calculation of correlation with missing values.
-
 ```{r}
 (cor.values <- daily.max %>% group_by(site, season) %>%
    summarize(correlation=cor(TEMP, O3, use="pairwise.complete.obs")))
@@ -255,13 +254,12 @@ For the following *scatterplot matrix*, we will use a built-in library called `l
 library(lattice)
 
 CorrelationValue <- function(x, y, ...) {
-  i <- is.finite(x) & is.finite(y) 
-  correlation <- cor(x[i], y[i]) 
+  correlation <- cor(x, y, use="pairwise.complete.obs") 
   if(is.finite(correlation)) {
     cpl <- current.panel.limits()
-    panel.text(mean(cpl$xlim),mean(cpl$ylim),
-               bquote(italic(r)==.(sprintf("%.2f",correlation))),
-               adj=c(0.5,0.5),col="blue")
+    panel.text(mean(cpl$xlim), mean(cpl$ylim),
+               bquote(italic(r)==.(sprintf("%.2f", correlation))),
+               adj=c(0.5,0.5), col="blue")
   }
 }
 ```
@@ -269,7 +267,8 @@ CorrelationValue <- function(x, y, ...) {
 
 Plot daily maximum values as pairwise points (only Lausanne) using this syntax:
 ```{r, fig.width=16, fig.height=16}
-ix <- grepl("LAU", daily.max[["site"]], fixed=TRUE)
+daily.max <- as.data.frame(daily.max)
+ix <- "LAU" == daily.max[["site"]]
 splom(~daily.max[ix,c("O3","NO2","CO","PM10","TEMP","PREC","RAD")] | daily.max[ix,"season"],
       upper.panel = CorrelationValue,
       pch=4)
@@ -281,7 +280,7 @@ ix <- grepl("LAU", df[["site"]], fixed=TRUE)
 splom(~df[ix,c("O3","NO2","CO","PM10","TEMP","PREC","RAD")] | df[ix,"season"],
       upper.panel = CorrelationValue,
       panel = panel.smoothScatter,
-      pch=4)
+      pch=4, cex=.2, col="gray")
 ```
 
 
@@ -317,10 +316,10 @@ ggplot(lagged) +
 R includes a function, `ccf`, for calculating the cross correlation. The value passed to the `na.action=na.pass` says to compute covariances from the complete cases when there are missing values. Calling this function will generate a corresponding plot by default (which can be turned off). See `?ccf` for further details.
 
 ```{r}
-ix <- df[["site"]]=="LAU"
+ix <- "LAU"==df[["site"]] & "JJA"==df[["season"]]
 ccf(df[ix,"RAD"], df[ix,"O3"], lag.max=6, na.action=na.pass)
 ```
-This tells us that the correlation is higest at a lag of -3 hours.
+This tells us that the correlation is higest at a lag of -4 hours.
 
 We can wrap this in a function that returns information that we want in a data frame (note `plot=FALSE` argument):
 ```{r}
