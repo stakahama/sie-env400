@@ -162,9 +162,6 @@ For entertainment purposes, you may wish to visit the website of [*Spurious corr
 ```{r}
 library(tidyverse)
 library(chron)
-```
-
-```{r}
 source("functions_extra.R")
 ```
 

@@ -247,7 +247,7 @@ library(ggplot2)
 ```
 
 ```{r}
-source("GRB001.R")
+source("functions_extra.R")
 ```
 
 ```{r, results="hide"}
@@ -267,20 +267,18 @@ lau <- df %>% filter(site=="LAU")
 The annual probability density appears to be multimodal, but we can see that this is due to the strong variation in seasonal probability distributions of ozone concentrations.
 
 ```{r}
-ggp <- ggplot(lau)+
+ggplot(lau)+
   geom_line(aes(x=O3, ymax=..density..),
             stat="density", position="identity")+
-            xlab(expression("O3 concentration"~(mu*g/m^3)))
-print(ggp)
+  xlab(expression("O3 concentration"~(mu*g/m^3)))
 ```
 
 ```{r}
-ggp <- ggplot(lau)+
+ggplot(lau)+
   geom_line(aes(x=O3, ymax=..density.., group=month, color=month),
             stat="density",
             position="identity")+
-            xlab(expression("O3 concentration"~(mu*g/m^3)))
-print(ggp)
+  xlab(expression("O3 concentration"~(mu*g/m^3)))
 ```
 
 
@@ -289,17 +287,16 @@ print(ggp)
 We can also view the empirical CDFs (ECDF) of hourly concentrations for 2013. ECDFs can be computed with R in (see `?ecdf`), but can be applied during the call to `ggplot`.
 
 ```{r}
-ggp <- ggplot(lau)+
+ggplot(lau)+
   geom_line(aes(x=O3), stat="ecdf")+
-    xlab(expression("O3 concentration"~(mu*g/m^3)))+
-    ylab("Probability")
-print(ggp)
+  xlab(expression("O3 concentration"~(mu*g/m^3)))+
+  ylab("Probability")
 ```
 
 We can also segregate the ECDFs by month; for ozone there is a particularly strong variation.
 
 ```{r}
-ggp <- ggplot(lau)+
+ggplot(lau)+
   geom_line(aes(x=O3, group=month, color=month),
             stat="ecdf", position="identity")+
   xlab(expression("O3 concentration"~(mu*g/m^3)))+
@@ -318,13 +315,12 @@ lf <- melt(df[, c(id.vars, pollutants)], id.vars=id.vars)
 ```
 
 ```{r, fig.width=10, fig.height=3.5}
-ggp <- ggplot(lf)+
+ggplot(lf)+
   facet_grid(site~variable,scale="free_x")+
   geom_line(aes(x=value, group=month, color=month),
             stat="ecdf", position="identity")+
   xlab("Value")+
   ylab("Probability")
-print(ggp)
 ```
 
 ## Descriptive statistics
@@ -366,13 +362,12 @@ stats.central <- lf %>% filter(site=="LAU" & !is.na(value)) %>%
 
 ```
 ```{r, fig.width=10, fig.height=5}
-ggp <- ggplot(stats.central)+
+ggplot(stats.central)+
   facet_grid(variable~season,scale="free_y")+
   geom_bar(aes(stat, value),
            stat="identity",
            fill="gray")+
   scale_y_continuous(expand=expansion(mult=c(0, 0.1)))
-print(ggp)
 ```
 Why are geomean values missing?
 
@@ -384,13 +379,12 @@ stats.disp <- lf %>% filter(site=="LAU" & !is.na(value)) %>%
 ```
 
 ```{r, fig.width=10, fig.height=5}
-ggp <- ggplot(stats.disp)+
+ggplot(stats.disp)+
   facet_grid(variable~season,scale="free_y")+
   geom_bar(aes(stat, value),
            stat="identity",
            fill="gray")+
   scale_y_continuous(expand=expansion(mult=c(0, 0.1)))
-print(ggp)
 ```
 Why are geosd values missing?
 
